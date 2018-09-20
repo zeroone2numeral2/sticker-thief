@@ -16,7 +16,7 @@ API_EXCEPTIONS = {
     13: 'sticker set name invalid',  # eg. starting with a number
     14: 'STICKERS_TOO_MUCH',
     15: 'file is too big',  # png size > 350 kb
-    16: 'Stickerset_invalid'  # pack name doesn't exist, or pack has been deleted
+    # 16: 'Stickerset_invalid'  # pack name doesn't exist, or pack has been deleted
 }
 
 

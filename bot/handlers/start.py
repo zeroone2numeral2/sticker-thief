@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 def on_help_command(bot, update):
     logger.info('%d: /help', update.effective_user.id)
 
-    update.message.reply_html(s.HELP_MESSAGE)
+    update.message.reply_html(s.HELP_MESSAGE.format(bot.username))
 
 
 @u.action(ChatAction.TYPING)

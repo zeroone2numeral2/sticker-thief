@@ -43,7 +43,7 @@ def main():
 
     dispatcher.add_error_handler(error_callback)
 
-    logger.info('starting polling loop...')
+    logger.info('starting polling loop as @%s...', updater.bot.username)
     updater.start_polling(clean=True)
     updater.idle()
 

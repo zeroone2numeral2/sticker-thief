@@ -10,13 +10,14 @@ HELP_MESSAGE = """<b>Full commands list</b>:
 - /create: create a new pack
 - /add: add a sticker to a pack
 - /remove: remove a sticker from its pack
-- send me a sticker file and I will send you its png back
+- send me a sticker and I will send you its png back
 - /list: list your packs (max 100 entries)
 - /export: export a sticker pack as a zip of png files
 - /forgetme: delete yourself from my database. The packs you created will <b>not</b> be deleted from Telegram
+- /status: debug command, shows your current status
 
 <b>Other operations</b>
-You can delete a pack, change stickers' emojis/position and see stickers/packs stats from @stickers
+You can delete a pack, change stickers' emojis/order and see stickers/packs stats from @stickers
 
 <b>Tips</b>:
 - when adding a sticker or creating a pack, you can either pass a sticker or a png file
