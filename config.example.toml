@@ -1,0 +1,14 @@
+[telegram]
+token = "123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11"
+admins = [1234567]
+admins_only = false
+
+[sqlite]
+filename = "stickersbot.sqlite"
+
+[log]
+filename = "stickersbot.log"
+silence_ptb_logger = true
+
+[bot]
+sourcecode = ""

@@ -1,0 +1,13 @@
+*.txt
+!requirements.txt
+*.pyc
+*.json
+*.sqlite
+config.ini
+config.toml
+*.db
+*.log
+*.png
+*.webp
+.idea/
+*.zip

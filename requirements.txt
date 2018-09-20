@@ -1,0 +1,6 @@
+python-telegram-bot>=11.1.0
+simplesqlitewrap>=0.1.14
+pillow
+pyyaml
+toml
+emoji
