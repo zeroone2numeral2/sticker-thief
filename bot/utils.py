@@ -14,9 +14,10 @@ API_EXCEPTIONS = {
     11: 'STICKERSET_INVALID',  # eg. trying to remove a sticker from a set the bot doesn't own
     12: 'STICKERSET_NOT_MODIFIED',
     13: 'sticker set name invalid',  # eg. starting with a number
-    14: 'STICKERS_TOO_MUCH',
+    14: 'STICKERS_TOO_MUCH',  # pack is full
     15: 'file is too big',  # png size > 350 kb
     # 16: 'Stickerset_invalid'  # pack name doesn't exist, or pack has been deleted
+    17: 'Sticker_png_dimensions'  # invalid png size
 }
 
 

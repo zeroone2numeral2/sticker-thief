@@ -14,18 +14,15 @@ logger = logging.getLogger(__name__)
 
 
 def get_correct_size(sizes):
-    if sizes[0] < 513 and sizes[1] < 513:
-        return sizes
-    else:
-        i = 0 if sizes[0] > sizes[1] else 1
-        new = [None, None]
-        new[i] = 512
-        rateo = 512 / sizes[i]
-        # print(rateo)
-        new[1 if i == 0 else 0] = int(math.floor(sizes[1 if i == 0 else 0] * round(rateo, 4)))
+    i = 0 if sizes[0] > sizes[1] else 1  # i: index of the biggest size
+    new = [None, None]
+    new[i] = 512
+    rateo = 512 / sizes[i]
+    # print(rateo)
+    new[1 if i == 0 else 0] = int(math.floor(sizes[1 if i == 0 else 0] * round(rateo, 4)))
 
-        logger.debug('correct sizes: %dx%d', new[0], new[1])
-        return tuple(new)
+    logger.debug('correct sizes: %dx%d', new[0], new[1])
+    return tuple(new)
 
 
 class StickerFile:
@@ -34,6 +31,9 @@ class StickerFile:
         self._file = sticker
         self._downloaded_file_path = None
         self._png_path = None
+        self._emoji = None
+        self._size_original = (0, 0)
+        self._size_resized = (0, 0)
         self._subdir = ''
 
         if isinstance(sticker, Sticker):
@@ -60,6 +60,13 @@ class StickerFile:
     def png_bytes_object(self):
         return self.get_png_bytes_object()
 
+    @property
+    def size(self):
+        if self._size_resized == (0, 0):
+            return self._size_original
+        else:
+            return self._size_resized
+
     def download(self, prepare_png=False, subdir=''):
         logger.debug('downloading sticker')
         new_file = self._file.get_file()
@@ -81,9 +88,14 @@ class StickerFile:
         im = Image.open(self._downloaded_file_path)
 
         logger.debug('original image size: %s', im.size)
-        if im.size[0] > 512 or im.size[1] > 512:
-            logger.debug('resizing file because one of the sides is > 512px')
-            im = im.resize(get_correct_size(im.size), Image.ANTIALIAS)
+        self._size_original = im.size
+        if (im.size[0] > 512 or im.size[1] > 512) or (im.size[0] != 512 and im.size[1] != 512):
+            logger.debug('resizing file because one of the sides is > 512px or at least one side is not 512px')
+            correct_size = get_correct_size(im.size)
+            self._size_resized = correct_size
+            im = im.resize(correct_size, Image.ANTIALIAS)
+        else:
+            logger.debug('original size is ok')
 
         self._png_path = 'tmp/{}converted_{}.png'.format(subdir, self._file.file_id)
 
@@ -140,3 +152,10 @@ class StickerFile:
                 return e.message
 
             return error_code
+
+    def __repr__(self):
+        return 'StickerFile object of original type {} (original size: {}, resized: {})'.format(
+            'Sticker' if self._is_sticker else 'Document',
+            self._size_original,
+            self._size_resized
+        )

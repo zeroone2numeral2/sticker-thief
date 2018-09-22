@@ -124,6 +124,9 @@ def on_sticker_receive(bot, update, user_data):
         update.message.reply_html(s.ADD_STICKER_SUCCESS.format(pack_link), quote=True)
     elif error == 14:
         update.message.reply_html(s.ADD_STICKER_PACK_FULL.format(pack_link), quote=True)
+    elif error == 17:
+        logger.error('resized sticker has the wrong size: %s', str(sticker))
+        update.message.reply_html(s.ADD_STICKER_SIZE_ERROR.format(*sticker.size), quote=True)
     elif error == 11:
         # pack name invalid or that pack has been deleted: delete it from the db
         deleted_rows = db.delete_pack(update.effective_user.id, name)

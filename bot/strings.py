@@ -103,6 +103,10 @@ ADD_STICKER_PACK_FULL = """I'm sorry, <a href="{}">this pack</a> is full (120 st
 you can no longer add stickers to it. Use /remove to remove some stickers
 Use /cancel when you've finished"""
 
+ADD_STICKER_SIZE_ERROR = """Whoops, it looks like an error happened while resizing the sticker \
+and now its dimensions are {}x{} px. I can't add this sticker to the pack due to wrong resizing logic.
+Send me another sticker, or use /cancel when you're done"""
+
 ADD_STICKER_GENERIC_ERROR = """An error occurred while adding this sticker to <a href="{}">this pack</a>: \
 <code>{}</code>.
 Try again, send me another sticker or use /cancel when you're done"""
