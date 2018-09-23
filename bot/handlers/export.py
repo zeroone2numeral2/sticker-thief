@@ -48,7 +48,7 @@ def on_sticker_receive(bot, update, user_data):
     os.mkdir(dir_path)
 
     base_progress_message = s.EXPORT_PACK_START.format(html_escape(sticker_set.title))
-    message_to_edit = update.message.reply_html(base_progress_message)
+    message_to_edit = update.message.reply_html(base_progress_message, quote=True)
 
     total = len(sticker_set.stickers)
     progress = 0
@@ -65,7 +65,7 @@ def on_sticker_receive(bot, update, user_data):
             sticker_file.delete(keep_result_png=True)
         progress += 1
 
-        # edit message every 12 stickers exported, or when we're done
+        # edit message every 12 exported stickers, or when we're done
         if progress == total or progress % 12 == 0:
             try:
                 message_to_edit.edit_text('{} (progress: {}/{})'.format(base_progress_message, progress, total),
@@ -73,8 +73,7 @@ def on_sticker_receive(bot, update, user_data):
             except (TelegramError, BadRequest) as e:
                 logger.error('error while editing progress message: %s', e.message)
 
-    # for some reasons this still needs the reply-to message_id
-    message_to_edit.reply_text(s.EXPORT_PACK_UPLOADING, reply_to_message_id=message_to_edit.message_id)
+    message_to_edit.reply_text(s.EXPORT_PACK_UPLOADING, quote=True)
 
     logger.info('creating zip file...')
     zip_path = 'tmp/{}_{}'.format(update.message.message_id, sticker_set.name)
