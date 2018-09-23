@@ -135,3 +135,5 @@ EXPORT_PACK_SELECT = """Please send me a stciker from the pack you want to expor
 EXPORT_PACK_NO_PACK = """This sticker doesn't belong to any pack. Please send me a stciker from a pack, or /cancel"""
 
 EXPORT_PACK_START = """Exporting stickers from <i>{}</i>... it may take some minutes. Please hold on"""
+
+EXPORT_PACK_UPLOADING = """Zipping png files and uploading..."""

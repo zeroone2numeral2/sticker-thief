@@ -68,10 +68,13 @@ def on_sticker_receive(bot, update, user_data):
         # edit message every 12 stickers exported, or when we're done
         if progress == total or progress % 12 == 0:
             try:
-                message_to_edit.edit_text('{} ({}/{})'.format(base_progress_message, progress, total),
+                message_to_edit.edit_text('{} (progress: {}/{})'.format(base_progress_message, progress, total),
                                           parse_mode=ParseMode.HTML)
             except (TelegramError, BadRequest) as e:
                 logger.error('error while editing progress message: %s', e.message)
+
+    # for some reasons this still needs the reply-to message_id
+    message_to_edit.reply_text(s.EXPORT_PACK_UPLOADING, reply_to_message_id=message_to_edit.message_id)
 
     logger.info('creating zip file...')
     zip_path = 'tmp/{}_{}'.format(update.message.message_id, sticker_set.name)
@@ -91,6 +94,8 @@ def on_sticker_receive(bot, update, user_data):
         rmtree(dir_path)  # remove the png dir
     except Exception as e:
         logger.error('error while cleaning up the export files: %s', str(e))
+
+    user_data['status'] = ''  # reset the user status, do not implicitly wait for new packs to export
 
 
 HANDLERS = (
