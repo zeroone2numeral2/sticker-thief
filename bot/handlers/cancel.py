@@ -29,7 +29,6 @@ def on_cancel_command(bot, update, user_data):
     logger.info('%d: /cancel', update.effective_user.id)
 
     user_status = user_data.get('status', 'unknown')
-    user_status_desc = STATUSES_DICT.get(user_status, user_status)
     logger.info('resetting status for %d (previous: %s)', update.effective_user.id, user_status)
 
     # reset user status
@@ -38,7 +37,7 @@ def on_cancel_command(bot, update, user_data):
     # remove temporary data
     user_data.pop('pack', None)
 
-    update.message.reply_text(s.CANCEL.format(user_status_desc), reply_markup=rm.HIDE)
+    update.message.reply_text(s.CANCEL, reply_markup=rm.HIDE)
 
 
 @u.action(ChatAction.TYPING)

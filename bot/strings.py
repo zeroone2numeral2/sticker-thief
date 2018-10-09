@@ -128,7 +128,7 @@ Try again, send me another sticker or use /cancel when you're done"""
 
 FORGETME_SUCCESS = """Success, I've deleted all of your packs from my database"""
 
-CANCEL = """Good, we're done with this (I was {})"""
+CANCEL = """Good, we're done with that"""
 
 LIST_NO_PACKS = """You don't have any pack. Use /create to create one"""
 
