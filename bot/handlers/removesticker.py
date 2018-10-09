@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 def on_remove_command(bot, update, user_data):
     logger.info('%d: /remove', update.effective_user.id)
 
-    update.message.reply_text(s.ADD_STICKER_SELECT_PACK)
+    update.message.reply_text(s.REMOVE_STICKER_SELECT_STICKER)
     user_data['status'] = 'removing_stickers'
 
 

@@ -111,6 +111,8 @@ ADD_STICKER_GENERIC_ERROR = """An error occurred while adding this sticker to <a
 <code>{}</code>.
 Try again, send me another sticker or use /cancel when you're done"""
 
+REMOVE_STICKER_SELECT_STICKER = """Send me the sticker you want to remove from its pack, or /cancel"""
+
 REMOVE_STICKER_SUCCESS = """Sticker removed from <a href="{}">its pack</a>.
 Send me another sticker to remove, or /cancel when you're done"""
 
