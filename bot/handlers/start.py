@@ -23,7 +23,7 @@ def on_help_command(bot, update):
 @u.action(ChatAction.TYPING)
 @u.restricted
 @u.failwithmessage
-def on_start_command(bot, update):
+def on_start_command(bot, update, user_data):
     logger.info('%d: /start', update.effective_user.id)
 
     db.insert_user(update.effective_user.id)
@@ -33,8 +33,11 @@ def on_start_command(bot, update):
 
     update.message.reply_html(start_message, disable_web_page_preview=True)
 
+    # reset user status
+    user_data['status'] = ''
+
 
 HANDLERS = (
     CommandHandler('help', on_help_command),
-    CommandHandler('start', on_start_command)
+    CommandHandler('start', on_start_command, pass_user_data=True)
 )
