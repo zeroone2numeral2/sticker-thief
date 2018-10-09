@@ -68,7 +68,7 @@ PACK_CREATION_ERROR_GENERIC = """Error while trying to create the pack: <code>{}
 Please try again, or /cancel"""
 
 PACK_CREATION_PACK_CREATED = """Your pack has been created, add it through <a href="{}">this link</a>
-Continue to send me stickers to add more, or use /cancel"""
+Continue to send me stickers to add more, or /done"""
 
 ADD_STICKER_SELECT_PACK = """Select the pack you want to add stickers to, or /cancel"""
 
@@ -97,34 +97,34 @@ ADD_STICKER_PACK_NOT_VALID_NO_PACKS = """Ooops, it looks like <a href="{}">this 
 Please create a new pack with /create"""
 
 ADD_STICKER_SUCCESS = """Sticker added to <a href="{}">this pack</a>.
-Continue to send me stickers to add more, use /cancel when you're done"""
+Continue to send me stickers to add more, use /done when you're done"""
 
 ADD_STICKER_PACK_FULL = """I'm sorry, <a href="{}">this pack</a> is full (120 stickers), \
 you can no longer add stickers to it. Use /remove to remove some stickers
-Use /cancel when you've finished"""
+Use /done when you've finished"""
 
 ADD_STICKER_SIZE_ERROR = """Whoops, it looks like an error happened while resizing the sticker \
 and now its dimensions are {}x{} px. I can't add this sticker to the pack due to wrong resizing logic.
-Send me another sticker, or use /cancel when you're done"""
+Send me another sticker, or use /done when you're done"""
 
 ADD_STICKER_GENERIC_ERROR = """An error occurred while adding this sticker to <a href="{}">this pack</a>: \
 <code>{}</code>.
-Try again, send me another sticker or use /cancel when you're done"""
+Try again, send me another sticker or use /done when you're done"""
 
 REMOVE_STICKER_SELECT_STICKER = """Send me the sticker you want to remove from its pack, or /cancel"""
 
 REMOVE_STICKER_SUCCESS = """Sticker removed from <a href="{}">its pack</a>.
-Send me another sticker to remove, or /cancel when you're done"""
+Send me another sticker to remove, or /done when you're done"""
 
 REMOVE_STICKER_FOREIGN_PACK = """This sticker is from a <a href="{}">pack</a> you didn't create through me. \
-Try with a valid sticker, or /cancel"""
+Try with a valid sticker, or /done"""
 
 REMOVE_STICKER_ALREADY_DELETED = """This sticker is no longer part of <a href="{}">the pack</a>, \
 try with another sticker"""
 
 REMOVE_STICKER_GENERIC_ERROR = """An error occurred while removing this sticker from <a href="{}">this pack</a>: \
 <code>{}</code>.
-Try again, send me another sticker or use /cancel when you're done"""
+Try again, send me another sticker or use /done when you're done"""
 
 FORGETME_SUCCESS = """Success, I've deleted all of your packs from my database"""
 

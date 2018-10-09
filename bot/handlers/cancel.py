@@ -54,6 +54,6 @@ def on_status_command(bot, update, user_data):
 
 
 HANDLERS = (
-    CommandHandler(['cancel', 'c'], on_cancel_command, pass_user_data=True),
+    CommandHandler(['cancel', 'c', 'done', 'd'], on_cancel_command, pass_user_data=True),
     CommandHandler(['status', 's'], on_status_command, pass_user_data=True)
 )
