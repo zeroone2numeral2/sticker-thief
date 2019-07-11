@@ -1,7 +1,6 @@
 *.txt
 !requirements.txt
 *.pyc
-*.json
 *.sqlite
 config.ini
 config.toml
