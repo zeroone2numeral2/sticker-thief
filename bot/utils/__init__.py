@@ -1,2 +1,2 @@
-import bot.utils.utils as utils
-import bot.utils.decorators as decorators
+from .helpers import utils
+from .helpers import decorators

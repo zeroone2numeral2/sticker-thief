@@ -1,5 +1,4 @@
-import logging
-
+from .utils import utils
 from .bot import StickersBot
 from .database import Database
 from config import config
@@ -10,6 +9,8 @@ db = Database(config.sqlite.filename)
 
 
 def main():
+    utils.load_logging_config('logging.json')
+
     stickersbot.import_handlers(r'bot/handlers/')
     stickersbot.run(clean=True)
 

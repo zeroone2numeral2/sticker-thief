@@ -37,6 +37,9 @@
         },
         "PIL": {
             "level": "WARNING"
+        },
+        "bot.bot": {
+            "level": "INFO"
         }
     },
     "formatters": {

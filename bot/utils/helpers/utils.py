@@ -1,4 +1,6 @@
 import logging
+import logging.config
+import json
 import re
 
 import emoji
@@ -15,6 +17,13 @@ API_EXCEPTIONS = {
     # 16: 'Stickerset_invalid'  # pack name doesn't exist, or pack has been deleted
     17: 'Sticker_png_dimensions'  # invalid png size
 }
+
+
+def load_logging_config(file_name='logging.json'):
+    with open(file_name, 'r') as f:
+        logging_config = json.load(f)
+
+    logging.config.dictConfig(logging_config)
 
 
 def get_exception_code(error_message):

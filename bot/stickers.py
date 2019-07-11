@@ -8,7 +8,7 @@ from telegram import Document
 from telegram.error import BadRequest
 from telegram.error import TelegramError
 
-from bot import u
+from .utils import utils
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +44,7 @@ class StickerFile:
             logger.debug('StickerFile object is a Document')
             self._is_sticker = False
             if caption:
-                self._emoji = u.get_emojis(caption)
+                self._emoji = utils.get_emojis(caption)
             if not self._emoji:
                 self._emoji = '💈'
 
@@ -132,7 +132,7 @@ class StickerFile:
             return 0
         except (BadRequest, TelegramError) as e:
             logger.error('Telegram exception while trying to add a sticker to %s: %s', pack_name, e.message)
-            error_code = u.get_exception_code(e)
+            error_code = utils.get_exception_code(e)
             if error_code == 0:  # unknown error
                 return e.message
 
@@ -147,7 +147,7 @@ class StickerFile:
         except (BadRequest, TelegramError) as e:
             logger.error('Telegram exception while trying to remove a sticker from %s: %s', self._file.set_name,
                          e.message)
-            error_code = u.get_exception_code(e)
+            error_code = utils.get_exception_code(e)
             if error_code == 0:  # unknown error
                 return e.message
 

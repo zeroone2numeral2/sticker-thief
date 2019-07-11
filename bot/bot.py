@@ -1,11 +1,10 @@
 import logging
 import os
 import importlib
-import importlib.util
 from pathlib import Path
 
 # noinspection PyPackageRequirements
-from telegram.ext import Updater
+from telegram.ext import Updater, ConversationHandler
 
 logger = logging.getLogger(__name__)
 
@@ -27,10 +26,14 @@ class StickersBot(Updater):
             importlib.import_module(import_path)
 
     def run(self, *args, **kwargs):
-        logger.debug('running as @%s (%d handlers registered)', self.bot.username, len(self.dispatcher.handlers))
+        logger.info('running as @%s (%d handlers registered)', self.bot.username, len(self.dispatcher.handlers))
         self.start_polling(*args, **kwargs)
         self.idle()
 
     def add_handler(self, *args, **kwargs):
-        logger.debug('adding handler: %s', args[0].callback.__name__)
+        if isinstance(args[0], ConversationHandler):
+            logger.info('adding conversation handler: %s', args[0].name or '-unnamed-')
+        else:
+            logger.info('adding handler: %s', args[0].callback.__name__)
+
         self.dispatcher.add_handler(*args, **kwargs)

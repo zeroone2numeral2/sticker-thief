@@ -12,11 +12,7 @@ from telegram import (
 )
 
 from bot import stickersbot
-from bot.utils.decorators import (
-    action,
-    restricted,
-    failwithmessage
-)
+from bot.utils import decorators
 from bot import db
 from bot import strings as s
 from config import config
@@ -24,18 +20,18 @@ from config import config
 logger = logging.getLogger(__name__)
 
 
-@action(ChatAction.TYPING)
-@restricted
-@failwithmessage
+@decorators.action(ChatAction.TYPING)
+@decorators.restricted
+@decorators.failwithmessage
 def on_help_command(update: Update, context: CallbackContext):
     logger.info('%d: /help', update.effective_user.id)
 
     update.message.reply_html(s.HELP_MESSAGE.format(context.bot.username))
 
 
-@action(ChatAction.TYPING)
-@restricted
-@failwithmessage
+@decorators.action(ChatAction.TYPING)
+@decorators.restricted
+@decorators.failwithmessage
 def on_start_command(update: Update, context: CallbackContext):
     logger.info('%d: /start', update.effective_user.id)
 

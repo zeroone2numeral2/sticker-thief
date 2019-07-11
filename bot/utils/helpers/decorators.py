@@ -2,7 +2,9 @@ import logging
 from functools import wraps
 from html import escape as html_escape
 
+# noinspection PyPackageRequirements
 from telegram import Update
+# noinspection PyPackageRequirements
 from telegram.ext import CallbackContext
 
 from config import config
