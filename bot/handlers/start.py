@@ -32,7 +32,7 @@ def on_help_command(update: Update, context: CallbackContext):
 @decorators.action(ChatAction.TYPING)
 @decorators.restricted
 @decorators.failwithmessage
-def on_start_command(update: Update, context: CallbackContext):
+def on_start_command(update: Update, _):
     logger.info('%d: /start', update.effective_user.id)
 
     db.insert_user(update.effective_user.id)
