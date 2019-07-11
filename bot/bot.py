@@ -27,7 +27,7 @@ class StickersBot(Updater):
             importlib.import_module(import_path)
 
     def run(self, *args, **kwargs):
-        logger.info('running as @%s (%d handlers registered)', self.bot.username, len(self.dispatcher.handlers))
+        logger.info('running as @%s', self.bot.username)
         self.start_polling(*args, **kwargs)
         self.idle()
 
