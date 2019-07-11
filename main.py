@@ -1,28 +1,23 @@
 import importlib
 import logging
 import logging.config
-
-from yaml import safe_load
+import json
 
 from bot import dispatcher
 from bot import updater
 from bot.priority import HANDLER as PRIORITY_HANDLER
-from config import config
 from config import HANDLERS
 
-if bool(int(config.log.silence_ptb_logger)):
-    logging.getLogger('telegram').setLevel(logging.WARNING)
-logging.getLogger('PIL').setLevel(logging.WARNING)
+logger = logging.getLogger(__name__)
 
 
-def load_logging_config(file_path='logging.yaml'):
-    with open(file_path, 'rt') as f:
-        logging_config = safe_load(f.read())
-        logging_config['handlers']['file']['filename'] = config.log.filename
+def load_logging_config(file_path='logging.json'):
+    with open(file_path, 'r') as f:
+        logging_config = json.load(f)
+
     logging.config.dictConfig(logging_config)
 
 
-logger = logging.getLogger(__name__)
 load_logging_config()
 
 

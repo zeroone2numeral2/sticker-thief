@@ -6,9 +6,5 @@ admins_only = false
 [sqlite]
 filename = "stickersbot.sqlite"
 
-[log]
-filename = "stickersbot.log"
-silence_ptb_logger = true
-
 [bot]
 sourcecode = ""
