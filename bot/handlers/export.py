@@ -78,7 +78,7 @@ def on_sticker_receive(update: Update, context: CallbackContext):
         progress += 1
 
         # edit message every 12 exported stickers, or when we're done
-        if progress == total or progress % 12 == 0:
+        if progress == total or progress % 10 == 0:
             try:
                 message_to_edit.edit_text('{} (progress: {}/{})'.format(base_progress_message, progress, total),
                                           parse_mode=ParseMode.HTML)
