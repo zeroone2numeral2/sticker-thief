@@ -110,11 +110,10 @@ def on_sticker_receive(update: Update, context: CallbackContext):
 
 
 stickersbot.add_handler(ConversationHandler(
-        name='export_command',
-        entry_points=[CommandHandler(['export', 'e', 'dump'], on_export_command)],
-        states={
-            WAITING_STICKER: [MessageHandler(Filters.sticker, on_sticker_receive)],
-        },
-        fallbacks=[CommandHandler(['cancel', 'c', 'done', 'd'], cancel_command)]
-    )
-)
+    name='export_command',
+    entry_points=[CommandHandler(['export', 'e', 'dump'], on_export_command)],
+    states={
+        WAITING_STICKER: [MessageHandler(Filters.sticker, on_sticker_receive)],
+    },
+    fallbacks=[CommandHandler(['cancel', 'c', 'done', 'd'], cancel_command)]
+))
