@@ -22,6 +22,7 @@ class StickersBot(Updater):
                 import_path.insert(0, tail)
 
             import_path = '.'.join(import_path)
+
             logger.debug('importing module: %s', import_path)
             importlib.import_module(import_path)
 
@@ -32,7 +33,8 @@ class StickersBot(Updater):
 
     def add_handler(self, *args, **kwargs):
         if isinstance(args[0], ConversationHandler):
-            logger.info('adding conversation handler: %s', args[0].name or '-unnamed-')
+            # ConverstaionHandler.name or the name of the first entry_point function
+            logger.info('adding conversation handler: %s', args[0].name or args[0].entry_points[0].callback.__name__)
         else:
             logger.info('adding handler: %s', args[0].callback.__name__)
 
