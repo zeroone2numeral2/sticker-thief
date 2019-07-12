@@ -13,7 +13,6 @@ from telegram import (
 
 from bot import stickersbot
 from bot.utils import decorators
-from bot import db
 from bot import strings as s
 from config import config
 
@@ -35,7 +34,6 @@ def on_help_command(update: Update, context: CallbackContext):
 def on_start_command(update: Update, _):
     logger.info('%d: /start', update.effective_user.id)
 
-    db.insert_user(update.effective_user.id)
     start_message = s.START_MESSAGE
     if config.bot.sourcecode:
         start_message = '{}\n\n<a href="{}">source code</a>'.format(start_message, config.bot.sourcecode)
