@@ -5,9 +5,9 @@ from telegram.ext import ConversationHandler, CallbackContext
 # noinspection PyPackageRequirements
 from telegram import Update, ChatAction
 
-from ..utils import decorators
 from bot import markups as rm
 from bot.strings import Strings
+from ..utils import decorators
 
 logger = logging.getLogger(__name__)
 

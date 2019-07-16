@@ -17,11 +17,11 @@ from telegram.error import BadRequest, TelegramError
 from bot import stickersbot
 from bot.strings import Strings
 from bot import db
-from ..utils import decorators
-from ..utils import utils
+from bot.stickers import StickerFile
 from .fallback_commands import cancel_command
 from .addsticker import on_sticker_receive
-from bot.stickers import StickerFile
+from ..utils import decorators
+from ..utils import utils
 
 logger = logging.getLogger(__name__)
 

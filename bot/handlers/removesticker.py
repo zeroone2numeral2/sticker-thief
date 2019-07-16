@@ -13,10 +13,10 @@ from telegram import ChatAction, Update
 
 from bot import stickersbot
 from bot.strings import Strings
+from bot.stickers import StickerFile
+from .fallback_commands import cancel_command
 from ..utils import decorators
 from ..utils import utils
-from .fallback_commands import cancel_command
-from bot.stickers import StickerFile
 
 logger = logging.getLogger(__name__)
 
