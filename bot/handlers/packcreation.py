@@ -153,7 +153,7 @@ def on_first_sticker_receive(update: Update, context: CallbackContext):
             return ConversationHandler.END  # do not continue
 
     db.save_pack(update.effective_user.id, full_name, title)
-    pack_link = u.name2link(full_name)
+    pack_link = utils.name2link(full_name)
     update.message.reply_html(Strings.PACK_CREATION_PACK_CREATED.format(pack_link))
 
     sticker.delete()  # remove sticker files
