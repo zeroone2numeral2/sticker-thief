@@ -9,7 +9,7 @@ from bot import stickersbot
 from bot.utils import decorators
 from bot.utils import utils
 from bot import db
-from bot import strings as s
+from bot.strings import Strings
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +22,7 @@ def on_list_command(update: Update, _):
 
     packs = db.get_user_packs(update.effective_user.id, as_namedtuple=True)
     if not packs:
-        update.message.reply_text(s.LIST_NO_PACKS)
+        update.message.reply_text(Strings.LIST_NO_PACKS)
         return
 
     packs = packs[:100]  # can't include more than 100 entities

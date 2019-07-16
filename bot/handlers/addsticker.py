@@ -13,7 +13,7 @@ from telegram.ext import (
 from telegram import ChatAction, ParseMode, Update
 
 from bot import stickersbot
-from bot import strings as s
+from bot.strings import Strings
 from bot import db
 from bot import markups as rm
 from ..utils import decorators
@@ -34,12 +34,12 @@ def on_add_command(update: Update, _):
 
     pack_titles = db.get_pack_titles(update.effective_user.id)
     if not pack_titles:
-        update.message.reply_text(s.ADD_STICKER_NO_PACKS)
+        update.message.reply_text(Strings.ADD_STICKER_NO_PACKS)
 
         return ConversationHandler.END
     else:
         markup = rm.get_markup_from_list(pack_titles)
-        update.message.reply_text(s.ADD_STICKER_SELECT_PACK, reply_markup=markup)
+        update.message.reply_text(Strings.ADD_STICKER_SELECT_PACK, reply_markup=markup)
 
         return WAITING_TITLE
 
@@ -54,7 +54,7 @@ def on_pack_title(update: Update, context: CallbackContext):
 
     if pack_info is None:
         logger.error('cannot find any pack with this title: %s', selected_title)
-        update.message.reply_text(s.ADD_STICKER_SELECTED_TITLE_DOESNT_EXIST.format(selected_title[:150]))
+        update.message.reply_text(Strings.ADD_STICKER_SELECTED_TITLE_DOESNT_EXIST.format(selected_title[:150]))
         # do not change the user status
         return WAITING_TITLE
 
@@ -67,7 +67,7 @@ def on_pack_title(update: Update, context: CallbackContext):
 
         # list with the links to the involved packs
         pack_links = ['<a href="{}">{}</a>'.format(utils.name2link(pack.name), pack.name.replace('_by_' + context.bot.username, '')) for pack in pack_info]
-        text = s.ADD_STICKER_SELECTED_TITLE_MULTIPLE.format(selected_title, '\n• '.join(pack_links))
+        text = Strings.ADD_STICKER_SELECTED_TITLE_MULTIPLE.format(selected_title, '\n• '.join(pack_links))
         update.message.reply_html(text, reply_markup=markup)
 
         return WAITING_NAME  # we now have to wait for the user to tap on a pack name
@@ -77,7 +77,7 @@ def on_pack_title(update: Update, context: CallbackContext):
 
     context.user_data['pack'] = dict(name=pack.name)
     pack_link = utils.name2link(pack.name)
-    update.message.reply_html(s.ADD_STICKER_PACK_SELECTED.format(pack_link), reply_markup=rm.HIDE)
+    update.message.reply_html(Strings.ADD_STICKER_PACK_SELECTED.format(pack_link), reply_markup=rm.HIDE)
 
     return WAITING_STICKERS
 
@@ -91,7 +91,7 @@ def on_pack_name(update: Update, context: CallbackContext):
     if re.search(r'^GO BACK$', update.message.text, re.I):
         pack_titles = db.get_pack_titles(update.effective_user.id)
         markup = rm.get_markup_from_list(pack_titles)
-        update.message.reply_text(s.ADD_STICKER_SELECT_PACK, reply_markup=markup)
+        update.message.reply_text(Strings.ADD_STICKER_SELECT_PACK, reply_markup=markup)
 
         return WAITING_TITLE
 
@@ -101,13 +101,13 @@ def on_pack_name(update: Update, context: CallbackContext):
     pack = db.get_pack_by_name(update.effective_user.id, selected_name, as_namedtuple=True)
     if not pack:
         logger.error('user %d does not have any pack with name %s', update.effective_user.id, selected_name)
-        update.message.reply_text(s.ADD_STICKER_SELECTED_NAME_DOESNT_EXIST)
+        update.message.reply_text(Strings.ADD_STICKER_SELECTED_NAME_DOESNT_EXIST)
         # do not reset the user status
         return WAITING_NAME
 
     context.user_data['pack'] = dict(name=pack.name)
     pack_link = utils.name2link(pack.name)
-    update.message.reply_html(s.ADD_STICKER_PACK_SELECTED.format(pack_link), reply_markup=rm.HIDE)
+    update.message.reply_html(Strings.ADD_STICKER_PACK_SELECTED.format(pack_link), reply_markup=rm.HIDE)
 
     return WAITING_STICKERS
 
@@ -121,7 +121,7 @@ def on_sticker_receive(update: Update, context: CallbackContext):
     name = context.user_data['pack'].get('name', None)
     if not name:
         logger.error('pack name missing (%s)', name)
-        update.message.reply_text(s.ADD_STICKER_PACK_DATA_MISSING)
+        update.message.reply_text(Strings.ADD_STICKER_PACK_DATA_MISSING)
 
         context.user_data.pop('pack', None)  # remove temp info
 
@@ -133,12 +133,12 @@ def on_sticker_receive(update: Update, context: CallbackContext):
     error = sticker.add_to_set(context.bot, update.effective_user.id, name)
     pack_link = utils.name2link(name)
     if not error:
-        update.message.reply_html(s.ADD_STICKER_SUCCESS.format(pack_link), quote=True)
+        update.message.reply_html(Strings.ADD_STICKER_SUCCESS.format(pack_link), quote=True)
     elif error == 14:
-        update.message.reply_html(s.ADD_STICKER_PACK_FULL.format(pack_link), quote=True)
+        update.message.reply_html(Strings.ADD_STICKER_PACK_FULL.format(pack_link), quote=True)
     elif error == 17:
         logger.error('resized sticker has the wrong size: %s', str(sticker))
-        update.message.reply_html(s.ADD_STICKER_SIZE_ERROR.format(*sticker.size), quote=True)
+        update.message.reply_html(Strings.ADD_STICKER_SIZE_ERROR.format(*sticker.size), quote=True)
     elif error == 11:
         # pack name invalid or that pack has been deleted: delete it from the db
         deleted_rows = db.delete_pack(update.effective_user.id, name)
@@ -148,20 +148,20 @@ def on_sticker_receive(update: Update, context: CallbackContext):
         pack_titles = db.get_pack_titles(update.effective_user.id)
         if not pack_titles:
             # user doesn't have any other pack to chose from, reset his status
-            update.message.reply_html(s.ADD_STICKER_PACK_NOT_VALID_NO_PACKS.format(pack_link))
+            update.message.reply_html(Strings.ADD_STICKER_PACK_NOT_VALID_NO_PACKS.format(pack_link))
 
             sticker.delete()
             return ConversationHandler.END
         else:
             # make the user select another pack from the keyboard
             markup = rm.get_markup_from_list(pack_titles)
-            update.message.reply_html(s.ADD_STICKER_PACK_NOT_VALID.format(pack_link), reply_markup=markup)
+            update.message.reply_html(Strings.ADD_STICKER_PACK_NOT_VALID.format(pack_link), reply_markup=markup)
             context.user_data.pop('pack', None)  # remove temporary data
 
             sticker.delete()
             return WAITING_TITLE
     else:
-        update.message.reply_html(s.ADD_STICKER_GENERIC_ERROR.format(pack_link, error), quote=True)
+        update.message.reply_html(Strings.ADD_STICKER_GENERIC_ERROR.format(pack_link, error), quote=True)
 
         sticker.delete()
         return WAITING_STICKERS

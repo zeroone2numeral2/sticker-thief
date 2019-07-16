@@ -12,7 +12,7 @@ from telegram.ext import (
 from telegram import ChatAction, Update
 
 from bot import stickersbot
-from bot import strings as s
+from bot.strings import Strings
 from ..utils import decorators
 from ..utils import utils
 from .fallback_commands import cancel_command
@@ -29,7 +29,7 @@ WAITING_STICKERS = range(1)
 def on_remove_command(update: Update, _):
     logger.info('%d: /remove', update.effective_user.id)
 
-    update.message.reply_text(s.REMOVE_STICKER_SELECT_STICKER)
+    update.message.reply_text(Strings.REMOVE_STICKER_SELECT_STICKER)
 
     return WAITING_STICKERS
 
@@ -44,14 +44,14 @@ def on_sticker_receive(update: Update, context: CallbackContext):
     error = sticker.remove_from_set(context.bot)
     pack_link = utils.name2link(update.message.sticker.set_name)
     if not error:
-        update.message.reply_html(s.REMOVE_STICKER_SUCCESS.format(pack_link), quote=True)
+        update.message.reply_html(Strings.REMOVE_STICKER_SUCCESS.format(pack_link), quote=True)
     elif error == 11:
-        update.message.reply_html(s.REMOVE_STICKER_FOREIGN_PACK.format(utils.name2link(update.message.sticker.set_name)),
+        update.message.reply_html(Strings.REMOVE_STICKER_FOREIGN_PACK.format(utils.name2link(update.message.sticker.set_name)),
                                   quote=True)
     elif error == 12:
-        update.message.reply_html(s.REMOVE_STICKER_ALREADY_DELETED.format(pack_link), quote=True)
+        update.message.reply_html(Strings.REMOVE_STICKER_ALREADY_DELETED.format(pack_link), quote=True)
     else:
-        update.message.reply_html(s.REMOVE_STICKER_GENERIC_ERROR.format(pack_link, error), quote=True)
+        update.message.reply_html(Strings.REMOVE_STICKER_GENERIC_ERROR.format(pack_link, error), quote=True)
 
     # wait for other stickers
 

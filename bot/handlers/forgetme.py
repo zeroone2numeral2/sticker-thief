@@ -6,7 +6,7 @@ from telegram.ext import CommandHandler
 from telegram import ChatAction, Update
 
 from bot import stickersbot
-from bot import strings as s
+from bot.strings import Strings
 from bot.utils import decorators
 from bot import db
 
@@ -22,7 +22,7 @@ def on_forgetme_command(update: Update, _):
     deleted_rows = db.delete_user_packs(update.effective_user.id)
     logger.info('deleted rows: %d', deleted_rows or 0)
 
-    update.message.reply_text(s.FORGETME_SUCCESS)
+    update.message.reply_text(Strings.FORGETME_SUCCESS)
 
 
 stickersbot.add_handler(CommandHandler(['forgetme', 'fm'], on_forgetme_command))

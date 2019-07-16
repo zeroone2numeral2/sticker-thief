@@ -15,7 +15,7 @@ from telegram import ChatAction, ParseMode, Update
 from telegram.error import BadRequest, TelegramError
 
 from bot import stickersbot
-from bot import strings as s
+from bot.strings import Strings
 from bot import db
 from ..utils import decorators
 from ..utils import utils
@@ -35,7 +35,7 @@ WAITING_TITLE, WAITING_NAME, WAITING_FIRST_STICKER, ADDING_STICKERS = range(4)
 def on_create_command(update: Update, _):
     logger.info('%d: /create', update.effective_user.id)
 
-    update.message.reply_text(s.PACK_CREATION_WAITING_TITLE)
+    update.message.reply_text(Strings.PACK_CREATION_WAITING_TITLE)
     
     return WAITING_TITLE
 
@@ -47,13 +47,13 @@ def on_pack_title_receive(update: Update, context: CallbackContext):
 
     if len(update.message.text) > 64:
         logger.info('pack title too long: %s', update.message.text)
-        update.message.reply_text(s.PACK_TITLE_TOO_LONG)
+        update.message.reply_text(Strings.PACK_TITLE_TOO_LONG)
         # do not change the user status and let him send another title
         return WAITING_TITLE
 
     if '\n' in update.message.text:
         logger.info('pack title contains newline character')
-        update.message.reply_text(s.PACK_TITLE_CONTAINS_NEWLINES)
+        update.message.reply_text(Strings.PACK_TITLE_CONTAINS_NEWLINES)
         # do not change the user status and let him send another title
         return WAITING_TITLE
 
@@ -63,7 +63,7 @@ def on_pack_title_receive(update: Update, context: CallbackContext):
 
     max_name_len = 64 - (len(context.bot.username) + 4)  # = max len - "_by_botusername", final string always added by the API
 
-    text = s.PACK_CREATION_WAITING_NAME.format(update.message.text, max_name_len)
+    text = Strings.PACK_CREATION_WAITING_NAME.format(update.message.text, max_name_len)
     update.message.reply_html(text)
     
     return WAITING_NAME
@@ -79,19 +79,19 @@ def on_pack_name_receive(update: Update, context: CallbackContext):
     max_name_len = 64 - (len(context.bot.username) + 4)
     if len(candidate_name) > max_name_len:
         logger.info('pack name too long (%d/%d)', len(candidate_name), max_name_len)
-        update.message.reply_text(s.PACK_NAME_TOO_LONG.format(len(update.message.text), max_name_len))
+        update.message.reply_text(Strings.PACK_NAME_TOO_LONG.format(len(update.message.text), max_name_len))
         # do not change the user status and let him send another name
         return WAITING_NAME
 
     if not re.search(r'[a-z](?!__)\w+', candidate_name, re.IGNORECASE):
         logger.info('pack name not valid: %s', update.message.text)
-        update.message.reply_html(s.PACK_NAME_INVALID)
+        update.message.reply_html(Strings.PACK_NAME_INVALID)
         # do not change the user status and let him send another name
         return WAITING_NAME
 
     if db.check_for_name_duplicates(update.effective_user.id, candidate_name):
         logger.info('pack name already saved: %s', candidate_name)
-        update.message.reply_text(s.PACK_NAME_DUPLICATE)
+        update.message.reply_text(Strings.PACK_NAME_DUPLICATE)
         # do not change the user status and let him send another name
         return WAITING_NAME
 
@@ -99,7 +99,7 @@ def on_pack_name_receive(update: Update, context: CallbackContext):
 
     context.user_data['pack']['name'] = candidate_name
 
-    update.message.reply_text(s.PACK_CREATION_WAITING_FIRST_STICKER)
+    update.message.reply_text(Strings.PACK_CREATION_WAITING_FIRST_STICKER)
 
     return WAITING_FIRST_STICKER
 
@@ -113,7 +113,7 @@ def on_first_sticker_receive(update: Update, context: CallbackContext):
     title, name = context.user_data['pack'].get('title', None), context.user_data['pack'].get('name', None)
     if not title or not name:
         logger.error('pack title or name missing (title: %s, name: %s)', title, name)
-        update.message.reply_text(s.PACK_CREATION_FIRST_STICKER_PACK_DATA_MISSING)
+        update.message.reply_text(Strings.PACK_CREATION_FIRST_STICKER_PACK_DATA_MISSING)
 
         context.user_data.pop('pack', None)  # remove temp info
 
@@ -138,23 +138,23 @@ def on_first_sticker_receive(update: Update, context: CallbackContext):
         error_code = utils.get_exception_code(e.message)
 
         if error_code == 10:  # there's already a pack with that link
-            update.message.reply_html(s.PACK_CREATION_ERROR_DUPLICATE_NAME.format(u.name2link(full_name)))
+            update.message.reply_html(Strings.PACK_CREATION_ERROR_DUPLICATE_NAME.format(u.name2link(full_name)))
             context.user_data['pack'].pop('name', None)  # remove pack name
 
             return WAITING_NAME
         elif error_code == 13:
-            update.message.reply_text(s.PACK_CREATION_ERROR_INVALID_NAME)
+            update.message.reply_text(Strings.PACK_CREATION_ERROR_INVALID_NAME)
             context.user_data['pack'].pop('name', None)  # remove pack name
 
             return WAITING_NAME
         else:
-            update.message.reply_html(s.PACK_CREATION_ERROR_GENERIC.format(e.message))
+            update.message.reply_html(Strings.PACK_CREATION_ERROR_GENERIC.format(e.message))
 
             return ConversationHandler.END  # do not continue
 
     db.save_pack(update.effective_user.id, full_name, title)
     pack_link = u.name2link(full_name)
-    update.message.reply_html(s.PACK_CREATION_PACK_CREATED.format(pack_link))
+    update.message.reply_html(Strings.PACK_CREATION_PACK_CREATED.format(pack_link))
 
     sticker.delete()  # remove sticker files
 

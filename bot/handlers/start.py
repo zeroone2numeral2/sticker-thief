@@ -13,7 +13,7 @@ from telegram import (
 
 from bot import stickersbot
 from bot.utils import decorators
-from bot import strings as s
+from bot.strings import Strings
 from config import config
 
 logger = logging.getLogger(__name__)
@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 def on_help_command(update: Update, context: CallbackContext):
     logger.info('%d: /help', update.effective_user.id)
 
-    update.message.reply_html(s.HELP_MESSAGE.format(context.bot.username))
+    update.message.reply_html(Strings.HELP_MESSAGE.format(context.bot.username))
 
 
 @decorators.action(ChatAction.TYPING)
@@ -34,7 +34,7 @@ def on_help_command(update: Update, context: CallbackContext):
 def on_start_command(update: Update, _):
     logger.info('%d: /start', update.effective_user.id)
 
-    start_message = s.START_MESSAGE
+    start_message = Strings.START_MESSAGE
     if config.bot.sourcecode:
         start_message = '{}\n\n<a href="{}">source code</a>'.format(start_message, config.bot.sourcecode)
 

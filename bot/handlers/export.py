@@ -19,7 +19,7 @@ from telegram import ChatAction, ParseMode, Update
 from telegram.error import BadRequest, TelegramError
 
 from bot import stickersbot
-from bot import strings as s
+from bot.strings import Strings
 from ..utils import decorators
 from ..utils import utils
 from.fallback_commands import cancel_command
@@ -37,7 +37,7 @@ WAITING_STICKER = range(1)
 def on_export_command(update: Update, _):
     logger.info('%d: /export', update.effective_user.id)
 
-    update.message.reply_text(s.EXPORT_PACK_SELECT)
+    update.message.reply_text(Strings.EXPORT_PACK_SELECT)
 
     return WAITING_STICKER
 
@@ -49,7 +49,7 @@ def on_sticker_receive(update: Update, context: CallbackContext):
     logger.info('%d: user sent a stciker from the pack to export', update.effective_user.id)
 
     if not update.message.sticker.set_name:
-        update.message.reply_text(s.EXPORT_PACK_NO_PACK)
+        update.message.reply_text(Strings.EXPORT_PACK_NO_PACK)
         return WAITING_STICKER
 
     sticker_set = context.bot.get_sticker_set(update.message.sticker.set_name)
@@ -59,7 +59,7 @@ def on_sticker_receive(update: Update, context: CallbackContext):
     dir_path = 'tmp/{}'.format(dir_name)
     os.mkdir(dir_path)
 
-    base_progress_message = s.EXPORT_PACK_START.format(html_escape(sticker_set.title))
+    base_progress_message = Strings.EXPORT_PACK_START.format(html_escape(sticker_set.title))
     message_to_edit = update.message.reply_html(base_progress_message, quote=True)
 
     total = len(sticker_set.stickers)
@@ -85,7 +85,7 @@ def on_sticker_receive(update: Update, context: CallbackContext):
             except (TelegramError, BadRequest) as e:
                 logger.error('error while editing progress message: %s', e.message)
 
-    message_to_edit.reply_text(s.EXPORT_PACK_UPLOADING, quote=True)
+    message_to_edit.reply_text(Strings.EXPORT_PACK_UPLOADING, quote=True)
 
     logger.info('creating zip file...')
     zip_path = 'tmp/{}_{}'.format(update.message.message_id, sticker_set.name)
