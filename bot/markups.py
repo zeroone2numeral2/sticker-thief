@@ -1,7 +1,10 @@
-from telegram import InlineKeyboardButton
-from telegram import InlineKeyboardMarkup
-from telegram import ReplyKeyboardMarkup
-from telegram import ReplyKeyboardRemove
+# noinspection PyPackageRequirements
+from telegram import (
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    ReplyKeyboardMarkup,
+    ReplyKeyboardRemove
+)
 
 HIDE = ReplyKeyboardRemove()
 
