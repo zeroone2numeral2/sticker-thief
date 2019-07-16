@@ -18,16 +18,7 @@ class Database(ssw.Database):
     def _init_db(self):
         logger.debug('creating tables')
 
-        self._execute(sql.CREATE_TABLE_USERS)
         self._execute(sql.CREATE_TABLE_PACKS)
-
-    def insert_user(self, user_id):
-        logger.debug('inserting user %d', user_id)
-
-        rows_inserted = self._execute(sql.INSERT_USER, (user_id,), rowcount=True)
-        logger.debug('inserted rows: %d', rows_inserted)
-
-        return rows_inserted
 
     def check_for_name_duplicates(self, user_id, pack_name):
         logger.debug('checking for duplicate names: %d, %s', user_id, pack_name)

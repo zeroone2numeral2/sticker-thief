@@ -1,48 +1,66 @@
 import logging
 
-from telegram.ext import CommandHandler
-from telegram.ext import MessageHandler
-from telegram import ChatAction
+# noinspection PyPackageRequirements
+from telegram.ext import (
+    CommandHandler,
+    MessageHandler,
+    ConversationHandler,
+    CallbackContext,
+    Filters
+)
+# noinspection PyPackageRequirements
+from telegram import ChatAction, Update
 
-from bot.overrides import Filters
-from bot import strings as s
-from bot import u
-from bot import StickerFile
+from bot import stickersbot
+from bot.strings import Strings
+from ..utils import decorators
+from ..utils import utils
+from .fallback_commands import cancel_command
+from bot.stickers import StickerFile
 
 logger = logging.getLogger(__name__)
 
+WAITING_STICKERS = range(1)
 
-@u.action(ChatAction.TYPING)
-@u.restricted
-@u.failwithmessage
-def on_remove_command(bot, update, user_data):
+
+@decorators.action(ChatAction.TYPING)
+@decorators.restricted
+@decorators.failwithmessage
+def on_remove_command(update: Update, _):
     logger.info('%d: /remove', update.effective_user.id)
 
-    update.message.reply_text(s.REMOVE_STICKER_SELECT_STICKER)
-    user_data['status'] = 'removing_stickers'
+    update.message.reply_text(Strings.REMOVE_STICKER_SELECT_STICKER)
+
+    return WAITING_STICKERS
 
 
-@u.action(ChatAction.TYPING)
-@u.failwithmessage
-def on_sticker_receive(bot, update, user_data):
+@decorators.action(ChatAction.TYPING)
+@decorators.failwithmessage
+def on_sticker_receive(update: Update, context: CallbackContext):
     logger.info('%d: user sent the stciker to add', update.effective_user.id)
 
     sticker = StickerFile(update.message.sticker)
 
-    error = sticker.remove_from_set(bot)
-    pack_link = u.name2link(update.message.sticker.set_name)
+    error = sticker.remove_from_set(context.bot)
+    pack_link = utils.name2link(update.message.sticker.set_name)
     if not error:
-        update.message.reply_html(s.REMOVE_STICKER_SUCCESS.format(pack_link), quote=True)
+        update.message.reply_html(Strings.REMOVE_STICKER_SUCCESS.format(pack_link), quote=True)
     elif error == 11:
-        update.message.reply_html(s.REMOVE_STICKER_FOREIGN_PACK.format(u.name2link(update.message.sticker.set_name)),
+        update.message.reply_html(Strings.REMOVE_STICKER_FOREIGN_PACK.format(utils.name2link(update.message.sticker.set_name)),
                                   quote=True)
     elif error == 12:
-        update.message.reply_html(s.REMOVE_STICKER_ALREADY_DELETED.format(pack_link), quote=True)
+        update.message.reply_html(Strings.REMOVE_STICKER_ALREADY_DELETED.format(pack_link), quote=True)
     else:
-        update.message.reply_html(s.REMOVE_STICKER_GENERIC_ERROR.format(pack_link, error), quote=True)
+        update.message.reply_html(Strings.REMOVE_STICKER_GENERIC_ERROR.format(pack_link, error), quote=True)
+
+    # wait for other stickers
 
 
-HANDLERS = (
-    CommandHandler(['remove', 'rem', 'r'], on_remove_command, filters=Filters.status(''), pass_user_data=True),
-    MessageHandler(Filters.sticker & Filters.status('removing_stickers'), on_sticker_receive, pass_user_data=True)
-)
+stickersbot.add_handler(ConversationHandler(
+    name='adding_stickers',
+    entry_points=[CommandHandler(['remove', 'rem', 'r'], on_remove_command)],
+    states={
+        WAITING_STICKERS: [MessageHandler((Filters.sticker | Filters.png), on_sticker_receive)]
+    },
+    fallbacks=[CommandHandler(['cancel', 'c', 'done', 'd'], cancel_command)]
+))

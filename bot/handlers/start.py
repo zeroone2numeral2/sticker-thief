@@ -1,43 +1,45 @@
 import logging
 
-from telegram.ext import CommandHandler
-from telegram import ChatAction
+# noinspection PyPackageRequirements
+from telegram.ext import (
+    CallbackContext,
+    CommandHandler
+)
+# noinspection PyPackageRequirements
+from telegram import (
+    ChatAction,
+    Update
+)
 
-from bot import u
-from bot import db
-from bot import strings as s
+from bot import stickersbot
+from bot.utils import decorators
+from bot.strings import Strings
 from config import config
 
 logger = logging.getLogger(__name__)
 
 
-@u.action(ChatAction.TYPING)
-@u.restricted
-@u.failwithmessage
-def on_help_command(bot, update):
+@decorators.action(ChatAction.TYPING)
+@decorators.restricted
+@decorators.failwithmessage
+def on_help_command(update: Update, context: CallbackContext):
     logger.info('%d: /help', update.effective_user.id)
 
-    update.message.reply_html(s.HELP_MESSAGE.format(bot.username))
+    update.message.reply_html(Strings.HELP_MESSAGE.format(context.bot.username))
 
 
-@u.action(ChatAction.TYPING)
-@u.restricted
-@u.failwithmessage
-def on_start_command(bot, update, user_data):
+@decorators.action(ChatAction.TYPING)
+@decorators.restricted
+@decorators.failwithmessage
+def on_start_command(update: Update, _):
     logger.info('%d: /start', update.effective_user.id)
 
-    db.insert_user(update.effective_user.id)
-    start_message = s.START_MESSAGE
+    start_message = Strings.START_MESSAGE
     if config.bot.sourcecode:
         start_message = '{}\n\n<a href="{}">source code</a>'.format(start_message, config.bot.sourcecode)
 
     update.message.reply_html(start_message, disable_web_page_preview=True)
 
-    # reset user status
-    user_data['status'] = ''
 
-
-HANDLERS = (
-    CommandHandler('help', on_help_command),
-    CommandHandler('start', on_start_command, pass_user_data=True)
-)
+stickersbot.add_handler(CommandHandler('help', on_help_command))
+stickersbot.add_handler(CommandHandler('start', on_start_command))

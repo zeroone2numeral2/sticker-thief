@@ -1,17 +1,9 @@
-CREATE_TABLE_USERS = """CREATE TABLE IF NOT EXISTS Users (
-    user_id INTEGER PRIMARY KEY
-);"""
-
-
 CREATE_TABLE_PACKS = """CREATE TABLE IF NOT EXISTS Packs (
     pack_id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER, -- owner of the pack
     title NVARCHAR(128), --title of the pack
     name NVARCHAR(64) --will also represents the link (saved with "_by_botusername")
 );"""
-
-INSERT_USER = """INSERT OR IGNORE INTO Users (user_id)
-VALUES (?);"""
 
 CHECK_PACK_NAME_PRESENCE = """SELECT name
 FROM Packs

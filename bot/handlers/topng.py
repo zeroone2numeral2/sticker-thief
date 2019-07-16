@@ -1,19 +1,21 @@
 import logging
 
-from telegram.ext import MessageHandler
-from telegram import ChatAction
+# noinspection PyPackageRequirements
+from telegram.ext import MessageHandler, Filters
+# noinspection PyPackageRequirements
+from telegram import Update, ChatAction
 
-from bot.overrides import Filters
-from bot import u
-from bot import StickerFile
+from bot import stickersbot
+from ..utils import decorators
+from bot.stickers import StickerFile
 
 logger = logging.getLogger(__name__)
 
 
-@u.restricted
-@u.action(ChatAction.UPLOAD_DOCUMENT)
-@u.failwithmessage
-def on_sticker_receive(bot, update):
+@decorators.restricted
+@decorators.action(ChatAction.UPLOAD_DOCUMENT)
+@decorators.failwithmessage
+def on_sticker_receive(update: Update, _):
     logger.info('%d: user sent a stciker to convert', update.effective_user.id)
 
     sticker = StickerFile(update.message.sticker)
@@ -24,6 +26,4 @@ def on_sticker_receive(bot, update):
     sticker.delete()
 
 
-HANDLERS = (
-    MessageHandler(Filters.sticker & Filters.status(''), on_sticker_receive),
-)
+stickersbot.add_handler(MessageHandler(Filters.sticker, on_sticker_receive))
