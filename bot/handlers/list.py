@@ -2,12 +2,8 @@ import logging
 
 # noinspection PyPackageRequirements
 from telegram.ext import CommandHandler
-
 # noinspection PyPackageRequirements
-from telegram import (
-    ChatAction,
-    Update
-)
+from telegram import ChatAction, Update
 
 from bot import stickersbot
 from bot.utils import decorators
