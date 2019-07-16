@@ -1,5 +1,5 @@
-from telegram.ext import BaseFilter
-from telegram.ext import Filters
+# noinspection PyPackageRequirements
+from telegram.ext import BaseFilter, Filters
 
 
 class _Media(BaseFilter):

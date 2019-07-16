@@ -3,10 +3,10 @@ import os
 import math
 from PIL import Image
 
-from telegram import Sticker
-from telegram import Document
-from telegram.error import BadRequest
-from telegram.error import TelegramError
+# noinspection PyPackageRequirements
+from telegram import Sticker, Document
+# noinspection PyPackageRequirements
+from telegram.error import BadRequest, TelegramError
 
 from .utils import utils
 
@@ -109,13 +109,14 @@ class StickerFile:
         return open(self._png_path, 'rb')
 
     def delete(self, keep_result_png=False):
+        # noinspection PyBroadException
         try:
             logger.debug('deleting sticker file: %s', self._downloaded_file_path)
             os.remove(self._downloaded_file_path)
             if not keep_result_png:
                 logger.debug('deleting sticker file: %s', self._png_path)
                 os.remove(self._png_path)
-        except:
+        except Exception:
             logger.error('error while trying to delete sticker files', exc_info=True)
 
     def add_to_set(self, bot, user_id, pack_name):

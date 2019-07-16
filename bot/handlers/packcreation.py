@@ -10,7 +10,7 @@ from telegram.ext import (
     Filters
 )
 # noinspection PyPackageRequirements
-from telegram import ChatAction, ParseMode, Update
+from telegram import ChatAction, Update
 # noinspection PyPackageRequirements
 from telegram.error import BadRequest, TelegramError
 
@@ -138,7 +138,7 @@ def on_first_sticker_receive(update: Update, context: CallbackContext):
         error_code = utils.get_exception_code(e.message)
 
         if error_code == 10:  # there's already a pack with that link
-            update.message.reply_html(Strings.PACK_CREATION_ERROR_DUPLICATE_NAME.format(u.name2link(full_name)))
+            update.message.reply_html(Strings.PACK_CREATION_ERROR_DUPLICATE_NAME.format(utils.name2link(full_name)))
             context.user_data['pack'].pop('name', None)  # remove pack name
 
             return WAITING_NAME

@@ -10,7 +10,7 @@ from telegram.ext import (
     Filters
 )
 # noinspection PyPackageRequirements
-from telegram import ChatAction, ParseMode, Update
+from telegram import ChatAction, Update
 
 from bot import stickersbot
 from bot.strings import Strings
