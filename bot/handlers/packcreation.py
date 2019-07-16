@@ -73,6 +73,7 @@ def on_pack_title_receive(update: Update, context: CallbackContext):
 @decorators.failwithmessage
 def on_pack_name_receive(update: Update, context: CallbackContext):
     logger.info('%d: received possible pack name (link)', update.effective_user.id)
+    logger.debug('user_data: %s', context.user_data)
 
     candidate_name = update.message.text
     max_name_len = 64 - (len(context.bot.username) + 4)
@@ -107,6 +108,7 @@ def on_pack_name_receive(update: Update, context: CallbackContext):
 @decorators.failwithmessage
 def on_first_sticker_receive(update: Update, context: CallbackContext):
     logger.info('%d: first sticker of the pack received', update.effective_user.id)
+    logger.debug('user_data: %s', context.user_data)
 
     title, name = context.user_data['pack'].get('title', None), context.user_data['pack'].get('name', None)
     if not title or not name:

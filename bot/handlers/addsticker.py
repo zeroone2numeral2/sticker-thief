@@ -86,6 +86,7 @@ def on_pack_title(update: Update, context: CallbackContext):
 @decorators.failwithmessage
 def on_pack_name(update: Update, context: CallbackContext):
     logger.info('%d: user selected the pack name from the keyboard', update.effective_user.id)
+    logger.debug('user_data: %s', context.user_data)
 
     if re.search(r'^GO BACK$', update.message.text, re.I):
         pack_titles = db.get_pack_titles(update.effective_user.id)
@@ -115,6 +116,7 @@ def on_pack_name(update: Update, context: CallbackContext):
 @decorators.failwithmessage
 def on_sticker_receive(update: Update, context: CallbackContext):
     logger.info('%d: user sent a sticker to add', update.effective_user.id)
+    logger.debug('user_data: %s', context.user_data)
 
     name = context.user_data['pack'].get('name', None)
     if not name:
