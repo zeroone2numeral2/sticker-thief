@@ -2,17 +2,21 @@ import logging
 import os
 from shutil import rmtree
 
+# noinspection PyPackageRequirements
 from telegram.ext import CommandHandler
+# noinspection PyPackageRequirements
+from telegram import Update
 
-from bot import u
+from bot import stickersbot
+from bot.utils import decorators
 
 logger = logging.getLogger(__name__)
 
 
-@u.restricted
-@u.adminsonly
-@u.failwithmessage
-def on_del_command(bot, update):
+@decorators.restricted
+@decorators.adminsonly
+@decorators.failwithmessage
+def on_del_command(update: Update, _):
     logger.info('%d: /deltmp', update.effective_user.id)
 
     tmp_dir = 'tmp/'
@@ -29,6 +33,4 @@ def on_del_command(bot, update):
     update.message.reply_text('...done')
 
 
-HANDLERS = (
-    CommandHandler(['deltmp', 'del'], on_del_command),
-)
+stickersbot.add_handler(CommandHandler(['deltmp', 'del'], on_del_command))
