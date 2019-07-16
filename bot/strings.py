@@ -54,7 +54,7 @@ class Strings:
 
     PACK_NAME_DUPLICATE = "I'm sorry, you already have a pack with this link saved. try with another link"
 
-    PACK_CREATION_WAITING_FIRST_STICKER = "got it, we are almost done. Now send me the first sticker of the pack"
+    PACK_CREATION_WAITING_FIRST_STICKER = "Got it, we are almost done. Now send me the first sticker of the pack"
 
     PACK_CREATION_FIRST_STICKER_PACK_DATA_MISSING = ("Ooops, something went wrong.\n"
                                                      "Please repeat the creation process with /create")
