@@ -20,9 +20,9 @@ from telegram.error import BadRequest, TelegramError
 
 from bot import stickersbot
 from bot.strings import Strings
-from .fallback_commands import cancel_command
-from ..utils import decorators
-from ..utils import utils
+from ..fallback_commands import cancel_command
+from ...utils import decorators
+from ...utils import utils
 
 from bot.stickers import StickerFile
 

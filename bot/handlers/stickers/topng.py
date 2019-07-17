@@ -7,7 +7,7 @@ from telegram import Update, ChatAction
 
 from bot import stickersbot
 from bot.stickers import StickerFile
-from ..utils import decorators
+from ...utils import decorators
 
 logger = logging.getLogger(__name__)
 

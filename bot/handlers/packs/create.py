@@ -18,10 +18,10 @@ from bot import stickersbot
 from bot.strings import Strings
 from bot import db
 from bot.stickers import StickerFile
-from .fallback_commands import cancel_command
-from .addsticker import on_sticker_receive
-from ..utils import decorators
-from ..utils import utils
+from ..fallback_commands import cancel_command
+from ..stickers.add import on_sticker_receive
+from ...utils import decorators
+from ...utils import utils
 
 logger = logging.getLogger(__name__)
 

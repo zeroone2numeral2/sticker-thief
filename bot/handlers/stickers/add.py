@@ -17,9 +17,9 @@ from bot.strings import Strings
 from bot import db
 from bot import markups as rm
 from bot.stickers import StickerFile
-from .fallback_commands import cancel_command
-from ..utils import decorators
-from ..utils import utils
+from ..fallback_commands import cancel_command
+from ...utils import decorators
+from ...utils import utils
 
 logger = logging.getLogger(__name__)
 
