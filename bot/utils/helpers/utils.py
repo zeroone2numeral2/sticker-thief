@@ -26,15 +26,6 @@ def load_logging_config(file_name='logging.json'):
     logging.config.dictConfig(logging_config)
 
 
-def get_exception_code(error_message):
-    error_message = str(error_message)
-    for code, desc in API_EXCEPTIONS.items():
-        if re.search(desc, error_message, re.I):
-            return code
-
-    return 0
-
-
 def name2link(name):
     return 'https://t.me/addstickers/{}'.format(name)
 

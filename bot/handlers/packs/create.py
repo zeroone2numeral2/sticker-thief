@@ -125,7 +125,8 @@ def on_first_sticker_receive(update: Update, context: CallbackContext):
 
     try:
         logger.debug('executing API request...')
-        context.bot.create_new_sticker_set(
+        StickerFile.create_set(
+            context.bot,
             user_id=update.effective_user.id,
             title=title,
             name=full_name,

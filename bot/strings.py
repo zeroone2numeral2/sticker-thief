@@ -40,7 +40,8 @@ class Strings:
 
     PACK_CREATION_WAITING_NAME = ("Good, this is going to be the pack title: <i>{}</i>\n"
                                   "\n"
-                                  "Please send the what will be the pack link (must be at max {} characters long)")
+                                  "Please send the what will be the pack link (must be at max {} characters long. "
+                                  "<b>Doesn't</b> need to include <code>https://t.me/addstickers/</code>)")
 
     PACK_NAME_TOO_LONG = "I'm sorry, this link is too long ({}/{}). Try again with another link"
 

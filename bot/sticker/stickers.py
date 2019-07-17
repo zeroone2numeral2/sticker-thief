@@ -156,6 +156,14 @@ class StickerFile:
                          e.message)
             self._raise_exception(e.message)
 
+    @classmethod
+    def create_set(cls, bot, *args, **kwargs):
+        try:
+            return bot.create_new_sticker_set(*args, **kwargs)
+        except (BadRequest, TelegramError) as e:
+            logger.error('Telegram exception while trying to create a pack: %s', e.message)
+            cls._raise_exception(e.message)
+
     def __repr__(self):
         return 'StickerFile object of original type {} (original size: {}, resized: {})'.format(
             'Sticker' if self._is_sticker else 'Document',
