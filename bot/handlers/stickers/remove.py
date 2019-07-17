@@ -60,7 +60,10 @@ stickersbot.add_handler(ConversationHandler(
     name='adding_stickers',
     entry_points=[CommandHandler(['remove', 'rem', 'r'], on_remove_command)],
     states={
-        WAITING_STICKERS: [MessageHandler((Filters.sticker | Filters.png), on_sticker_receive)]
+        WAITING_STICKERS: [MessageHandler(
+            Filters.sticker | Filters.document.category('image/png'),
+            on_sticker_receive
+        )]
     },
     fallbacks=[CommandHandler(['cancel', 'c', 'done', 'd'], cancel_command)]
 ))

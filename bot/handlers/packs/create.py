@@ -170,8 +170,14 @@ stickersbot.add_handler(ConversationHandler(
     states={
         WAITING_TITLE: [MessageHandler(Filters.text, on_pack_title_receive)],
         WAITING_NAME: [MessageHandler(Filters.text, on_pack_name_receive)],
-        WAITING_FIRST_STICKER: [MessageHandler(Filters.sticker | Filters.png, on_first_sticker_receive)],
-        ADDING_STICKERS: [MessageHandler((Filters.sticker | Filters.png), on_sticker_receive)]
+        WAITING_FIRST_STICKER: [MessageHandler(
+            Filters.sticker | Filters.document.category('image/png'),
+            on_first_sticker_receive
+        )],
+        ADDING_STICKERS: [MessageHandler(
+            Filters.sticker | Filters.document.category('image/png'),
+            on_sticker_receive
+        )]
     },
     fallbacks=[CommandHandler(['cancel', 'c', 'done', 'd'], cancel_command)]
 ))

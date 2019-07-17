@@ -15,7 +15,7 @@ from telegram import ChatAction, Update
 from bot import stickersbot
 from bot.strings import Strings
 from bot import db
-from bot import markups as rm
+from bot.markups import Keyboard
 from bot.stickers import StickerFile
 from ..fallback_commands import cancel_command
 from ...utils import decorators
@@ -38,7 +38,7 @@ def on_add_command(update: Update, _):
 
         return ConversationHandler.END
     else:
-        markup = rm.get_markup_from_list(pack_titles)
+        markup = Keyboard.from_list(pack_titles)
         update.message.reply_text(Strings.ADD_STICKER_SELECT_PACK, reply_markup=markup)
 
         return WAITING_TITLE
@@ -63,7 +63,7 @@ def on_pack_title(update: Update, context: CallbackContext):
 
         # build the keyboard with the pack links
         pack_names = [pack.name.replace('_by_' + context.bot.username, '') for pack in pack_info]  # strip the '_by_bot' part
-        markup = rm.get_markup_from_list(pack_names, add_back_button=True)
+        markup = Keyboard.from_list(pack_names, add_back_button=True)
 
         # list with the links to the involved packs
         pack_links = ['<a href="{}">{}</a>'.format(utils.name2link(pack.name), pack.name.replace('_by_' + context.bot.username, '')) for pack in pack_info]
@@ -77,7 +77,7 @@ def on_pack_title(update: Update, context: CallbackContext):
 
     context.user_data['pack'] = dict(name=pack.name)
     pack_link = utils.name2link(pack.name)
-    update.message.reply_html(Strings.ADD_STICKER_PACK_SELECTED.format(pack_link), reply_markup=rm.HIDE)
+    update.message.reply_html(Strings.ADD_STICKER_PACK_SELECTED.format(pack_link), reply_markup=Keyboard.HIDE)
 
     return WAITING_STICKERS
 
@@ -90,7 +90,7 @@ def on_pack_name(update: Update, context: CallbackContext):
 
     if re.search(r'^GO BACK$', update.message.text, re.I):
         pack_titles = db.get_pack_titles(update.effective_user.id)
-        markup = rm.get_markup_from_list(pack_titles)
+        markup = Keyboard.from_list(pack_titles)
         update.message.reply_text(Strings.ADD_STICKER_SELECT_PACK, reply_markup=markup)
 
         return WAITING_TITLE
@@ -107,7 +107,7 @@ def on_pack_name(update: Update, context: CallbackContext):
 
     context.user_data['pack'] = dict(name=pack.name)
     pack_link = utils.name2link(pack.name)
-    update.message.reply_html(Strings.ADD_STICKER_PACK_SELECTED.format(pack_link), reply_markup=rm.HIDE)
+    update.message.reply_html(Strings.ADD_STICKER_PACK_SELECTED.format(pack_link), reply_markup=Keyboard.HIDE)
 
     return WAITING_STICKERS
 
@@ -154,7 +154,7 @@ def on_sticker_receive(update: Update, context: CallbackContext):
             return ConversationHandler.END
         else:
             # make the user select another pack from the keyboard
-            markup = rm.get_markup_from_list(pack_titles)
+            markup = Keyboard.from_list(pack_titles)
             update.message.reply_html(Strings.ADD_STICKER_PACK_NOT_VALID.format(pack_link), reply_markup=markup)
             context.user_data.pop('pack', None)  # remove temporary data
 
@@ -173,7 +173,10 @@ stickersbot.add_handler(ConversationHandler(
     states={
         WAITING_TITLE: [MessageHandler(Filters.text, on_pack_title)],
         WAITING_NAME: [MessageHandler(Filters.text, on_pack_name)],
-        WAITING_STICKERS: [MessageHandler((Filters.sticker | Filters.png), on_sticker_receive)]
+        WAITING_STICKERS: [MessageHandler(
+            Filters.sticker | Filters.document.category('image/png'),
+            on_sticker_receive
+        )]
     },
     fallbacks=[CommandHandler(['cancel', 'c', 'done', 'd'], cancel_command)]
 ))

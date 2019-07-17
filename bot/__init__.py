@@ -1,5 +1,4 @@
 from .utils import utils
-from .overrides import *
 from .bot import StickersBot
 from .database import Database
 from config import config
