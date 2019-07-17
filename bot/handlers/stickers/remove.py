@@ -13,7 +13,8 @@ from telegram import ChatAction, Update
 
 from bot import stickersbot
 from bot.strings import Strings
-from bot.stickers import StickerFile
+from bot.sticker import StickerFile
+import bot.sticker.error as error
 from ..fallback_commands import cancel_command
 from ...utils import decorators
 from ...utils import utils
@@ -41,19 +42,22 @@ def on_sticker_receive(update: Update, context: CallbackContext):
 
     sticker = StickerFile(update.message.sticker)
 
-    error = sticker.remove_from_set(context.bot)
     pack_link = utils.name2link(update.message.sticker.set_name)
-    if not error:
-        update.message.reply_html(Strings.REMOVE_STICKER_SUCCESS.format(pack_link), quote=True)
-    elif error == 11:
-        update.message.reply_html(Strings.REMOVE_STICKER_FOREIGN_PACK.format(utils.name2link(update.message.sticker.set_name)),
-                                  quote=True)
-    elif error == 12:
-        update.message.reply_html(Strings.REMOVE_STICKER_ALREADY_DELETED.format(pack_link), quote=True)
-    else:
-        update.message.reply_html(Strings.REMOVE_STICKER_GENERIC_ERROR.format(pack_link, error), quote=True)
 
-    # wait for other stickers
+    try:
+        sticker.remove_from_set(context.bot)
+    except error.PackInvalid:
+        update.message.reply_html(Strings.REMOVE_STICKER_FOREIGN_PACK.format(pack_link), quote=True)
+    except error.PackNotModified:
+        update.message.reply_html(Strings.REMOVE_STICKER_ALREADY_DELETED.format(pack_link), quote=True)
+    except error.UnknwonError as e:
+        update.message.reply_html(Strings.REMOVE_STICKER_GENERIC_ERROR.format(pack_link, e.message), quote=True)
+    else:
+        # success
+        update.message.reply_html(Strings.REMOVE_STICKER_SUCCESS.format(pack_link), quote=True)
+    finally:
+        # wait for other stickers
+        return WAITING_STICKERS
 
 
 stickersbot.add_handler(ConversationHandler(

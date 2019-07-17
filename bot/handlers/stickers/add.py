@@ -16,7 +16,8 @@ from bot import stickersbot
 from bot.strings import Strings
 from bot import db
 from bot.markups import Keyboard
-from bot.stickers import StickerFile
+from bot.sticker import StickerFile
+import bot.sticker.error as error
 from ..fallback_commands import cancel_command
 from ...utils import decorators
 from ...utils import utils
@@ -130,16 +131,16 @@ def on_sticker_receive(update: Update, context: CallbackContext):
     sticker = StickerFile(update.message.sticker or update.message.document, caption=update.message.caption)
     sticker.download(prepare_png=True)
 
-    error = sticker.add_to_set(context.bot, update.effective_user.id, name)
     pack_link = utils.name2link(name)
-    if not error:
-        update.message.reply_html(Strings.ADD_STICKER_SUCCESS.format(pack_link), quote=True)
-    elif error == 14:
+
+    try:
+        sticker.add_to_set(context.bot, update.effective_user.id, name)
+    except error.PackFull:
         update.message.reply_html(Strings.ADD_STICKER_PACK_FULL.format(pack_link), quote=True)
-    elif error == 17:
+    except error.FileDimensionInvalid:
         logger.error('resized sticker has the wrong size: %s', str(sticker))
         update.message.reply_html(Strings.ADD_STICKER_SIZE_ERROR.format(*sticker.size), quote=True)
-    elif error == 11:
+    except error.PackInvalid:
         # pack name invalid or that pack has been deleted: delete it from the db
         deleted_rows = db.delete_pack(update.effective_user.id, name)
         logger.debug('rows deleted: %d', deleted_rows or 0)
@@ -160,9 +161,13 @@ def on_sticker_receive(update: Update, context: CallbackContext):
 
             sticker.delete()
             return WAITING_TITLE
+    except error.UnknwonError as e:
+        update.message.reply_html(Strings.ADD_STICKER_GENERIC_ERROR.format(pack_link, e.message), quote=True)
     else:
-        update.message.reply_html(Strings.ADD_STICKER_GENERIC_ERROR.format(pack_link, error), quote=True)
-
+        # success
+        update.message.reply_html(Strings.ADD_STICKER_SUCCESS.format(pack_link), quote=True)
+    finally:
+        # is this entered even when we enter the "else"?
         sticker.delete()
         return WAITING_STICKERS
 

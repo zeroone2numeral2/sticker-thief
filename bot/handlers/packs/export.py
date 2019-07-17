@@ -24,7 +24,7 @@ from ..fallback_commands import cancel_command
 from ...utils import decorators
 from ...utils import utils
 
-from bot.stickers import StickerFile
+from bot.sticker import StickerFile
 
 logger = logging.getLogger(__name__)
 

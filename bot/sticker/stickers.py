@@ -1,6 +1,7 @@
 import logging
 import os
 import math
+import re
 from PIL import Image
 
 # noinspection PyPackageRequirements
@@ -8,7 +9,8 @@ from telegram import Sticker, Document
 # noinspection PyPackageRequirements
 from telegram.error import BadRequest, TelegramError
 
-from .utils import utils
+from ..utils import utils
+from .error import EXCEPTIONS
 
 logger = logging.getLogger(__name__)
 
@@ -65,6 +67,15 @@ class StickerFile:
             return self._size_original
         else:
             return self._size_resized
+
+    @staticmethod
+    def _raise_exception(error_message):
+        for desc, exception in EXCEPTIONS.items():
+            if re.search(desc, error_message, re.I):
+                raise exception(error_message)
+
+        # raise unknown error if no description matched
+        raise EXCEPTIONS[''](error_message)
 
     def download(self, prepare_png=False, subdir=''):
         logger.debug('downloading sticker')
@@ -132,11 +143,7 @@ class StickerFile:
             return 0
         except (BadRequest, TelegramError) as e:
             logger.error('Telegram exception while trying to add a sticker to %s: %s', pack_name, e.message)
-            error_code = utils.get_exception_code(e)
-            if error_code == 0:  # unknown error
-                return e.message
-
-            return error_code
+            self._raise_exception(e.message)
 
     def remove_from_set(self, bot):
         logger.debug('removing sticker from set %s', self._file.set_name)
@@ -147,11 +154,7 @@ class StickerFile:
         except (BadRequest, TelegramError) as e:
             logger.error('Telegram exception while trying to remove a sticker from %s: %s', self._file.set_name,
                          e.message)
-            error_code = utils.get_exception_code(e)
-            if error_code == 0:  # unknown error
-                return e.message
-
-            return error_code
+            self._raise_exception(e.message)
 
     def __repr__(self):
         return 'StickerFile object of original type {} (original size: {}, resized: {})'.format(

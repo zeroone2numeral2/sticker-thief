@@ -11,13 +11,12 @@ from telegram.ext import (
 )
 # noinspection PyPackageRequirements
 from telegram import ChatAction, Update
-# noinspection PyPackageRequirements
-from telegram.error import BadRequest, TelegramError
 
 from bot import stickersbot
 from bot.strings import Strings
 from bot import db
-from bot.stickers import StickerFile
+from bot.sticker import StickerFile
+import bot.sticker.error as error
 from ..fallback_commands import cancel_command
 from ..stickers.add import on_sticker_receive
 from ...utils import decorators
@@ -133,35 +132,38 @@ def on_first_sticker_receive(update: Update, context: CallbackContext):
             emojis=sticker.emoji,
             png_sticker=sticker.png_bytes_object
         )
-    except (BadRequest, TelegramError) as e:
+    except (error.PackInvalid, error.NameInvalid) as e:
         logger.error('Telegram error while creating stickers pack: %s', e.message)
-        error_code = utils.get_exception_code(e.message)
-
-        if error_code == 10:  # there's already a pack with that link
+        if isinstance(e, error.PackInvalid):
+            # there's already a pack with that link
             update.message.reply_html(Strings.PACK_CREATION_ERROR_DUPLICATE_NAME.format(utils.name2link(full_name)))
-            context.user_data['pack'].pop('name', None)  # remove pack name
-
-            return WAITING_NAME
-        elif error_code == 13:
+        elif isinstance(e, error.NameInvalid):
             update.message.reply_text(Strings.PACK_CREATION_ERROR_INVALID_NAME)
-            context.user_data['pack'].pop('name', None)  # remove pack name
 
-            return WAITING_NAME
-        else:
-            update.message.reply_html(Strings.PACK_CREATION_ERROR_GENERIC.format(e.message))
+        context.user_data['pack'].pop('name', None)  # remove pack name
+        sticker.delete()
 
-            return ConversationHandler.END  # do not continue
+        return WAITING_NAME  # do not continue
+    except error.UnknwonError as e:
+        logger.error('Unknown error while creating the pack: %s', e.message)
+        update.message.reply_html(Strings.PACK_CREATION_ERROR_GENERIC.format(e.message))
 
-    db.save_pack(update.effective_user.id, full_name, title)
-    pack_link = utils.name2link(full_name)
-    update.message.reply_html(Strings.PACK_CREATION_PACK_CREATED.format(pack_link))
+        context.user_data.pop('pack', None)  # remove temp data
+        sticker.delete()
 
-    sticker.delete()  # remove sticker files
+        return ConversationHandler.END  # do not continue
+    else:
+        # success
+        db.save_pack(update.effective_user.id, full_name, title)
+        pack_link = utils.name2link(full_name)
+        update.message.reply_html(Strings.PACK_CREATION_PACK_CREATED.format(pack_link))
 
-    context.user_data['pack']['name'] = full_name
-    # do not remove temporary data (user_data['pack']) because we are still adding stickers
+        sticker.delete()  # remove sticker files
 
-    return ADDING_STICKERS  # wait for other stickers
+        context.user_data['pack']['name'] = full_name
+        # do not remove temporary data (user_data['pack']) because we are still adding stickers
+
+        return ADDING_STICKERS  # wait for other stickers
 
 
 stickersbot.add_handler(ConversationHandler(
