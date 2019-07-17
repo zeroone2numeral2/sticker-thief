@@ -26,7 +26,6 @@ def get_correct_size(sizes):
 
 
 class StickerFile:
-
     def __init__(self, sticker, caption=None):
         self._file = sticker
         self._downloaded_file_path = None
