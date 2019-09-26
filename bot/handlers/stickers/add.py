@@ -151,14 +151,16 @@ def on_sticker_receive(update: Update, context: CallbackContext):
             # user doesn't have any other pack to chose from, reset his status
             update.message.reply_html(Strings.ADD_STICKER_PACK_NOT_VALID_NO_PACKS.format(pack_link))
 
+            logger.debug('calling sticker.delete()...')
             sticker.delete()
             return ConversationHandler.END
         else:
             # make the user select another pack from the keyboard
             markup = Keyboard.from_list(pack_titles)
             update.message.reply_html(Strings.ADD_STICKER_PACK_NOT_VALID.format(pack_link), reply_markup=markup)
-            context.user_data.pop('pack', None)  # remove temporary data
+            context.user_data['pack'].pop('name', None)  # remove temporary data
 
+            logger.debug('calling sticker.delete()...')
             sticker.delete()
             return WAITING_TITLE
     except error.UnknwonError as e:
@@ -168,6 +170,7 @@ def on_sticker_receive(update: Update, context: CallbackContext):
         update.message.reply_html(Strings.ADD_STICKER_SUCCESS.format(pack_link), quote=True)
     finally:
         # is this entered even when we enter the "else"?
+        logger.debug('calling sticker.delete()...')
         sticker.delete()
         return WAITING_STICKERS
 
