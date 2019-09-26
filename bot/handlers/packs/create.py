@@ -133,12 +133,12 @@ def on_first_sticker_receive(update: Update, context: CallbackContext):
             emojis=sticker.emoji,
             png_sticker=sticker.png_bytes_object
         )
-    except (error.PackInvalid, error.NameInvalid) as e:
+    except (error.PackInvalid, error.NameInvalid, error.NameAlreadyOccupied) as e:
         logger.error('Telegram error while creating stickers pack: %s', e.message)
-        if isinstance(e, error.PackInvalid):
+        if isinstance(e, error.NameAlreadyOccupied):
             # there's already a pack with that link
             update.message.reply_html(Strings.PACK_CREATION_ERROR_DUPLICATE_NAME.format(utils.name2link(full_name)))
-        elif isinstance(e, error.NameInvalid):
+        elif isinstance(e, (error.PackInvalid, error.NameInvalid)):
             update.message.reply_text(Strings.PACK_CREATION_ERROR_INVALID_NAME)
 
         context.user_data['pack'].pop('name', None)  # remove pack name
