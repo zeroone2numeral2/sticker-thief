@@ -121,13 +121,14 @@ class StickerFile:
     def delete(self, keep_result_png=False):
         # noinspection PyBroadException
         try:
-            logger.debug('deleting sticker file: %s', self._downloaded_file_path)
-            os.remove(self._downloaded_file_path)
-            if not keep_result_png:
-                logger.debug('deleting sticker file: %s', self._png_path)
+            if os.path.exists(self._downloaded_file_path):
+                logger.debug('deleting webp sticker file: %s', self._downloaded_file_path)
+                os.remove(self._downloaded_file_path)
+            if not keep_result_png and os.path.exists(self._png_path):
+                logger.debug('deleting png sticker file: %s', self._png_path)
                 os.remove(self._png_path)
-        except Exception:
-            logger.error('error while trying to delete sticker files', exc_info=True)
+        except Exception as e:
+            logger.error('error while trying to delete sticker files: %s', str(e))
 
     def add_to_set(self, bot, user_id, pack_name):
         logger.debug('adding sticker to set %s', pack_name)
