@@ -145,7 +145,7 @@ def on_first_sticker_receive(update: Update, context: CallbackContext):
         context.user_data['pack'].pop('name', None)  # remove pack name
         sticker.delete()
 
-        return WAITING_NAME  # do not continue
+        return WAITING_NAME  # do not continue, wait for another name
     except error.UnknwonError as e:
         logger.error('Unknown error while creating the pack: %s', e.message)
         update.message.reply_html(Strings.PACK_CREATION_ERROR_GENERIC.format(e.message))
@@ -153,7 +153,7 @@ def on_first_sticker_receive(update: Update, context: CallbackContext):
         context.user_data.pop('pack', None)  # remove temp data
         sticker.delete()
 
-        return ConversationHandler.END  # do not continue
+        return ConversationHandler.END  # do not continue, end the conversation
     else:
         # success
         db.save_pack(update.effective_user.id, full_name, title)
