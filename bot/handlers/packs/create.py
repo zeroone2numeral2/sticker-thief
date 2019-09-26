@@ -186,12 +186,12 @@ stickersbot.add_handler(ConversationHandler(
         WAITING_TITLE: [MessageHandler(Filters.text, on_pack_title_receive)],
         WAITING_NAME: [MessageHandler(Filters.text, on_pack_name_receive)],
         WAITING_FIRST_STICKER: [MessageHandler(
-            Filters.sticker | Filters.document.category('image/png'),
+            (Filters.sticker & ~animated_sticker) | Filters.document.category('image/png'),
             on_first_sticker_receive
         )],
         ADDING_STICKERS: [
             MessageHandler(
-                ~animated_sticker & (Filters.sticker | Filters.document.category('image/png')),
+                (Filters.sticker & ~animated_sticker) | Filters.document.category('image/png'),
                 on_sticker_receive
             ),
             MessageHandler(animated_sticker, on_animated_sticker_receive),
