@@ -1,4 +1,4 @@
-### Sticker thief bot
+# Stickers thief bot
 
 I made this bot because I was exausted of wasting my time looking for _that_ perfect sticker to use among all my installed packs.
 
