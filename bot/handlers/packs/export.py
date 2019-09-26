@@ -21,6 +21,7 @@ from telegram.error import BadRequest, TelegramError
 from bot import stickersbot
 from bot.strings import Strings
 from ..fallback_commands import cancel_command
+from ...customfilters import CustomFilters
 from ...utils import decorators
 from ...utils import utils
 
@@ -110,11 +111,24 @@ def on_sticker_receive(update: Update, context: CallbackContext):
     return ConversationHandler.END
 
 
+@decorators.action(ChatAction.TYPING)
+@decorators.failwithmessage
+def on_animated_sticker_receive(update: Update, _):
+    logger.info('%d: user sent an animated sticker', update.effective_user.id)
+
+    update.message.reply_text(Strings.ADD_STICKER_ANIMATED_UNSUPPORTED)
+
+    return WAITING_STICKER
+
+
 stickersbot.add_handler(ConversationHandler(
     name='export_command',
     entry_points=[CommandHandler(['export', 'e', 'dump'], on_export_command)],
     states={
-        WAITING_STICKER: [MessageHandler(Filters.sticker, on_sticker_receive)],
+        WAITING_STICKER: [
+            MessageHandler(CustomFilters.static_sticker, on_sticker_receive),
+            MessageHandler(CustomFilters.animated_sticker, on_animated_sticker_receive),
+        ],
     },
     fallbacks=[CommandHandler(['cancel', 'c', 'done', 'd'], cancel_command)]
 ))

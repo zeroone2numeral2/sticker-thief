@@ -8,4 +8,12 @@ class AnimatedSticker(BaseFilter):
             return True
 
 
-animated_sticker = AnimatedSticker()
+class StaticSticker(BaseFilter):
+    def filter(self, message):
+        if message.sticker and not message.sticker.is_animated:
+            return True
+
+
+class CustomFilters:
+    animated_sticker = AnimatedSticker()
+    static_sticker = StaticSticker()

@@ -19,7 +19,7 @@ from bot.sticker import StickerFile
 import bot.sticker.error as error
 from ..fallback_commands import cancel_command
 from ..stickers.add import on_sticker_receive
-from ...customfilters import animated_sticker
+from ...customfilters import CustomFilters
 from ...utils import decorators
 from ...utils import utils
 
@@ -186,15 +186,15 @@ stickersbot.add_handler(ConversationHandler(
         WAITING_TITLE: [MessageHandler(Filters.text, on_pack_title_receive)],
         WAITING_NAME: [MessageHandler(Filters.text, on_pack_name_receive)],
         WAITING_FIRST_STICKER: [MessageHandler(
-            (Filters.sticker & ~animated_sticker) | Filters.document.category('image/png'),
+            CustomFilters.static_sticker | Filters.document.category('image/png'),
             on_first_sticker_receive
         )],
         ADDING_STICKERS: [
             MessageHandler(
-                (Filters.sticker & ~animated_sticker) | Filters.document.category('image/png'),
+                CustomFilters.static_sticker | Filters.document.category('image/png'),
                 on_sticker_receive
             ),
-            MessageHandler(animated_sticker, on_animated_sticker_receive),
+            MessageHandler(CustomFilters.animated_sticker, on_animated_sticker_receive),
         ]
     },
     fallbacks=[CommandHandler(['cancel', 'c', 'done', 'd'], cancel_command)]
