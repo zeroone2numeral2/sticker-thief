@@ -1,4 +1,4 @@
-python-telegram-bot==12.0.0b1
+python-telegram-bot==12.1.1
 simplesqlitewrap==0.1.14
 pillow
 toml
