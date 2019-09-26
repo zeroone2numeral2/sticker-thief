@@ -4,7 +4,7 @@ from .database import Database
 from config import config
 
 
-stickersbot = StickersBot(token=config.telegram.token, use_context=True)
+stickersbot = StickersBot(token=config.telegram.token, use_context=True, workers=1)
 db = Database(config.sqlite.filename)
 
 
