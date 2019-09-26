@@ -60,7 +60,8 @@ def on_pack_title_receive(update: Update, context: CallbackContext):
 
     context.user_data['pack'] = dict(title=update.message.text)
 
-    max_name_len = 64 - (len(context.bot.username) + 4)  # = max len - "_by_botusername", final string always added by the API
+    # max len of a pack name = 64 - "_by_botusername", final string always added by the API
+    max_name_len = 64 - (len(context.bot.username) + 4)
 
     text = Strings.PACK_CREATION_WAITING_NAME.format(update.message.text, max_name_len)
     update.message.reply_html(text)
