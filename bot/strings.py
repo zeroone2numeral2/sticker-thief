@@ -113,6 +113,9 @@ class Strings:
                                  "<code>{}</code>.\n"
                                  "Try again, send me another sticker or use /done when you're done")
 
+    ADD_STICKER_ANIMATED_UNSUPPORTED = ("I am sorry, I do not support animated stickers yet :(\n"
+                                        "Please send a static sticker")
+
     REMOVE_STICKER_SELECT_STICKER = "Send me the sticker you want to remove from its pack, or /cancel"
 
     REMOVE_STICKER_SUCCESS = ("Sticker removed from <a href=\"{}\">its pack</a>.\n"

@@ -19,6 +19,7 @@ from bot.sticker import StickerFile
 import bot.sticker.error as error
 from ..fallback_commands import cancel_command
 from ..stickers.add import on_sticker_receive
+from ...customfilters import animated_sticker
 from ...utils import decorators
 from ...utils import utils
 
@@ -106,6 +107,16 @@ def on_pack_name_receive(update: Update, context: CallbackContext):
 
 @decorators.action(ChatAction.TYPING)
 @decorators.failwithmessage
+def on_animated_sticker_receive(update: Update, _):
+    logger.info('%d: user sent an animated sticker', update.effective_user.id)
+
+    update.message.reply_text(Strings.ADD_STICKER_ANIMATED_UNSUPPORTED)
+
+    return WAITING_FIRST_STICKER
+
+
+@decorators.action(ChatAction.TYPING)
+@decorators.failwithmessage
 def on_first_sticker_receive(update: Update, context: CallbackContext):
     logger.info('%d: first sticker of the pack received', update.effective_user.id)
     logger.debug('user_data: %s', context.user_data)
@@ -178,10 +189,13 @@ stickersbot.add_handler(ConversationHandler(
             Filters.sticker | Filters.document.category('image/png'),
             on_first_sticker_receive
         )],
-        ADDING_STICKERS: [MessageHandler(
-            Filters.sticker | Filters.document.category('image/png'),
-            on_sticker_receive
-        )]
+        ADDING_STICKERS: [
+            MessageHandler(
+                ~animated_sticker & (Filters.sticker | Filters.document.category('image/png')),
+                on_sticker_receive
+            ),
+            MessageHandler(animated_sticker, on_animated_sticker_receive),
+        ]
     },
     fallbacks=[CommandHandler(['cancel', 'c', 'done', 'd'], cancel_command)]
 ))
