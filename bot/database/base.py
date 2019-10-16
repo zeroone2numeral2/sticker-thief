@@ -6,7 +6,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import SQLAlchemyError
 
 
-engine = create_engine('sqlite:///sqlalchemy_example.db')
+engine = create_engine('sqlite:///stickersbot.sqlite')
 Session = sessionmaker(bind=engine)
 
 

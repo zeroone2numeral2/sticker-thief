@@ -6,7 +6,7 @@ from ..base import Base, engine
 class Pack(Base):
     __tablename__ = 'packs'
 
-    id = Column(Integer, primary_key=True)
+    pack_id = Column(Integer, primary_key=True)
     user_id = Column(Integer)
     title = Column(String)
     name = Column(String)
