@@ -35,7 +35,6 @@ WAITING_TITLE, WAITING_NAME, WAITING_STICKERS = range(3)
 def on_add_command(update: Update, _):
     logger.info('%d: /add', update.effective_user.id)
 
-    # pack_titles = db.get_pack_titles(update.effective_user.id)
     with session_scope() as session:
         pack_titles = [t.title for t in session.query(Pack.title).filter_by(user_id=update.effective_user.id).all()]
 
@@ -56,7 +55,6 @@ def on_pack_title(update: Update, context: CallbackContext):
     logger.info('%d: user selected the pack title from the keyboard', update.effective_user.id)
 
     selected_title = update.message.text
-    # pack_info = db.get_packs_by_title(update.effective_user.id, selected_title, as_obj=True)
 
     with session_scope() as session:
         packs_by_title = session.query(Pack).filter_by(title=selected_title).all()
@@ -112,7 +110,6 @@ def on_pack_name(update: Update, context: CallbackContext):
     # the buttons list has the name without "_by_botusername"
     selected_name = '{}_by_{}'.format(update.message.text, context.bot.username)
 
-    # pack = db.get_pack_by_name(update.effective_user.id, selected_name, as_namedtuple=True)
     with session_scope() as session:
         pack = session.query(Pack).filter_by(title=selected_name).first()
 
@@ -168,11 +165,13 @@ def on_sticker_receive(update: Update, context: CallbackContext):
         update.message.reply_html(Strings.ADD_STICKER_SIZE_ERROR.format(*sticker.size), quote=True)
     except error.PackInvalid:
         # pack name invalid or that pack has been deleted: delete it from the db
-        deleted_rows = db.delete_pack(update.effective_user.id, name)
-        logger.debug('rows deleted: %d', deleted_rows or 0)
+        with session_scope() as session:
+            deleted_rows = session.query(Pack).filter(Pack.user_id==update.effective_user.id, Pack.name==name).delete('fetch')
+            logger.debug('rows deleted: %d', deleted_rows or 0)
 
-        # get the remaining packs' titles
-        pack_titles = db.get_pack_titles(update.effective_user.id)
+            # get the remaining packs' titles
+            pack_titles = [t.title for t in session.query(Pack.title).filter_by(user_id=update.effective_user.id).all()]
+
         if not pack_titles:
             # user doesn't have any other pack to chose from, reset his status
             update.message.reply_html(Strings.ADD_STICKER_PACK_NOT_VALID_NO_PACKS.format(pack_link))

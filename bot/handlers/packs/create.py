@@ -11,7 +11,6 @@ from telegram.ext import (
 )
 # noinspection PyPackageRequirements
 from telegram import ChatAction, Update
-from sqlalchemy import exists
 
 from bot import stickersbot
 from bot.strings import Strings

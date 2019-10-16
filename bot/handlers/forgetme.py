@@ -20,7 +20,6 @@ logger = logging.getLogger(__name__)
 def on_forgetme_command(update: Update, _):
     logger.info('%d: /forgetme', update.effective_user.id)
 
-    # deleted_rows = db.delete_user_packs(update.effective_user.id)
     with session_scope() as session:
         deleted_rows = session.query(Pack).filter(Pack.user_id==update.effective_user.id).delete()
         logger.info('deleted rows: %d', deleted_rows or 0)
