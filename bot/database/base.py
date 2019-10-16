@@ -5,8 +5,10 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import SQLAlchemyError
 
+from config import config
 
-engine = create_engine('sqlite:///stickersbot.sqlite')
+
+engine = create_engine('sqlite:///{}'.format(config.sqlite.filename))
 Session = sessionmaker(bind=engine)
 
 
