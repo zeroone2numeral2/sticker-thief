@@ -6,8 +6,9 @@ class Keyboard:
     HIDE = ReplyKeyboardRemove()
 
     @staticmethod
-    def from_list(titles, add_back_button=False):
+    def from_list(items, add_back_button=False):
+        items_copy = [i for i in items]  # we need to create a copy of this list otherwise the back button might be
         if add_back_button:
-            titles.append('GO BACK')
+            items_copy.append('GO BACK')
 
-        return ReplyKeyboardMarkup([[title] for title in titles], resize_keyboard=True)
+        return ReplyKeyboardMarkup([[i] for i in items_copy], resize_keyboard=True)

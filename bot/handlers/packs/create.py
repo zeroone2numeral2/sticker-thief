@@ -14,7 +14,8 @@ from telegram import ChatAction, Update
 
 from bot import stickersbot
 from bot.strings import Strings
-from bot import db
+from bot.database.base import session_scope
+from bot.database.models.pack import Pack
 from bot.sticker import StickerFile
 import bot.sticker.error as error
 from ..fallback_commands import cancel_command
@@ -90,8 +91,14 @@ def on_pack_name_receive(update: Update, context: CallbackContext):
         # do not change the user status and let him send another name
         return WAITING_NAME
 
-    if db.check_for_name_duplicates(update.effective_user.id, candidate_name):
-        logger.info('pack name already saved: %s', candidate_name)
+    name_already_used = False
+    with session_scope() as session:
+        # https://stackoverflow.com/a/34112760
+        if session.query(Pack).filter(Pack.user_id==update.effective_user.id, Pack.name==candidate_name).first() is not None:
+            logger.info('pack name already saved: %s', candidate_name)
+            name_already_used = True
+
+    if name_already_used:
         update.message.reply_text(Strings.PACK_NAME_DUPLICATE)
         # do not change the user status and let him send another name
         return WAITING_NAME
@@ -167,7 +174,12 @@ def on_first_sticker_receive(update: Update, context: CallbackContext):
         return ConversationHandler.END  # do not continue, end the conversation
     else:
         # success
-        db.save_pack(update.effective_user.id, full_name, title)
+
+        pack_row = Pack(user_id=update.effective_user.id, name=full_name, title=title)
+        with session_scope() as session:
+            session.add(pack_row)
+
+        # db.save_pack(update.effective_user.id, full_name, title)
         pack_link = utils.name2link(full_name)
         update.message.reply_html(Strings.PACK_CREATION_PACK_CREATED.format(pack_link))
 

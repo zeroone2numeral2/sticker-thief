@@ -6,9 +6,10 @@ from telegram.ext import CommandHandler
 from telegram import ChatAction, Update
 
 from bot import stickersbot
+from bot.database.base import session_scope
+from bot.database.models.pack import Pack
 from bot.strings import Strings
 from bot.utils import decorators
-from bot import db
 
 logger = logging.getLogger(__name__)
 
@@ -19,8 +20,9 @@ logger = logging.getLogger(__name__)
 def on_forgetme_command(update: Update, _):
     logger.info('%d: /forgetme', update.effective_user.id)
 
-    deleted_rows = db.delete_user_packs(update.effective_user.id)
-    logger.info('deleted rows: %d', deleted_rows or 0)
+    with session_scope() as session:
+        deleted_rows = session.query(Pack).filter(Pack.user_id==update.effective_user.id).delete()
+        logger.info('deleted rows: %d', deleted_rows or 0)
 
     update.message.reply_text(Strings.FORGETME_SUCCESS)
 
