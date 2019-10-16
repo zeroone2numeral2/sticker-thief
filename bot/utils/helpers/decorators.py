@@ -6,7 +6,9 @@ from html import escape as html_escape
 from telegram import Update
 # noinspection PyPackageRequirements
 from telegram.ext import CallbackContext
+from sqlalchemy.exc import SQLAlchemyError
 
+from bot.database.base import Session
 from config import config
 
 logger = logging.getLogger(__name__)
@@ -62,5 +64,25 @@ def adminsonly(func):
             update.message.reply_text('You are not allowed to use this command')
             return
         return func(update, context, *args, **kwargs)
+
+    return wrapped
+
+
+# it is not a good idea to use this, because we keep the session open for the whole
+# callback execution (api requests included)
+def dbsession(func):
+    @wraps(func)
+    def wrapped(update: Update, context: CallbackContext, *args, **kwargs):
+        session = Session()
+
+        try:
+            callback_result = func(update, context, session=session, *args, **kwargs)
+        except SQLAlchemyError:
+            session.rollback()
+            return
+
+        session.commit()
+
+        return callback_result
 
     return wrapped

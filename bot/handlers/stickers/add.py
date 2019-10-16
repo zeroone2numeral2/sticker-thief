@@ -14,7 +14,8 @@ from telegram import ChatAction, Update
 
 from bot import stickersbot
 from bot.strings import Strings
-from bot import db
+from bot.database.base import session_scope
+from bot.database.models.pack import Pack
 from bot.markups import Keyboard
 from bot.sticker import StickerFile
 import bot.sticker.error as error
@@ -34,7 +35,10 @@ WAITING_TITLE, WAITING_NAME, WAITING_STICKERS = range(3)
 def on_add_command(update: Update, _):
     logger.info('%d: /add', update.effective_user.id)
 
-    pack_titles = db.get_pack_titles(update.effective_user.id)
+    # pack_titles = db.get_pack_titles(update.effective_user.id)
+    with session_scope() as session:
+        pack_titles = [t.title for t in session.query(Pack.title).filter_by(user_id=update.effective_user.id).all()]
+
     if not pack_titles:
         update.message.reply_text(Strings.ADD_STICKER_NO_PACKS)
 
@@ -52,30 +56,36 @@ def on_pack_title(update: Update, context: CallbackContext):
     logger.info('%d: user selected the pack title from the keyboard', update.effective_user.id)
 
     selected_title = update.message.text
-    pack_info = db.get_packs_by_title(update.effective_user.id, selected_title, as_obj=True)
+    # pack_info = db.get_packs_by_title(update.effective_user.id, selected_title, as_obj=True)
 
-    if pack_info is None:
+    with session_scope() as session:
+        packs_by_title = session.query(Pack).filter_by(title=selected_title).all()
+
+        # for some reason, accessing a Pack attribute outside of a session raises an error: https://docs.sqlalchemy.org/en/13/errors.html#object-relational-mapping
+        # so we preload the list here in case we're going to need it later, to avoid a more complex handling
+        # of the session
+        pack_names = [pack.name.replace('_by_' + context.bot.username, '') for pack in packs_by_title]  # strip the '_by_bot' part
+
+    if not packs_by_title:
         logger.error('cannot find any pack with this title: %s', selected_title)
         update.message.reply_text(Strings.ADD_STICKER_SELECTED_TITLE_DOESNT_EXIST.format(selected_title[:150]))
         # do not change the user status
         return WAITING_TITLE
 
-    if len(pack_info) > 1:
+    if len(packs_by_title) > 1:
         logger.info('user has multiple packs with this title: %s', selected_title)
 
-        # build the keyboard with the pack links
-        pack_names = [pack.name.replace('_by_' + context.bot.username, '') for pack in pack_info]  # strip the '_by_bot' part
         markup = Keyboard.from_list(pack_names, add_back_button=True)
 
         # list with the links to the involved packs
-        pack_links = ['<a href="{}">{}</a>'.format(utils.name2link(pack.name), pack.name.replace('_by_' + context.bot.username, '')) for pack in pack_info]
+        pack_links = ['<a href="{}">{}</a>'.format(utils.name2link(pack_name + '_by_' + context.bot.username), pack_name) for pack_name in pack_names]
         text = Strings.ADD_STICKER_SELECTED_TITLE_MULTIPLE.format(selected_title, '\n• '.join(pack_links))
         update.message.reply_html(text, reply_markup=markup)
 
         return WAITING_NAME  # we now have to wait for the user to tap on a pack name
 
     logger.info('there is only one pack with the selected title, proceeding...')
-    pack = pack_info[0]
+    pack = packs_by_title[0]
 
     context.user_data['pack'] = dict(name=pack.name)
     pack_link = utils.name2link(pack.name)
@@ -91,7 +101,9 @@ def on_pack_name(update: Update, context: CallbackContext):
     logger.debug('user_data: %s', context.user_data)
 
     if re.search(r'^GO BACK$', update.message.text, re.I):
-        pack_titles = db.get_pack_titles(update.effective_user.id)
+        with session_scope() as session:
+            pack_titles = [t.title for t in session.query(Pack.title).filter_by(user_id=update.effective_user.id).all()]
+
         markup = Keyboard.from_list(pack_titles)
         update.message.reply_text(Strings.ADD_STICKER_SELECT_PACK, reply_markup=markup)
 
@@ -100,7 +112,10 @@ def on_pack_name(update: Update, context: CallbackContext):
     # the buttons list has the name without "_by_botusername"
     selected_name = '{}_by_{}'.format(update.message.text, context.bot.username)
 
-    pack = db.get_pack_by_name(update.effective_user.id, selected_name, as_namedtuple=True)
+    # pack = db.get_pack_by_name(update.effective_user.id, selected_name, as_namedtuple=True)
+    with session_scope() as session:
+        pack = session.query(Pack).filter_by(title=selected_name).first()
+
     if not pack:
         logger.error('user %d does not have any pack with name %s', update.effective_user.id, selected_name)
         update.message.reply_text(Strings.ADD_STICKER_SELECTED_NAME_DOESNT_EXIST)

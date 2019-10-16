@@ -1,11 +1,10 @@
 from .utils import utils
+from .database import base
 from .bot import StickersBot
-from .database import Database
 from config import config
 
 
 stickersbot = StickersBot(token=config.telegram.token, use_context=True, workers=1)
-db = Database(config.sqlite.filename)
 
 
 def main():
