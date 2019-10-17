@@ -26,7 +26,10 @@ def load_logging_config(file_name='logging.json'):
     logging.config.dictConfig(logging_config)
 
 
-def name2link(name):
+def name2link(name, bot_username=None):
+    if bot_username and not name.endswith('_by_' + bot_username):
+        name += '_by_' + bot_username
+
     return 'https://t.me/addstickers/{}'.format(name)
 
 

@@ -59,7 +59,8 @@ def on_pack_title(update: Update, context: CallbackContext):
     with session_scope() as session:
         packs_by_title = session.query(Pack).filter_by(title=selected_title).all()
 
-        # for some reason, accessing a Pack attribute outside of a session raises an error: https://docs.sqlalchemy.org/en/13/errors.html#object-relational-mapping
+        # for some reason, accessing a Pack attribute outside of a session
+        # raises an error: https://docs.sqlalchemy.org/en/13/errors.html#object-relational-mapping
         # so we preload the list here in case we're going to need it later, to avoid a more complex handling
         # of the session
         pack_names = [pack.name.replace('_by_' + context.bot.username, '') for pack in packs_by_title]  # strip the '_by_bot' part
@@ -76,16 +77,17 @@ def on_pack_title(update: Update, context: CallbackContext):
         markup = Keyboard.from_list(pack_names, add_back_button=True)
 
         # list with the links to the involved packs
-        pack_links = ['<a href="{}">{}</a>'.format(utils.name2link(pack_name + '_by_' + context.bot.username), pack_name) for pack_name in pack_names]
+        pack_links = ['<a href="{}">{}</a>'.format(utils.name2link(pack_name, bot_username=context.bot.username), pack_name) for pack_name in pack_names]
         text = Strings.ADD_STICKER_SELECTED_TITLE_MULTIPLE.format(selected_title, '\n• '.join(pack_links))
         update.message.reply_html(text, reply_markup=markup)
 
         return WAITING_NAME  # we now have to wait for the user to tap on a pack name
 
     logger.info('there is only one pack with the selected title, proceeding...')
+    pack_name = '{}_by_{}'.format(pack_names[0], context.bot.username)
 
-    context.user_data['pack'] = dict(name=pack_names[0])
-    pack_link = utils.name2link(pack_names[0])
+    context.user_data['pack'] = dict(name=pack_name)
+    pack_link = utils.name2link(pack_name)
     update.message.reply_html(Strings.ADD_STICKER_PACK_SELECTED.format(pack_link), reply_markup=Keyboard.HIDE)
 
     return WAITING_STICKERS
