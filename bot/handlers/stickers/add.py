@@ -83,10 +83,9 @@ def on_pack_title(update: Update, context: CallbackContext):
         return WAITING_NAME  # we now have to wait for the user to tap on a pack name
 
     logger.info('there is only one pack with the selected title, proceeding...')
-    pack = packs_by_title[0]
 
-    context.user_data['pack'] = dict(name=pack.name)
-    pack_link = utils.name2link(pack.name)
+    context.user_data['pack'] = dict(name=pack_names[0])
+    pack_link = utils.name2link(pack_names[0])
     update.message.reply_html(Strings.ADD_STICKER_PACK_SELECTED.format(pack_link), reply_markup=Keyboard.HIDE)
 
     return WAITING_STICKERS
