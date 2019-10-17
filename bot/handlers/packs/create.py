@@ -34,7 +34,7 @@ WAITING_TITLE, WAITING_NAME, WAITING_FIRST_STICKER, ADDING_STICKERS = range(4)
 @decorators.restricted
 @decorators.failwithmessage
 def on_create_command(update: Update, _):
-    logger.info('%d: /create', update.effective_user.id)
+    logger.info('/create')
 
     update.message.reply_text(Strings.PACK_CREATION_WAITING_TITLE)
     
@@ -44,7 +44,7 @@ def on_create_command(update: Update, _):
 @decorators.action(ChatAction.TYPING)
 @decorators.failwithmessage
 def on_pack_title_receive(update: Update, context: CallbackContext):
-    logger.info('%d: received possible pack title', update.effective_user.id)
+    logger.info('received possible pack title')
 
     if len(update.message.text) > 64:
         logger.info('pack title too long: %s', update.message.text)
@@ -74,7 +74,7 @@ def on_pack_title_receive(update: Update, context: CallbackContext):
 @decorators.action(ChatAction.TYPING)
 @decorators.failwithmessage
 def on_pack_name_receive(update: Update, context: CallbackContext):
-    logger.info('%d: received possible pack name (link)', update.effective_user.id)
+    logger.info('received possible pack name (link)')
     logger.debug('user_data: %s', context.user_data)
 
     candidate_name = update.message.text
@@ -115,7 +115,7 @@ def on_pack_name_receive(update: Update, context: CallbackContext):
 @decorators.action(ChatAction.TYPING)
 @decorators.failwithmessage
 def on_animated_sticker_receive(update: Update, _):
-    logger.info('%d: user sent an animated sticker', update.effective_user.id)
+    logger.info('user sent an animated sticker')
 
     update.message.reply_text(Strings.ADD_STICKER_ANIMATED_UNSUPPORTED)
 
@@ -125,7 +125,7 @@ def on_animated_sticker_receive(update: Update, _):
 @decorators.action(ChatAction.TYPING)
 @decorators.failwithmessage
 def on_first_sticker_receive(update: Update, context: CallbackContext):
-    logger.info('%d: first sticker of the pack received', update.effective_user.id)
+    logger.info('first sticker of the pack received')
     logger.debug('user_data: %s', context.user_data)
 
     title, name = context.user_data['pack'].get('title', None), context.user_data['pack'].get('name', None)

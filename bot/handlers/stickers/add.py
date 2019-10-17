@@ -33,7 +33,7 @@ WAITING_TITLE, WAITING_NAME, WAITING_STICKERS = range(3)
 @decorators.restricted
 @decorators.failwithmessage
 def on_add_command(update: Update, _):
-    logger.info('%d: /add', update.effective_user.id)
+    logger.info('/add')
 
     with session_scope() as session:
         pack_titles = [t.title for t in session.query(Pack.title).filter_by(user_id=update.effective_user.id).all()]
@@ -52,7 +52,7 @@ def on_add_command(update: Update, _):
 @decorators.action(ChatAction.TYPING)
 @decorators.failwithmessage
 def on_pack_title(update: Update, context: CallbackContext):
-    logger.info('%d: user selected the pack title from the keyboard', update.effective_user.id)
+    logger.info('user selected the pack title from the keyboard')
 
     selected_title = update.message.text
 
@@ -96,7 +96,7 @@ def on_pack_title(update: Update, context: CallbackContext):
 @decorators.action(ChatAction.TYPING)
 @decorators.failwithmessage
 def on_pack_name(update: Update, context: CallbackContext):
-    logger.info('%d: user selected the pack name from the keyboard', update.effective_user.id)
+    logger.info('user selected the pack name from the keyboard')
     logger.debug('user_data: %s', context.user_data)
 
     if re.search(r'^GO BACK$', update.message.text, re.I):
@@ -130,7 +130,7 @@ def on_pack_name(update: Update, context: CallbackContext):
 @decorators.action(ChatAction.TYPING)
 @decorators.failwithmessage
 def on_animated_sticker_receive(update: Update, _):
-    logger.info('%d: user sent an animated sticker', update.effective_user.id)
+    logger.info('user sent an animated sticker')
 
     update.message.reply_text(Strings.ADD_STICKER_ANIMATED_UNSUPPORTED)
 
@@ -140,7 +140,7 @@ def on_animated_sticker_receive(update: Update, _):
 @decorators.action(ChatAction.TYPING)
 @decorators.failwithmessage
 def on_sticker_receive(update: Update, context: CallbackContext):
-    logger.info('%d: user sent a sticker to add', update.effective_user.id)
+    logger.info('user sent a sticker to add')
     logger.debug('user_data: %s', context.user_data)
 
     name = context.user_data['pack'].get('name', None)

@@ -28,7 +28,7 @@ WAITING_STICKERS = range(1)
 @decorators.restricted
 @decorators.failwithmessage
 def on_remove_command(update: Update, _):
-    logger.info('%d: /remove', update.effective_user.id)
+    logger.info('/remove')
 
     update.message.reply_text(Strings.REMOVE_STICKER_SELECT_STICKER)
 
@@ -38,7 +38,7 @@ def on_remove_command(update: Update, _):
 @decorators.action(ChatAction.TYPING)
 @decorators.failwithmessage
 def on_sticker_receive(update: Update, context: CallbackContext):
-    logger.info('%d: user sent the stciker to add', update.effective_user.id)
+    logger.info('user sent the stciker to add')
 
     sticker = StickerFile(update.message.sticker)
 

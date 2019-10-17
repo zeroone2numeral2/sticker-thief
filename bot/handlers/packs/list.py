@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 @decorators.restricted
 @decorators.failwithmessage
 def on_list_command(update: Update, _):
-    logger.info('%d: /list', update.effective_user.id)
+    logger.info('/list')
 
     # packs = db.get_user_packs(update.effective_user.id, as_namedtuple=True)
     with session_scope() as session:

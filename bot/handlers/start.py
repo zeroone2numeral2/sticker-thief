@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 @decorators.restricted
 @decorators.failwithmessage
 def on_help_command(update: Update, context: CallbackContext):
-    logger.info('%d: /help', update.effective_user.id)
+    logger.info('/help')
 
     update.message.reply_html(Strings.HELP_MESSAGE.format(context.bot.username))
 
@@ -32,7 +32,7 @@ def on_help_command(update: Update, context: CallbackContext):
 @decorators.restricted
 @decorators.failwithmessage
 def on_start_command(update: Update, _):
-    logger.info('%d: /start', update.effective_user.id)
+    logger.info('/start')
 
     start_message = Strings.START_MESSAGE
     if config.bot.sourcecode:

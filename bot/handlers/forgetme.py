@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 @decorators.restricted
 @decorators.failwithmessage
 def on_forgetme_command(update: Update, _):
-    logger.info('%d: /forgetme', update.effective_user.id)
+    logger.info('/forgetme')
 
     with session_scope() as session:
         deleted_rows = session.query(Pack).filter(Pack.user_id==update.effective_user.id).delete()

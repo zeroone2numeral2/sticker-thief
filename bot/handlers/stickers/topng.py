@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 @decorators.action(ChatAction.UPLOAD_DOCUMENT)
 @decorators.failwithmessage
 def on_sticker_receive(update: Update, _):
-    logger.info('%d: user sent a stciker to convert', update.effective_user.id)
+    logger.info('user sent a stciker to convert')
 
     sticker = StickerFile(update.message.sticker)
     sticker.download(prepare_png=True)

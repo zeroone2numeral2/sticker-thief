@@ -37,7 +37,7 @@ WAITING_STICKER = range(1)
 @decorators.restricted
 @decorators.failwithmessage
 def on_export_command(update: Update, _):
-    logger.info('%d: /export', update.effective_user.id)
+    logger.info('/export')
 
     update.message.reply_text(Strings.EXPORT_PACK_SELECT)
 
@@ -48,7 +48,7 @@ def on_export_command(update: Update, _):
 @decorators.action(ChatAction.UPLOAD_DOCUMENT)
 @decorators.failwithmessage
 def on_sticker_receive(update: Update, context: CallbackContext):
-    logger.info('%d: user sent a stciker from the pack to export', update.effective_user.id)
+    logger.info('user sent a stciker from the pack to export')
 
     if not update.message.sticker.set_name:
         update.message.reply_text(Strings.EXPORT_PACK_NO_PACK)
@@ -114,7 +114,7 @@ def on_sticker_receive(update: Update, context: CallbackContext):
 @decorators.action(ChatAction.TYPING)
 @decorators.failwithmessage
 def on_animated_sticker_receive(update: Update, _):
-    logger.info('%d: user sent an animated sticker', update.effective_user.id)
+    logger.info('user sent an animated sticker')
 
     update.message.reply_text(Strings.ADD_STICKER_ANIMATED_UNSUPPORTED)
 
