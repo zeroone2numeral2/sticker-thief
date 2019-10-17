@@ -111,16 +111,16 @@ def on_pack_name(update: Update, context: CallbackContext):
     selected_name = '{}_by_{}'.format(update.message.text, context.bot.username)
 
     with session_scope() as session:
-        pack = session.query(Pack).filter_by(title=selected_name).first()
+        pack_name = session.query(Pack).filter_by(title=selected_name).first().name
 
-    if not pack:
+    if not pack_name:
         logger.error('user %d does not have any pack with name %s', update.effective_user.id, selected_name)
         update.message.reply_text(Strings.ADD_STICKER_SELECTED_NAME_DOESNT_EXIST)
         # do not reset the user status
         return WAITING_NAME
 
-    context.user_data['pack'] = dict(name=pack.name)
-    pack_link = utils.name2link(pack.name)
+    context.user_data['pack'] = dict(name=pack_name)
+    pack_link = utils.name2link(pack_name)
     update.message.reply_html(Strings.ADD_STICKER_PACK_SELECTED.format(pack_link), reply_markup=Keyboard.HIDE)
 
     return WAITING_STICKERS
