@@ -69,13 +69,13 @@ class StickerFile:
             return self._size_resized
 
     @staticmethod
-    def _raise_exception(error_message):
-        for desc, exception in EXCEPTIONS.items():
-            if re.search(desc, error_message, re.I):
-                raise exception(error_message)
+    def _raise_exception(received_error_message):
+        for expected_api_error_message, exception_to_raise in EXCEPTIONS.items():
+            if re.search(expected_api_error_message, received_error_message, re.I):
+                raise exception_to_raise(received_error_message)
 
         # raise unknown error if no description matched
-        raise EXCEPTIONS[''](error_message)
+        raise EXCEPTIONS[''](received_error_message)
 
     def download(self, prepare_png=False, subdir=''):
         logger.debug('downloading sticker')
