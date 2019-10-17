@@ -25,7 +25,7 @@ If you respect other people's work, want to give credits to the original pack cr
 
 ### Notes for those who are going to run this
 
-This bot is not made to be used by a large amount of users. It stores data into an SQLite database, to which we're not even peristently connected. I don't grant performances.
+This bot is not made to be used by a large amount of users and I cannot guarantee its performances.
 
 By default, everyone can use this bot (with the exception of some special commands, listed below). If you want to restrict its use to only the users listed in `telegram.admins` (`condfig.toml` file), open `config.toml` and change `telegram.admins_only` to `true`.
 
