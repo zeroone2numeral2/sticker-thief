@@ -112,7 +112,7 @@ def on_pack_name(update: Update, context: CallbackContext):
     selected_name = '{}_by_{}'.format(update.message.text, context.bot.username)
 
     with session_scope() as session:
-        pack_name = session.query(Pack).filter_by(title=selected_name).first().name
+        pack_name = session.query(Pack).filter_by(name=selected_name).first().name
 
     if not pack_name:
         logger.error('user %d does not have any pack with name %s', update.effective_user.id, selected_name)
