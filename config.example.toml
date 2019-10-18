@@ -8,3 +8,4 @@ filename = "stickersbot.sqlite"
 
 [bot]
 sourcecode = ""
+issues = ""

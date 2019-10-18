@@ -34,10 +34,12 @@ def failwithmessage(func):
         except Exception as e:
             logger.error('error while running handler callback: %s', str(e), exc_info=True)
             text = 'An error occurred while processing the message: <code>{}</code>'.format(html_escape(str(e)))
+            if config.bot.sourcecode:
+                text += '\nIf you think this is a bug, please report the issue <a href="{}">here</a>!'.format(config.bot.issues)
             if update.callback_query:
-                update.callback_query.message.reply_html(text)
+                update.callback_query.message.reply_html(text, disable_web_page_preview=True)
             else:
-                update.message.reply_html(text)
+                update.message.reply_html(text, disable_web_page_preview=True)
 
     return wrapped
 
