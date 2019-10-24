@@ -28,11 +28,4 @@ If you respect other people's work, want to give credits to the original pack cr
 This bot is not made to be used by a large amount of users and I cannot guarantee its performances.
 
 By default, everyone can use this bot (with the exception of some special commands, listed below). If you want to restrict its use to only the users listed in `telegram.admins` (`condfig.toml` file), open `config.toml` and change `telegram.admins_only` to `true`.
-
-There are also some commands that can be used only by the admins of the bot:
- - `/deltmp`: clean up all the files stored in the `tmp/` directory
- 
- ***
- 
- I also noticed PIL has some issues converting some `wepb` files to `png` when running on Windows.
  

@@ -28,14 +28,13 @@ def get_correct_size(sizes):
 
 
 class StickerFile:
-    def __init__(self, sticker, caption=None):
-        self._file = sticker
-        self._downloaded_file_path = None
-        self._png_path = None
+    def __init__(self, sticker, caption=None, temp_file=None):
+        self._file: [Sticker, Document] = sticker
         self._emoji = None
         self._size_original = (0, 0)
         self._size_resized = (0, 0)
-        self._subdir = ''
+        self._tempfile_downloaded = temp_file or tempfile.SpooledTemporaryFile()
+        self._tempfile_result_png = tempfile.SpooledTemporaryFile()
 
         if isinstance(sticker, Sticker):
             logger.debug('StickerFile object is a Sticker')
@@ -105,20 +104,19 @@ class StickerFile:
 
         self._tempfile_result_png.seek(0)
 
-    def get_png_bytes_object(self):
-        return open(self._png_path, 'rb')
-
-    def delete(self, keep_result_png=False):
+    def close(self, keep_result_png_open=False):
         # noinspection PyBroadException
         try:
-            if os.path.exists(self._downloaded_file_path):
-                logger.debug('deleting webp sticker file: %s', self._downloaded_file_path)
-                os.remove(self._downloaded_file_path)
-            if not keep_result_png and os.path.exists(self._png_path):
-                logger.debug('deleting png sticker file: %s', self._png_path)
-                os.remove(self._png_path)
+            self._tempfile_downloaded.close()
         except Exception as e:
-            logger.error('error while trying to delete sticker files: %s', str(e))
+            logger.error('error while trying to close downloaded tempfile: %s', str(e))
+
+        if not keep_result_png_open:
+            # noinspection PyBroadException
+            try:
+                self._tempfile_result_png.close()
+            except Exception as e:
+                logger.error('error while trying to close result png tempfile: %s', str(e))
 
     def add_to_set(self, bot, user_id, pack_name):
         logger.debug('adding sticker to set %s', pack_name)

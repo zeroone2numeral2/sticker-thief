@@ -161,7 +161,7 @@ def on_first_sticker_receive(update: Update, context: CallbackContext):
             update.message.reply_text(Strings.PACK_CREATION_ERROR_INVALID_NAME)
 
         context.user_data['pack'].pop('name', None)  # remove pack name
-        sticker.delete()
+        sticker.close()
 
         return WAITING_NAME  # do not continue, wait for another name
     except error.UnknwonError as e:
@@ -169,7 +169,7 @@ def on_first_sticker_receive(update: Update, context: CallbackContext):
         update.message.reply_html(Strings.PACK_CREATION_ERROR_GENERIC.format(e.message))
 
         context.user_data.pop('pack', None)  # remove temp data
-        sticker.delete()
+        sticker.close()
 
         return ConversationHandler.END  # do not continue, end the conversation
     else:
@@ -183,7 +183,7 @@ def on_first_sticker_receive(update: Update, context: CallbackContext):
         pack_link = utils.name2link(full_name)
         update.message.reply_html(Strings.PACK_CREATION_PACK_CREATED.format(pack_link))
 
-        sticker.delete()  # remove sticker files
+        sticker.close()  # remove sticker files
 
         context.user_data['pack']['name'] = full_name
         # do not remove temporary data (user_data['pack']) because we are still adding stickers
