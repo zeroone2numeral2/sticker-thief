@@ -28,13 +28,13 @@ def get_correct_size(sizes):
 
 
 class StickerFile:
-    def __init__(self, sticker, caption=None):
+    def __init__(self, sticker, caption=None, temp_file=None):
         self._file: [Sticker, Document] = sticker
         self._emoji = None
         self._size_original = (0, 0)
         self._size_resized = (0, 0)
-        self._tempfile_downloaded = tempfile.TemporaryFile()
-        self._tempfile_result_png = tempfile.TemporaryFile()
+        self._tempfile_downloaded = temp_file or tempfile.SpooledTemporaryFile()
+        self._tempfile_result_png = tempfile.SpooledTemporaryFile()
 
         if isinstance(sticker, Sticker):
             logger.debug('StickerFile object is a Sticker')
@@ -104,17 +104,19 @@ class StickerFile:
 
         self._tempfile_result_png.seek(0)
 
-    def delete(self):
+    def close(self, keep_result_png_open=False):
         # noinspection PyBroadException
         try:
             self._tempfile_downloaded.close()
         except Exception as e:
             logger.error('error while trying to close downloaded tempfile: %s', str(e))
-        # noinspection PyBroadException
-        try:
-            self._tempfile_result_png.close()
-        except Exception as e:
-            logger.error('error while trying to close result png tempfile: %s', str(e))
+
+        if not keep_result_png_open:
+            # noinspection PyBroadException
+            try:
+                self._tempfile_result_png.close()
+            except Exception as e:
+                logger.error('error while trying to close result png tempfile: %s', str(e))
 
     def add_to_set(self, bot, user_id, pack_name):
         logger.debug('adding sticker to set %s', pack_name)

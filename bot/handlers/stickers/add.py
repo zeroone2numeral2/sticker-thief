@@ -167,7 +167,7 @@ def on_sticker_receive(update: Update, context: CallbackContext):
     except error.PackInvalid:
         # pack name invalid or that pack has been deleted: delete it from the db
         with session_scope() as session:
-            deleted_rows = session.query(Pack).filter(Pack.user_id==update.effective_user.id, Pack.name==name).delete('fetch')
+            deleted_rows = session.query(Pack).filter(Pack.user_id==update.effective_user.id, Pack.name==name).close('fetch')
             logger.debug('rows deleted: %d', deleted_rows or 0)
 
             # get the remaining packs' titles
@@ -178,7 +178,7 @@ def on_sticker_receive(update: Update, context: CallbackContext):
             update.message.reply_html(Strings.ADD_STICKER_PACK_NOT_VALID_NO_PACKS.format(pack_link))
 
             logger.debug('calling sticker.delete()...')
-            sticker.delete()
+            sticker.close()
             return ConversationHandler.END
         else:
             # make the user select another pack from the keyboard
@@ -187,7 +187,7 @@ def on_sticker_receive(update: Update, context: CallbackContext):
             context.user_data['pack'].pop('name', None)  # remove temporary data
 
             logger.debug('calling sticker.delete()...')
-            sticker.delete()
+            sticker.close()
             return WAITING_TITLE
     except error.UnknwonError as e:
         update.message.reply_html(Strings.ADD_STICKER_GENERIC_ERROR.format(pack_link, e.message), quote=True)
@@ -197,7 +197,7 @@ def on_sticker_receive(update: Update, context: CallbackContext):
     finally:
         # is this entered even when we enter the "else"?
         logger.debug('calling sticker.delete()...')
-        sticker.delete()
+        sticker.close()
         return WAITING_STICKERS
 
 
