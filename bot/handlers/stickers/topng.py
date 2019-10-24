@@ -23,7 +23,7 @@ def on_sticker_receive(update: Update, _):
 
     update.message.reply_document(sticker.png_bytes_object, quote=True)
 
-    sticker.delete()
+    sticker.close()
 
 
 stickersbot.add_handler(MessageHandler(Filters.sticker, on_sticker_receive))

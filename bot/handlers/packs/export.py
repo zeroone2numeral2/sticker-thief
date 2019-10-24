@@ -1,8 +1,7 @@
 import logging
-import os
 from html import escape as html_escape
-from shutil import make_archive
-from shutil import rmtree
+import zipfile
+import tempfile
 
 # noinspection PyPackageRequirements
 from telegram.ext import (
@@ -10,7 +9,6 @@ from telegram.ext import (
     MessageHandler,
     ConversationHandler,
     CallbackContext,
-    Filters,
     run_async
 )
 # noinspection PyPackageRequirements
@@ -56,57 +54,50 @@ def on_sticker_receive(update: Update, context: CallbackContext):
 
     sticker_set = context.bot.get_sticker_set(update.message.sticker.set_name)
 
-    # use the message_id to make sure we will not end up with multiple dirs/files with the same name
-    dir_name = '{}_{}/'.format(update.message.message_id, sticker_set.title)
-    dir_path = 'tmp/{}'.format(dir_name)
-    os.mkdir(dir_path)
-
     base_progress_message = Strings.EXPORT_PACK_START.format(html_escape(sticker_set.title))
     message_to_edit = update.message.reply_html(base_progress_message, quote=True)
 
-    total = len(sticker_set.stickers)
-    progress = 0
-    for sticker in sticker_set.stickers:
-        sticker_file = StickerFile(sticker)
-        try:
-            # try to download and convert to png
-            sticker_file.download(prepare_png=True, subdir=dir_name)
-            # delete only the .webp file
-            sticker_file.delete(keep_result_png=True)
-        except Exception as e:
-            logger.info('error while downloading and converting a sticker we need to export: %s', str(e))
-            # make sure we delete the downloaded .webp file
-            sticker_file.delete(keep_result_png=True)
-        progress += 1
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        logger.info('using %s as TemporaryDirectory', tmp_dir)
+        with tempfile.TemporaryFile() as tmp_file:  # temporary zip file
+            with zipfile.ZipFile(tmp_file, 'w') as zip_file:
 
-        # edit message every 12 exported stickers, or when we're done
-        if progress == total or progress % 10 == 0:
-            try:
-                message_to_edit.edit_text('{} (progress: {}/{})'.format(base_progress_message, progress, total),
-                                          parse_mode=ParseMode.HTML)
-            except (TelegramError, BadRequest) as e:
-                logger.error('error while editing progress message: %s', e.message)
+                total = len(sticker_set.stickers)
+                for i, sticker in enumerate(sticker_set.stickers):
+                    sticker_file = StickerFile(sticker, temp_file=tempfile.NamedTemporaryFile(dir=tmp_dir))
+                    try:
+                        sticker_file.download(prepare_png=True)
+                    except Exception as e:
+                        logger.info('error while downloading and converting a sticker we need to export: %s', str(e))
+                    finally:
+                        sticker_file.close(keep_result_png_open=True)
 
-    message_to_edit.reply_text(Strings.EXPORT_PACK_UPLOADING, quote=True)
+                    # https://stackoverflow.com/a/54202259
+                    zip_file.writestr('{}.png'.format(sticker.file_id), sticker_file.png_file.read())
 
-    logger.info('creating zip file...')
-    zip_path = 'tmp/{}_{}'.format(update.message.message_id, sticker_set.name)
-    make_archive(zip_path, 'zip', dir_path)
-    zip_path += '.zip'
+                    # edit message every 10 exported stickers, or when we're done
+                    progress = i + 1
+                    if progress == total or progress % 10 == 0:
+                        try:
+                            message_to_edit.edit_text('{} (progress: {}/{})'.format(base_progress_message, progress, total),
+                                                      parse_mode=ParseMode.HTML)
+                        except (TelegramError, BadRequest) as e:
+                            logger.warning('error while editing progress message: %s', e.message)
 
-    logger.debug('sending zip file %s', zip_path)
-    with open(zip_path, 'rb') as f:
-        update.message.reply_document(f, caption='<a href="{}">{}</a>'.format(
-            utils.name2link(sticker_set.name),
-            html_escape(sticker_set.title)
-        ), parse_mode=ParseMode.HTML, quote=True)
+                message_to_edit.reply_text(Strings.EXPORT_PACK_UPLOADING, quote=True)
 
-    logger.info('cleaning up export files')
-    try:
-        os.remove(zip_path)  # remove the zip file
-        rmtree(dir_path)  # remove the png dir
-    except Exception as e:
-        logger.error('error while cleaning up the export files: %s', str(e))
+            tmp_file.seek(0)
+
+            update.message.reply_document(
+                tmp_file,
+                filename='{}.zip'.format(sticker_set.name),
+                caption='<a href="{}">{}</a>'.format(
+                    utils.name2link(sticker_set.name),
+                    html_escape(sticker_set.title)
+                ),
+                parse_mode=ParseMode.HTML,
+                quote=True
+            )
 
     return ConversationHandler.END
 
