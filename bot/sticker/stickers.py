@@ -1,9 +1,9 @@
 import logging
+import os
 import math
 import re
-import tempfile
-
 from PIL import Image
+
 # noinspection PyPackageRequirements
 from telegram import Sticker, Document
 # noinspection PyPackageRequirements
@@ -29,12 +29,13 @@ def get_correct_size(sizes):
 
 class StickerFile:
     def __init__(self, sticker, caption=None):
-        self._file: [Sticker, Document] = sticker
+        self._file = sticker
+        self._downloaded_file_path = None
+        self._png_path = None
         self._emoji = None
         self._size_original = (0, 0)
         self._size_resized = (0, 0)
-        self._tempfile_downloaded = tempfile.TemporaryFile()
-        self._tempfile_result_png = tempfile.TemporaryFile()
+        self._subdir = ''
 
         if isinstance(sticker, Sticker):
             logger.debug('StickerFile object is a Sticker')
@@ -49,8 +50,16 @@ class StickerFile:
                 self._emoji = '💈'
 
     @property
+    def png_path(self):
+        return self._png_path
+
+    @property
     def emoji(self):
         return self._emoji
+
+    @property
+    def png_bytes_object(self):
+        return self.get_png_bytes_object()
 
     @property
     def size(self):
@@ -58,10 +67,6 @@ class StickerFile:
             return self._size_original
         else:
             return self._size_resized
-
-    @property
-    def png_file(self):
-        return self._tempfile_result_png
 
     @staticmethod
     def _raise_exception(received_error_message):
@@ -72,21 +77,25 @@ class StickerFile:
         # raise unknown error if no description matched
         raise EXCEPTIONS[''](received_error_message)
 
-    def download(self, prepare_png=False):
+    def download(self, prepare_png=False, subdir=''):
         logger.debug('downloading sticker')
         new_file = self._file.get_file()
 
-        logger.debug('downloading to bytes object: self._tempfile_downloaded')
-        new_file.download(out=self._tempfile_downloaded)
-        self._tempfile_downloaded.seek(0)
+        if self._is_sticker:
+            self._downloaded_file_path = 'tmp/{}downloaded_{}.webp'.format(subdir, self._file.file_id)
+        else:  # if we are already working with a png document
+            self._downloaded_file_path = 'tmp/{}downloaded_{}.png'.format(subdir, self._file.file_id)
+
+        logger.debug('download path: %s', self._downloaded_file_path)
+        new_file.download(self._downloaded_file_path)
 
         if prepare_png:
-            return self.prepare_png()
+            return self.prepare_png(subdir=subdir)
 
-    def prepare_png(self):
-        logger.info('preparing png')
+    def prepare_png(self, subdir=''):
+        logger.info('preparing png (source file: %s)', self._downloaded_file_path)
 
-        im = Image.open(self._tempfile_downloaded)  # try to open bytes object
+        im = Image.open(self._downloaded_file_path)
 
         logger.debug('original image size: %s', im.size)
         self._size_original = im.size
@@ -98,23 +107,28 @@ class StickerFile:
         else:
             logger.debug('original size is ok')
 
-        logger.debug('saving PIL image object as tempfile')
-        im.save(self._tempfile_result_png, 'png')
+        self._png_path = 'tmp/{}converted_{}.png'.format(subdir, self._file.file_id)
+
+        logger.debug('saving PIL image object as png (%s)', self._png_path)
+        im.save(self._png_path, 'png')
         im.close()
 
-        self._tempfile_result_png.seek(0)
+        return self._png_path
 
-    def delete(self):
+    def get_png_bytes_object(self):
+        return open(self._png_path, 'rb')
+
+    def delete(self, keep_result_png=False):
         # noinspection PyBroadException
         try:
-            self._tempfile_downloaded.close()
+            if os.path.exists(self._downloaded_file_path):
+                logger.debug('deleting webp sticker file: %s', self._downloaded_file_path)
+                os.remove(self._downloaded_file_path)
+            if not keep_result_png and os.path.exists(self._png_path):
+                logger.debug('deleting png sticker file: %s', self._png_path)
+                os.remove(self._png_path)
         except Exception as e:
-            logger.error('error while trying to close downloaded tempfile: %s', str(e))
-        # noinspection PyBroadException
-        try:
-            self._tempfile_result_png.close()
-        except Exception as e:
-            logger.error('error while trying to close result png tempfile: %s', str(e))
+            logger.error('error while trying to delete sticker files: %s', str(e))
 
     def add_to_set(self, bot, user_id, pack_name):
         logger.debug('adding sticker to set %s', pack_name)
@@ -124,7 +138,7 @@ class StickerFile:
                 user_id=user_id,
                 name=pack_name,
                 emojis=self._emoji,
-                png_sticker=self._tempfile_result_png,
+                png_sticker=self.png_bytes_object,
                 mask_position=None
             )
             return 0
