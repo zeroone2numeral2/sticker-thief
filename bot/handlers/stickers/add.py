@@ -167,7 +167,7 @@ def on_sticker_receive(update: Update, context: CallbackContext):
     except error.PackInvalid:
         # pack name invalid or that pack has been deleted: delete it from the db
         with session_scope() as session:
-            deleted_rows = session.query(Pack).filter(Pack.user_id==update.effective_user.id, Pack.name==name).close('fetch')
+            deleted_rows = session.query(Pack).filter(Pack.user_id==update.effective_user.id, Pack.name==name).delete('fetch')
             logger.debug('rows deleted: %d', deleted_rows or 0)
 
             # get the remaining packs' titles
