@@ -21,7 +21,7 @@ def on_sticker_receive(update: Update, _):
     sticker = StickerFile(update.message.sticker)
     sticker.download(prepare_png=True)
 
-    update.message.reply_document(sticker.png_file, filename=update.message.sticker.file_id + '.png', quote=True)
+    update.message.reply_document(sticker.png_bytes_object, quote=True)
 
     sticker.close()
 
