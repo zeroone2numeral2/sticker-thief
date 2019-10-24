@@ -150,7 +150,7 @@ def on_first_sticker_receive(update: Update, context: CallbackContext):
             title=title,
             name=full_name,
             emojis=sticker.emoji,
-            png_sticker=sticker.png_bytes_object
+            png_sticker=sticker.png_file
         )
     except (error.PackInvalid, error.NameInvalid, error.NameAlreadyOccupied) as e:
         logger.error('Telegram error while creating stickers pack: %s', e.message)
