@@ -2,6 +2,7 @@ import logging
 from html import escape as html_escape
 import zipfile
 import tempfile
+import json
 
 # noinspection PyPackageRequirements
 from telegram.ext import (
@@ -57,6 +58,8 @@ def on_sticker_receive(update: Update, context: CallbackContext):
     base_progress_message = Strings.EXPORT_PACK_START.format(html_escape(sticker_set.title))
     message_to_edit = update.message.reply_html(base_progress_message, quote=True)
 
+    pack_emojis = dict()
+
     with tempfile.TemporaryDirectory() as tmp_dir:
         logger.info('using %s as TemporaryDirectory', tmp_dir)
         with tempfile.TemporaryFile() as tmp_file:  # temporary zip file
@@ -67,6 +70,7 @@ def on_sticker_receive(update: Update, context: CallbackContext):
                     sticker_file = StickerFile(sticker, temp_file=tempfile.NamedTemporaryFile(dir=tmp_dir))
                     try:
                         sticker_file.download(prepare_png=True)
+                        pack_emojis[sticker.file_id] = sticker.emoji
                     except Exception as e:
                         logger.info('error while downloading and converting a sticker we need to export: %s', str(e))
                     finally:
@@ -83,6 +87,11 @@ def on_sticker_receive(update: Update, context: CallbackContext):
                                                       parse_mode=ParseMode.HTML)
                         except (TelegramError, BadRequest) as e:
                             logger.warning('error while editing progress message: %s', e.message)
+
+                with tempfile.SpooledTemporaryFile() as tmp_json:
+                    tmp_json.write(json.dumps(pack_emojis, indent=2).encode())
+                    tmp_json.seek(0)
+                    zip_file.writestr('emojis.json', tmp_json.read())
 
                 message_to_edit.reply_text(Strings.EXPORT_PACK_UPLOADING, quote=True)
 
