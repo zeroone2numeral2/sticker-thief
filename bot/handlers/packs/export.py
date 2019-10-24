@@ -65,7 +65,6 @@ def on_sticker_receive(update: Update, context: CallbackContext):
                 total = len(sticker_set.stickers)
                 for i, sticker in enumerate(sticker_set.stickers):
                     sticker_file = StickerFile(sticker, temp_file=tempfile.NamedTemporaryFile(dir=tmp_dir))
-                    # sticker_file = StickerFile(sticker)
                     try:
                         sticker_file.download(prepare_png=True)
                     except Exception as e:
