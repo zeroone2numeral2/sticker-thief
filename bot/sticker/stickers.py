@@ -28,8 +28,8 @@ def get_correct_size(sizes):
 
 
 class StickerFile:
-    def __init__(self, sticker, caption=None, temp_file=None):
-        self._file: [Sticker, Document] = sticker
+    def __init__(self, sticker: [Sticker, Document], caption=None, temp_file=None):
+        self._file = sticker
         self._emoji = None
         self._size_original = (0, 0)
         self._size_resized = (0, 0)
