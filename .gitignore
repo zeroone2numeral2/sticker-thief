@@ -11,3 +11,4 @@ config.toml
 *.webp
 .idea/
 *.zip
+venv/
