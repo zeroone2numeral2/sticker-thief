@@ -5,7 +5,7 @@ from html import escape as html_escape
 # noinspection PyPackageRequirements
 from telegram import Update
 # noinspection PyPackageRequirements
-from telegram.ext import CallbackContext
+from telegram.ext import CallbackContext, ConversationHandler
 from sqlalchemy.exc import SQLAlchemyError
 
 from bot.database.base import Session
@@ -40,6 +40,8 @@ def failwithmessage(func):
                 update.callback_query.message.reply_html(text, disable_web_page_preview=True)
             else:
                 update.message.reply_html(text, disable_web_page_preview=True)
+
+            return ConversationHandler.END
 
     return wrapped
 
