@@ -5,7 +5,7 @@ import tempfile
 
 from PIL import Image
 # noinspection PyPackageRequirements
-from telegram import Sticker, Document
+from telegram import Sticker, Document, InputFile
 # noinspection PyPackageRequirements
 from telegram.error import BadRequest, TelegramError
 
@@ -61,7 +61,13 @@ class StickerFile:
 
     @property
     def png_file(self):
+        self._tempfile_result_png.seek(0)
         return self._tempfile_result_png
+
+    @property
+    def png_input_file(self):
+        """returns a telegram InputFile"""
+        return InputFile(self.png_file, filename=self._file.file_id + '.png')
 
     @staticmethod
     def _raise_exception(received_error_message):
