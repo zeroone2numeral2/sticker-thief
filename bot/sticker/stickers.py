@@ -135,7 +135,6 @@ class StickerFile:
                 png_sticker=self._tempfile_result_png,
                 mask_position=None
             )
-            return 0
         except (BadRequest, TelegramError) as e:
             logger.error('Telegram exception while trying to add a sticker to %s: %s', pack_name, e.message)
             self._raise_exception(e.message)
