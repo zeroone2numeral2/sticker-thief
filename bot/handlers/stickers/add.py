@@ -158,7 +158,9 @@ def on_sticker_receive(update: Update, context: CallbackContext):
     pack_link = utils.name2link(name)
 
     try:
+        logger.debug('executing request...')
         sticker.add_to_set(context.bot, update.effective_user.id, name)
+        update.message.reply_html(Strings.ADD_STICKER_SUCCESS.format(pack_link), quote=True)
     except error.PackFull:
         update.message.reply_html(Strings.ADD_STICKER_PACK_FULL.format(pack_link), quote=True)
     except error.FileDimensionInvalid:
@@ -191,9 +193,6 @@ def on_sticker_receive(update: Update, context: CallbackContext):
             return WAITING_TITLE
     except error.UnknwonError as e:
         update.message.reply_html(Strings.ADD_STICKER_GENERIC_ERROR.format(pack_link, e.message), quote=True)
-    else:
-        # success
-        update.message.reply_html(Strings.ADD_STICKER_SUCCESS.format(pack_link), quote=True)
     finally:
         # is this entered even when we enter the "else"?
         logger.debug('calling sticker.delete()...')
