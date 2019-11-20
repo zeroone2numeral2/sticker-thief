@@ -160,8 +160,6 @@ def on_sticker_receive(update: Update, context: CallbackContext):
     try:
         logger.debug('executing request...')
         sticker.add_to_set(context.bot, update.effective_user.id, name)
-        print('why the heck this is not printed')
-        update.message.reply_html(Strings.ADD_STICKER_SUCCESS.format(pack_link), quote=True)
     except error.PackFull:
         update.message.reply_html(Strings.ADD_STICKER_PACK_FULL.format(pack_link), quote=True)
     except error.FileDimensionInvalid:
@@ -194,7 +192,13 @@ def on_sticker_receive(update: Update, context: CallbackContext):
             return WAITING_TITLE
     except error.UnknwonError as e:
         update.message.reply_html(Strings.ADD_STICKER_GENERIC_ERROR.format(pack_link, e.message), quote=True)
+    except Exception as e:
+        logger.error('non-telegram exception while adding a sticker to a set', exc_info=True)
+        raise e  # this is not raised
+    else:
+        update.message.reply_html(Strings.ADD_STICKER_SUCCESS.format(pack_link), quote=True)
     finally:
+        # this is entered even when we enter the 'else'
         logger.debug('calling sticker.close()...')
         sticker.close()
         return WAITING_STICKERS
