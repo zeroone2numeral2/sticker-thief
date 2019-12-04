@@ -57,7 +57,7 @@ def on_pack_title(update: Update, context: CallbackContext):
     selected_title = update.message.text
 
     with session_scope() as session:
-        packs_by_title = session.query(Pack).filter_by(title=selected_title).all()
+        packs_by_title = session.query(Pack).filter_by(title=selected_title, user_id=update.effective_user.id).all()
 
         # for some reason, accessing a Pack attribute outside of a session
         # raises an error: https://docs.sqlalchemy.org/en/13/errors.html#object-relational-mapping
@@ -112,7 +112,7 @@ def on_pack_name(update: Update, context: CallbackContext):
     selected_name = '{}_by_{}'.format(update.message.text, context.bot.username)
 
     with session_scope() as session:
-        pack_name = session.query(Pack).filter_by(name=selected_name).first().name
+        pack_name = session.query(Pack).filter_by(name=selected_name, user_id=update.effective_user.id).first().name
 
     if not pack_name:
         logger.error('user %d does not have any pack with name %s', update.effective_user.id, selected_name)
