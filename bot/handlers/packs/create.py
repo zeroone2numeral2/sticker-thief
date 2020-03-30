@@ -27,17 +27,32 @@ from ...utils import utils
 logger = logging.getLogger(__name__)
 
 
-WAITING_TITLE, WAITING_NAME, WAITING_FIRST_STICKER, ADDING_STICKERS = range(4)
+WAITING_TITLE, WAITING_NAME, WAITING_FIRST_STICKER, WAITING_FIRST_ANIMATED_STICKER, ADDING_STICKERS, ADDING_ANIMATED_STICKERS = range(6)
 
 
 @decorators.action(ChatAction.TYPING)
 @decorators.restricted
 @decorators.failwithmessage
-def on_create_command(update: Update, _):
+def on_create_command(update: Update, context: CallbackContext):
     logger.info('/create')
+
+    context.user_data['pack'] = dict(animated=False)
 
     update.message.reply_text(Strings.PACK_CREATION_WAITING_TITLE)
     
+    return WAITING_TITLE
+
+
+@decorators.action(ChatAction.TYPING)
+@decorators.restricted
+@decorators.failwithmessage
+def on_create_animated_command(update: Update, context: CallbackContext):
+    logger.info('/createanimated')
+
+    context.user_data['pack'] = dict(animated=True)
+
+    update.message.reply_text(Strings.PACK_CREATION_WAITING_TITLE)
+
     return WAITING_TITLE
 
 
@@ -60,7 +75,7 @@ def on_pack_title_receive(update: Update, context: CallbackContext):
 
     logger.info('pack title is valid')
 
-    context.user_data['pack'] = dict(title=update.message.text)
+    context.user_data['pack']['title'] = update.message.text
 
     # max len of a pack name = 64 - "_by_botusername", final string always added by the API
     max_name_len = 64 - (len(context.bot.username) + 4)
@@ -109,23 +124,36 @@ def on_pack_name_receive(update: Update, context: CallbackContext):
 
     update.message.reply_text(Strings.PACK_CREATION_WAITING_FIRST_STICKER)
 
+    if context.user_data['pack']['animated']:
+        return WAITING_FIRST_ANIMATED_STICKER
+    else:
+        return WAITING_FIRST_STICKER
+
+
+@decorators.action(ChatAction.TYPING)
+@decorators.failwithmessage
+def on_bad_first_sticker_receive(update: Update, _):
+    logger.info('user sent an animated sticker instead of a static one')
+
+    update.message.reply_text(Strings.ADD_STICKER_EXPECTING_STATIC)
+
     return WAITING_FIRST_STICKER
 
 
 @decorators.action(ChatAction.TYPING)
 @decorators.failwithmessage
-def on_animated_sticker_receive(update: Update, _):
-    logger.info('user sent an animated sticker')
+def on_bad_first_animated_sticker_receive(update: Update, _):
+    logger.info('user sent a static animated sticker instead of an animated one')
 
-    update.message.reply_text(Strings.ADD_STICKER_ANIMATED_UNSUPPORTED)
+    update.message.reply_text(Strings.ADD_STICKER_EXPECTING_ANIMATED)
 
-    return WAITING_FIRST_STICKER
+    return WAITING_FIRST_ANIMATED_STICKER
 
 
 @decorators.action(ChatAction.TYPING)
 @decorators.failwithmessage
 def on_first_sticker_receive(update: Update, context: CallbackContext):
-    logger.info('first sticker of the pack received')
+    logger.info('first sticker of the static pack received')
     logger.debug('user_data: %s', context.user_data)
 
     title, name = context.user_data['pack'].get('title', None), context.user_data['pack'].get('name', None)
@@ -196,22 +224,81 @@ def on_first_sticker_receive(update: Update, context: CallbackContext):
         return ADDING_STICKERS  # wait for other stickers
 
 
+@decorators.action(ChatAction.TYPING)
+@decorators.failwithmessage
+def on_first_animated_sticker_receive(update: Update, context: CallbackContext):
+    logger.info('first sticker of the animated pack received')
+
+    raise NotImplementedError
+
+
+@decorators.action(ChatAction.TYPING)
+@decorators.failwithmessage
+def on_animated_sticker_receive(update: Update, context: CallbackContext):
+    logger.info('animated sticker to add to the animated pack received')
+
+    raise NotImplementedError
+
+
+@decorators.action(ChatAction.TYPING)
+@decorators.failwithmessage
+def on_bad_sticker_receive(update: Update, _):
+    logger.info('user sent an animated sticker instead of a static one')
+
+    update.message.reply_text(Strings.ADD_STICKER_EXPECTING_STATIC)
+
+    return ADDING_STICKERS
+
+
+@decorators.action(ChatAction.TYPING)
+@decorators.failwithmessage
+def on_bad_animated_sticker_receive(update: Update, _):
+    logger.info('user sent a static sticker instead of an animated one')
+
+    update.message.reply_text(Strings.ADD_STICKER_EXPECTING_ANIMATED)
+
+    return ADDING_ANIMATED_STICKERS
+
+
 stickersbot.add_handler(ConversationHandler(
     name='pack_creation',
-    entry_points=[CommandHandler(['create', 'new', 'n'], on_create_command)],
+    entry_points=[
+        CommandHandler(['create', 'new', 'n'], on_create_command),
+        CommandHandler(['createanimated', 'newanimated', 'na'], on_create_animated_command)
+    ],
     states={
         WAITING_TITLE: [MessageHandler(Filters.text, on_pack_title_receive)],
         WAITING_NAME: [MessageHandler(Filters.text, on_pack_name_receive)],
-        WAITING_FIRST_STICKER: [MessageHandler(
-            CustomFilters.static_sticker | Filters.document.category('image/png'),
-            on_first_sticker_receive
-        )],
+        WAITING_FIRST_STICKER: [
+            MessageHandler(
+                CustomFilters.static_sticker | Filters.document.category('image/png'),
+                on_first_sticker_receive
+            ),
+            MessageHandler(
+                CustomFilters.animated_sticker,
+                on_bad_first_sticker_receive  # we were expecting a static sticker, got an animated one instead
+            ),
+        ],
+        WAITING_FIRST_ANIMATED_STICKER: [
+            MessageHandler(CustomFilters.animated_sticker, on_first_animated_sticker_receive),
+            MessageHandler(
+                CustomFilters.static_sticker | Filters.document.category('image/png'),
+                on_bad_first_animated_sticker_receive  # we were expecting an animated sticker, got a static one instead
+            ),
+        ],
         ADDING_STICKERS: [
             MessageHandler(
                 CustomFilters.static_sticker | Filters.document.category('image/png'),
                 on_sticker_receive
             ),
+            MessageHandler(CustomFilters.animated_sticker, on_bad_sticker_receive),
+        ],
+        ADDING_ANIMATED_STICKERS: [
             MessageHandler(CustomFilters.animated_sticker, on_animated_sticker_receive),
+            MessageHandler(
+                CustomFilters.static_sticker | Filters.document.category('image/png'),
+                on_bad_animated_sticker_receive
+            ),
         ]
     },
     fallbacks=[CommandHandler(['cancel', 'c', 'done', 'd'], cancel_command)]
