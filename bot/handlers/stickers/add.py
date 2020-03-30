@@ -139,7 +139,7 @@ def on_animated_sticker_receive(update: Update, _):
 
 @decorators.action(ChatAction.TYPING)
 @decorators.failwithmessage
-def on_sticker_receive(update: Update, context: CallbackContext):
+def on_static_sticker_receive(update: Update, context: CallbackContext):
     logger.info('user sent a sticker to add')
     logger.debug('user_data: %s', context.user_data)
 
@@ -213,7 +213,7 @@ stickersbot.add_handler(ConversationHandler(
         WAITING_STICKERS: [
             MessageHandler(
                 CustomFilters.static_sticker | Filters.document.category('image/png'),
-                on_sticker_receive
+                on_static_sticker_receive
             ),
             MessageHandler(CustomFilters.animated_sticker, on_animated_sticker_receive),
         ]
