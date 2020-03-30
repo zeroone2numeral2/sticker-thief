@@ -97,7 +97,7 @@ class StickerFile:
         new_file.download(out=self._tempfile_downloaded)
         self._tempfile_downloaded.seek(0)
 
-        if prepare_png:
+        if prepare_png and not self._animated:
             return self.prepare_png()
 
     def prepare_png(self):
@@ -128,7 +128,7 @@ class StickerFile:
         except Exception as e:
             logger.error('error while trying to close downloaded tempfile: %s', str(e))
 
-        if not keep_result_png_open:
+        if not keep_result_png_open and not self._animated:
             # noinspection PyBroadException
             try:
                 self._tempfile_result_png.close()

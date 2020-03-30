@@ -143,6 +143,8 @@ class Strings:
 
     LIST_NO_PACKS = "You don't have any pack. Use /create to create one"
 
+    ANIMATED_STICKERS_NO_FILE = "Oh no, I can't send you animated stickers back as file!"
+
     EXPORT_PACK_SELECT = "Please send me a stciker from the pack you want to export, or /cancel"
 
     EXPORT_PACK_NO_PACK = "This sticker doesn't belong to any pack. Please send me a stciker from a pack, or /cancel"
