@@ -3,3 +3,4 @@ sqlalchemy
 pillow
 toml
 emoji
+alembic
