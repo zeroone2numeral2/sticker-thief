@@ -180,9 +180,9 @@ def on_first_sticker_receive(update: Update, context: CallbackContext):
             emojis=sticker.emoji,
             # we need to use an input file becase a tempfile.SpooledTemporaryFile has a 'name' attribute which
             # makes python-telegram-bot retrieve the file's path using os (https://github.com/python-telegram-bot/python-telegram-bot/blob/2a3169a22f7227834dd05a35f90306375136e41a/telegram/files/inputfile.py#L58)
-            #  to populate the 'filename' attribute, which would result an exception since it is
-            #  a byte object. That means we have to do it ourself by  creating the InputFile and
-            #  assigning it a custom 'filename'
+            # to populate the 'filename' attribute, which would result an exception since it is
+            # a byte object. That means we have to do it ourself by  creating the InputFile and
+            # assigning it a custom 'filename'
             png_sticker=sticker.png_input_file
         )
     except (error.PackInvalid, error.NameInvalid, error.NameAlreadyOccupied) as e:
