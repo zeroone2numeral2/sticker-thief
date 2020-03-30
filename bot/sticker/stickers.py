@@ -28,7 +28,8 @@ def get_correct_size(sizes):
 
 
 class StickerFile:
-    def __init__(self, sticker: [Sticker, Document], caption=None, temp_file=None):
+    def __init__(self, sticker: [Sticker, Document], animated=False, caption=None, temp_file=None):
+        self._animated = animated
         self._file = sticker
         self._emoji = None
         self._size_original = (0, 0)
@@ -160,8 +161,9 @@ class StickerFile:
             cls._raise_exception(e.message)
 
     def __repr__(self):
-        return 'StickerFile object of original type {} (original size: {}, resized: {})'.format(
+        return 'StickerFile object of original type {} (animated: {}, original size: {}, resized: {})'.format(
             'Sticker' if self._is_sticker else 'Document',
+            self._animated,
             self._size_original,
             self._size_resized
         )
