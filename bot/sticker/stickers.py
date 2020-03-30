@@ -35,7 +35,7 @@ class StickerFile:
         self._size_original = (0, 0)
         self._size_resized = (0, 0)
         self._tempfile_downloaded = temp_file or tempfile.SpooledTemporaryFile()  # webp or tgs files
-        self._tempfile_result_png = tempfile.SpooledTemporaryFile()  # png file (webp converted to png)
+        self._tempfile_converted = tempfile.SpooledTemporaryFile()  # png file (webp converted to png)
 
         if isinstance(sticker, Sticker):
             logger.debug('StickerFile object is a Sticker')
@@ -62,8 +62,8 @@ class StickerFile:
 
     @property
     def png_file(self):
-        self._tempfile_result_png.seek(0)
-        return self._tempfile_result_png
+        self._tempfile_converted.seek(0)
+        return self._tempfile_converted
 
     @property
     def png_input_file(self):
@@ -116,10 +116,10 @@ class StickerFile:
             logger.debug('original size is ok')
 
         logger.debug('saving PIL image object as tempfile')
-        im.save(self._tempfile_result_png, 'png')
+        im.save(self._tempfile_converted, 'png')
         im.close()
 
-        self._tempfile_result_png.seek(0)
+        self._tempfile_converted.seek(0)
 
     def close(self, keep_result_png_open=False):
         # noinspection PyBroadException
@@ -131,7 +131,7 @@ class StickerFile:
         if not keep_result_png_open and not self._animated:
             # noinspection PyBroadException
             try:
-                self._tempfile_result_png.close()
+                self._tempfile_converted.close()
             except Exception as e:
                 logger.error('error while trying to close result png tempfile: %s', str(e))
 
