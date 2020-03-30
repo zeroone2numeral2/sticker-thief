@@ -34,8 +34,8 @@ class StickerFile:
         self._emoji = None
         self._size_original = (0, 0)
         self._size_resized = (0, 0)
-        self._tempfile_downloaded = temp_file or tempfile.SpooledTemporaryFile()
-        self._tempfile_result_png = tempfile.SpooledTemporaryFile()
+        self._tempfile_downloaded = temp_file or tempfile.SpooledTemporaryFile()  # webp or tgs files
+        self._tempfile_result_png = tempfile.SpooledTemporaryFile()  # png file (webp converted to png)
 
         if isinstance(sticker, Sticker):
             logger.debug('StickerFile object is a Sticker')
@@ -69,6 +69,16 @@ class StickerFile:
     def png_input_file(self):
         """returns a telegram InputFile"""
         return InputFile(self.png_file, filename=self._file.file_id + '.png')
+
+    @property
+    def tgs_file(self):
+        self._tempfile_downloaded.seek(0)  # we don't need to do any further conversion so we can use the downloaded file
+        return self._tempfile_downloaded
+
+    @property
+    def tgs_input_file(self):
+        """returns a telegram InputFile"""
+        return InputFile(self.tgs_file, filename=self._file.file_id + '.tgs')
 
     @staticmethod
     def _raise_exception(received_error_message):
@@ -128,14 +138,20 @@ class StickerFile:
     def add_to_set(self, bot, user_id, pack_name):
         logger.debug('adding sticker to set %s', pack_name)
 
+        request_payload = dict(
+            user_id=user_id,
+            name=pack_name,
+            emojis=self._emoji,
+            mask_position=None
+        )
+
+        if not self._animated:
+            request_payload['png_sticker'] = self.png_input_file
+        else:
+            request_payload['tgs_sticker'] = self.png_input_file
+
         try:
-            bot.add_sticker_to_set(
-                user_id=user_id,
-                name=pack_name,
-                emojis=self._emoji,
-                png_sticker=self.png_input_file,
-                mask_position=None
-            )
+            bot.add_sticker_to_set(**request_payload)
             logger.debug('...sticker added')
         except (BadRequest, TelegramError) as e:
             logger.error('Telegram exception while trying to add a sticker to %s: %s', pack_name, e.message)
