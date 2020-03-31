@@ -116,10 +116,10 @@ class Strings:
                                         "Please send a static sticker")
 
     ADD_STICKER_EXPECTING_STATIC = ("Uh-oh. I was waiting for a normal sticker, not an animated one. "
-                                    "Please send me a static sticker")
+                                    "Please send me a static sticker, or /cancel")
 
     ADD_STICKER_EXPECTING_ANIMATED= ("Uh-oh. I was waiting for an animated sticker, not a normal one. "
-                                     "Please send me an animated sticker")
+                                     "Please send me an animated sticker, or /cancel")
 
     REMOVE_STICKER_SELECT_STICKER = "Send me the sticker you want to remove from its pack, or /cancel"
 
