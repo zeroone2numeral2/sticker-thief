@@ -26,6 +26,17 @@ def action(chat_action):
     return real_decorator
 
 
+def logconversation(func):
+    @wraps(func)
+    def wrapped(update: Update, context: CallbackContext, *args, **kwargs):
+        step_returned = func(update, context, *args, **kwargs)
+        logger.debug('%d: function <%s> returned step %d', update.effective_user.id, func.__name__, step_returned)
+
+        return step_returned
+
+    return wrapped
+
+
 def failwithmessage(func):
     @wraps(func)
     def wrapped(update: Update, context: CallbackContext, *args, **kwargs):
