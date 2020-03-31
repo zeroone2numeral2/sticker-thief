@@ -4,11 +4,13 @@ class Strings:
                      "\n"
                      "Main commands:\n"
                      "/create to create a new pack\n"
+                     "/createanimated to create a new animated pack\n"
                      "/add to add stickers to an existing pack\n"
                      "/help for more commands")
 
     HELP_MESSAGE = ("<b>Full commands list</b>:\n"
                     "- /create: create a new pack\n"
+                    "- /createanimated to create a new animated pack\n"
                     "- /add: add a sticker to a pack\n"
                     "- /remove: remove a sticker from its pack\n"
                     "- send me a sticker and I will send you its png back\n"
@@ -164,3 +166,5 @@ class Strings:
     EXPORT_PACK_START = "Exporting stickers from <i>{}</i>... it may take some minutes. Please hold on"
 
     EXPORT_PACK_UPLOADING = "Zipping png files and uploading..."
+
+    EXPORT_ANIMATED_STICKERS_NOT_SUPPORTED = "Exporting animated packs is not supported yet"

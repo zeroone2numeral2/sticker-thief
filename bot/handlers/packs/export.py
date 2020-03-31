@@ -116,7 +116,7 @@ def on_sticker_receive(update: Update, context: CallbackContext):
 def on_animated_sticker_receive(update: Update, _):
     logger.info('user sent an animated sticker')
 
-    update.message.reply_text(Strings.ADD_STICKER_ANIMATED_UNSUPPORTED)
+    update.message.reply_text(Strings.EXPORT_ANIMATED_STICKERS_NOT_SUPPORTED)
 
     return WAITING_STICKER
 
