@@ -9,6 +9,7 @@ from telegram.ext import CallbackContext, ConversationHandler
 from sqlalchemy.exc import SQLAlchemyError
 
 from bot.database.base import Session
+from bot.handlers.conversation_statuses import get_status_description
 from config import config
 
 logger = logging.getLogger(__name__)
@@ -30,7 +31,13 @@ def logconversation(func):
     @wraps(func)
     def wrapped(update: Update, context: CallbackContext, *args, **kwargs):
         step_returned = func(update, context, *args, **kwargs)
-        logger.debug('%d: function <%s> returned step %d', update.effective_user.id, func.__name__, step_returned)
+        logger.debug(
+            '%d: function <%s> returned step %d (%s)',
+            update.effective_user.id,
+            func.__name__,
+            step_returned,
+            get_status_description(step_returned)
+        )
 
         return step_returned
 
