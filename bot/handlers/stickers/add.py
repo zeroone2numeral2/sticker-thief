@@ -65,6 +65,7 @@ def on_pack_title(update: Update, context: CallbackContext):
         # so we preload the list here in case we're going to need it later, to avoid a more complex handling
         # of the session
         pack_names = [pack.name.replace('_by_' + context.bot.username, '') for pack in packs_by_title]  # strip the '_by_bot' part
+        pack_animated = packs_by_title[0].is_animated  # we need this in case there's only one pack and we need to know whether it is animated or not
 
     if not packs_by_title:
         logger.error('cannot find any pack with this title: %s', selected_title)
@@ -84,14 +85,17 @@ def on_pack_title(update: Update, context: CallbackContext):
 
         return Status.WAITING_NAME  # we now have to wait for the user to tap on a pack name
 
-    logger.info('there is only one pack with the selected title, proceeding...')
+    logger.info('there is only one pack with the selected title (animated: %s), proceeding...', pack_animated)
     pack_name = '{}_by_{}'.format(pack_names[0], context.bot.username)
 
-    context.user_data['pack'] = dict(name=pack_name)
+    context.user_data['pack'] = dict(name=pack_name, animated=pack_animated)
     pack_link = utils.name2link(pack_name)
     update.message.reply_html(Strings.ADD_STICKER_PACK_SELECTED.format(pack_link), reply_markup=Keyboard.HIDE)
 
-    return Status.WAITING_STATIC_STICKERS
+    if pack_animated:
+        return Status.WAITING_ANIMATED_STICKERS
+    else:
+        return Status.WAITING_STATIC_STICKERS
 
 
 @decorators.action(ChatAction.TYPING)
@@ -122,6 +126,8 @@ def on_pack_name(update: Update, context: CallbackContext):
         update.message.reply_text(Strings.ADD_STICKER_SELECTED_NAME_DOESNT_EXIST)
         # do not reset the user status
         return Status.WAITING_NAME
+
+    logger.info('selected pack is animated: %s', pack_animated)
 
     context.user_data['pack'] = dict(name=pack_name, animated=pack_animated)
     pack_link = utils.name2link(pack_name)
