@@ -100,7 +100,7 @@ def on_pack_name_receive(update: Update, context: CallbackContext):
         # do not change the user status and let him send another name
         return WAITING_NAME
 
-    if not re.search(r'[a-z](?!__)\w+', candidate_name, re.IGNORECASE):
+    if not re.search(r'^[a-z](?!__)\w+$', candidate_name, re.IGNORECASE):
         logger.info('pack name not valid: %s', update.message.text)
         update.message.reply_html(Strings.PACK_NAME_INVALID)
         # do not change the user status and let him send another name
