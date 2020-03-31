@@ -150,7 +150,7 @@ class StickerFile:
         if not self._animated:
             request_payload['png_sticker'] = self.png_input_file
         else:
-            request_payload['tgs_sticker'] = self.png_input_file
+            request_payload['tgs_sticker'] = self.tgs_input_file
 
         try:
             bot.add_sticker_to_set(**request_payload)
