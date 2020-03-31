@@ -18,7 +18,7 @@
         },
         "file_conversation": {
             "class": "logging.handlers.RotatingFileHandler",
-            "formatter": "standard",
+            "formatter": "conversation_status",
             "level": "DEBUG",
             "encoding": "utf8",
             "maxBytes": 1048576,
@@ -30,6 +30,7 @@
         "conversation": {
             "handlers": ["console", "file_conversation"],
             "propagate": false,
+            "formatter": "conversation_status",
             "level": "DEBUG"
         },
         "": {
@@ -65,6 +66,9 @@
         },
         "standard": {
             "format": "[%(asctime)s][%(name)s][%(module)s:%(funcName)s:%(lineno)d][%(levelname)s] >>> %(message)s"
+        },
+        "conversation_status": {
+            "format": "[%(asctime)s][%(name)s][%(levelname)s] >>> %(message)s"
         }
     }
 }

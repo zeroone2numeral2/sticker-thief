@@ -45,7 +45,7 @@ def logconversation(func):
 
         step_returned = func(update, context, *args, **kwargs)
         loggerc.debug(
-            '%d: function <%s> returned step %d (%s)',
+            'user %d: function <%s> returned step %d (%s)',
             context.user_data['uuid_data']['uuid'],
             func.__name__,
             step_returned,
