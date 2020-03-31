@@ -12,7 +12,7 @@ from telegram.error import BadRequest, TelegramError
 from ..utils import utils
 from .error import EXCEPTIONS
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('StickerFile')
 
 
 def get_correct_size(sizes):
