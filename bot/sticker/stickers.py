@@ -28,9 +28,10 @@ def get_correct_size(sizes):
 
 
 class StickerFile:
-    def __init__(self, sticker: [Sticker, Document], animated=False, caption=None, temp_file=None):
-        self._animated = animated
+    def __init__(self, sticker: [Sticker, Document], caption=None, temp_file=None):
+        self._animated = False
         self._file = sticker
+        self._is_sticker = True
         self._emoji = None
         self._size_original = (0, 0)
         self._size_resized = (0, 0)
@@ -38,8 +39,9 @@ class StickerFile:
         self._tempfile_converted = tempfile.SpooledTemporaryFile()  # png file (webp converted to png)
 
         if isinstance(sticker, Sticker):
-            logger.debug('StickerFile object is a Sticker')
+            logger.debug('StickerFile object is a Sticker (animated: %s)', self._file.is_animated)
             self._is_sticker = True
+            self._animated = self._file.is_animated
             self._emoji = sticker.emoji if sticker.emoji is not None else '💈'
         elif isinstance(sticker, Document):
             logger.debug('StickerFile object is a Document')

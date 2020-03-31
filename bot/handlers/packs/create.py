@@ -171,17 +171,12 @@ def on_first_sticker_receive(update: Update, context: CallbackContext):
 
     full_name = '{}_by_{}'.format(name, context.bot.username)
 
-    sticker = StickerFile(
-        update.message.sticker or update.message.document,
-        animated=animated_pack,
-        caption=update.message.caption
-    )
+    sticker = StickerFile(update.message.sticker or update.message.document, caption=update.message.caption)
     sticker.download(prepare_png=True)
 
     try:
         logger.debug('executing API request...')
         request_payload = dict(
-            bot=context.bot,
             user_id=update.effective_user.id,
             title=title,
             name=full_name,
@@ -198,7 +193,8 @@ def on_first_sticker_receive(update: Update, context: CallbackContext):
             # assigning it a custom 'filename'
             request_payload['png_sticker'] = sticker.png_input_file
 
-        StickerFile.create_set(**request_payload)
+        print(request_payload)
+        StickerFile.create_set(bot=context.bot, **request_payload)
     except (error.PackInvalid, error.NameInvalid, error.NameAlreadyOccupied) as e:
         logger.error('Telegram error while creating stickers pack: %s', e.message)
         if isinstance(e, error.NameAlreadyOccupied):
