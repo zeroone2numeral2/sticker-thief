@@ -38,12 +38,12 @@ def on_animated_sticker_receive(update: Update, _):
     update.message.reply_text(Strings.ANIMATED_STICKERS_NO_FILE, quote=True)
     return
 
-    sticker = StickerFile(update.message.sticker)
-    sticker.download(prepare_png=False)
+    # sticker = StickerFile(update.message.sticker)
+    # sticker.download(prepare_png=False)
 
-    update.message.reply_document(sticker.tgs_file, filename=update.message.sticker.file_id + '.tgs', quote=True)
+    # update.message.reply_document(sticker.tgs_file, filename=update.message.sticker.file_id + '.tgs', quote=True)
 
-    sticker.close()
+    # sticker.close()
 
 
 stickersbot.add_handler(MessageHandler(CustomFilters.static_sticker, on_static_sticker_receive))
