@@ -1,6 +1,8 @@
 import logging
+import time
 from functools import wraps
 from html import escape as html_escape
+import uuid
 
 # noinspection PyPackageRequirements
 from telegram import Update
@@ -13,6 +15,7 @@ from bot.handlers.conversation_statuses import get_status_description
 from config import config
 
 logger = logging.getLogger(__name__)
+loggerc = logging.getLogger('conversation')
 
 
 def action(chat_action):
@@ -30,10 +33,20 @@ def action(chat_action):
 def logconversation(func):
     @wraps(func)
     def wrapped(update: Update, context: CallbackContext, *args, **kwargs):
+        # this is to anonimize logs
+        uuid_data = context.user_data.get('uuid_data', False)
+        if not uuid_data:
+            context.user_data['uuid_data'] = dict(uuid=uuid.uuid4(), generated=time.time())
+        else:
+            # re-generate uuid after 12 hours (43200 seconds)
+            now = time.time()
+            if now - context.user_data['uuid_data']['generated'] > 43200:
+                context.user_data['uuid_data'] = dict(uuid=uuid.uuid4(), generated=now)
+
         step_returned = func(update, context, *args, **kwargs)
-        logger.debug(
+        loggerc.debug(
             '%d: function <%s> returned step %d (%s)',
-            update.effective_user.id,
+            context.user_data['uuid_data']['uuid'],
             func.__name__,
             step_returned,
             get_status_description(step_returned)

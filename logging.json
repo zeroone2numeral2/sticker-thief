@@ -14,10 +14,24 @@
             "encoding": "utf8",
             "maxBytes": 1048576,
             "filename": "logs/stickersbot.log",
-            "backupCount": 500
+            "backupCount": 20
+        },
+        "file_conversation": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "formatter": "standard",
+            "level": "DEBUG",
+            "encoding": "utf8",
+            "maxBytes": 1048576,
+            "filename": "logs/stickersbot_conversations.log",
+            "backupCount": 20
         }
     },
     "loggers": {
+        "conversation": {
+            "handlers": ["console", "file_conversation"],
+            "propagate": false,
+            "level": "DEBUG"
+        },
         "": {
             "handlers": [
                 "console",
