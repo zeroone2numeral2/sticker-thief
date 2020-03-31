@@ -12,10 +12,11 @@ class Pack(Base):
     name = Column(String)
     is_animated = Column(Boolean, default=False)
 
-    def __init__(self, user_id, title, name):
+    def __init__(self, user_id, title, name, is_animated=False):
         self.user_id = user_id
         self.title = title
         self.name = name
+        self.is_animated = is_animated
 
 
 Base.metadata.create_all(engine)

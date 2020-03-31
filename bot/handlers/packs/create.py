@@ -217,7 +217,7 @@ def on_first_sticker_receive(update: Update, context: CallbackContext):
     else:
         # success
 
-        pack_row = Pack(user_id=update.effective_user.id, name=full_name, title=title)
+        pack_row = Pack(user_id=update.effective_user.id, name=full_name, title=title, is_animated=animated_pack)
         with session_scope() as session:
             session.add(pack_row)
 
