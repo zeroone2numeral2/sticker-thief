@@ -193,7 +193,6 @@ def on_first_sticker_receive(update: Update, context: CallbackContext):
             # assigning it a custom 'filename'
             request_payload['png_sticker'] = sticker.png_input_file
 
-        print(request_payload)
         StickerFile.create_set(bot=context.bot, **request_payload)
     except (error.PackInvalid, error.NameInvalid, error.NameAlreadyOccupied) as e:
         logger.error('Telegram error while creating stickers pack: %s', e.message)
