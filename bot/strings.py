@@ -59,7 +59,11 @@ class Strings:
 
     PACK_NAME_DUPLICATE = "I'm sorry, you already have a pack with this link saved. try with another link"
 
-    PACK_CREATION_WAITING_FIRST_STICKER = "Got it, we are almost done. Now send me the first sticker of the pack"
+    PACK_CREATION_WAITING_FIRST_STATIC_STICKER = "Got it, we are almost done. Now send me the first sticker " \
+                                                 "of the pack (or a png file)"
+
+    PACK_CREATION_WAITING_FIRST_ANIMATED_STICKER = "Got it, we are almost done. Now send me the first animated sticker " \
+                                                   "of the pack"
 
     PACK_CREATION_FIRST_STICKER_PACK_DATA_MISSING = ("Ooops, something went wrong.\n"
                                                      "Please repeat the creation process with /create")
@@ -87,8 +91,11 @@ class Strings:
                                            "Please select the pack you want to choose from the keyboard below. Packs reference:\n"
                                            "• {}")
 
-    ADD_STICKER_PACK_SELECTED = ("Good, we are going to add stickers to <a href=\"{}\">this pack</a>.\n"
-                                 "Send me a sticker or a png file")
+    ADD_STICKER_PACK_SELECTED_STATIC = ("Good, we are going to add stickers to <a href=\"{}\">this pack</a>.\n"
+                                        "Send me a sticker or a png file")
+
+    ADD_STICKER_PACK_SELECTED_ANIMATED = ("Good, we are going to add stickers to <a href=\"{}\">this pack</a>.\n"
+                                          "Send me an animated sticker")
 
     ADD_STICKER_SELECTED_NAME_DOESNT_EXIST = ("It seems like the pack \"{}\" doesn't exist.\n"
                                               "Please select a valid pack from the keyboard")

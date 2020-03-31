@@ -126,7 +126,12 @@ def on_pack_name_receive(update: Update, context: CallbackContext):
 
     context.user_data['pack']['name'] = candidate_name
 
-    update.message.reply_text(Strings.PACK_CREATION_WAITING_FIRST_STICKER)
+    if context.user_data['pack']['animated']:
+        text = Strings.PACK_CREATION_WAITING_FIRST_ANIMATED_STICKER
+    else:
+        text = Strings.PACK_CREATION_WAITING_FIRST_STATIC_STICKER
+
+    update.message.reply_text(text)
 
     return Status.WAITING_FIRST_STICKER
 

@@ -90,7 +90,8 @@ def on_pack_title(update: Update, context: CallbackContext):
 
     context.user_data['pack'] = dict(name=pack_name, animated=pack_animated)
     pack_link = utils.name2link(pack_name)
-    update.message.reply_html(Strings.ADD_STICKER_PACK_SELECTED.format(pack_link), reply_markup=Keyboard.HIDE)
+    base_string = Strings.ADD_STICKER_PACK_SELECTED_STATIC if not pack_animated else Strings.ADD_STICKER_PACK_SELECTED_ANIMATED
+    update.message.reply_html(base_string.format(pack_link), reply_markup=Keyboard.HIDE)
 
     if pack_animated:
         return Status.WAITING_ANIMATED_STICKERS
@@ -131,7 +132,8 @@ def on_pack_name(update: Update, context: CallbackContext):
 
     context.user_data['pack'] = dict(name=pack_name, animated=pack_animated)
     pack_link = utils.name2link(pack_name)
-    update.message.reply_html(Strings.ADD_STICKER_PACK_SELECTED.format(pack_link), reply_markup=Keyboard.HIDE)
+    base_string = Strings.ADD_STICKER_PACK_SELECTED_STATIC if not pack_animated else Strings.ADD_STICKER_PACK_SELECTED_ANIMATED
+    update.message.reply_html(base_string.format(pack_link), reply_markup=Keyboard.HIDE)
 
     return Status.WAITING_STATIC_STICKERS
 
