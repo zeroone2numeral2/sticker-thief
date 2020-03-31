@@ -17,6 +17,8 @@ from config import config
 logger = logging.getLogger(__name__)
 loggerc = logging.getLogger('conversation')
 
+UUID_REFRESH_EVERY = 12 * 60 * 60  # in seconds
+
 
 def action(chat_action):
     def real_decorator(func):
@@ -30,23 +32,32 @@ def action(chat_action):
     return real_decorator
 
 
+def get_user_uuid(user_data):
+    """returns the user's uuid and refreshes it every n hours"""
+
+    uuid_data = user_data.get('uuid_data', False)
+    if not uuid_data:
+        user_data['uuid_data'] = dict(uuid=uuid.uuid4(), generated=time.time())
+    else:
+        # re-generate uuid after n seconds
+        now = time.time()
+        if now - user_data['uuid_data']['generated'] > UUID_REFRESH_EVERY:
+            loggerc.debug('refreshing uuid (%d seconds expired)', UUID_REFRESH_EVERY)
+            user_data['uuid_data'] = dict(uuid=uuid.uuid4(), generated=now)
+
+    return user_data['uuid_data']['uuid']
+
+
 def logconversation(func):
     @wraps(func)
     def wrapped(update: Update, context: CallbackContext, *args, **kwargs):
         # this is to anonimize logs
-        uuid_data = context.user_data.get('uuid_data', False)
-        if not uuid_data:
-            context.user_data['uuid_data'] = dict(uuid=uuid.uuid4(), generated=time.time())
-        else:
-            # re-generate uuid after 12 hours (43200 seconds)
-            now = time.time()
-            if now - context.user_data['uuid_data']['generated'] > 43200:
-                context.user_data['uuid_data'] = dict(uuid=uuid.uuid4(), generated=now)
+        user_uuid = get_user_uuid(context.user_data)
 
         step_returned = func(update, context, *args, **kwargs)
         loggerc.debug(
             'user %d: function <%s> returned step %d (%s)',
-            context.user_data['uuid_data']['uuid'],
+            user_uuid,
             func.__name__,
             step_returned,
             get_status_description(step_returned)
