@@ -164,7 +164,7 @@ def on_first_sticker_receive(update: Update, context: CallbackContext):
         return Status.WAITING_FIRST_STICKER
     elif not animated_pack and animated_sticker:
         logger.info('invalid sticker: animated sticker for a static pack')
-        update.message.reply_text(Strings.ADD_STICKER_EXPECTING_ANIMATED)
+        update.message.reply_text(Strings.ADD_STICKER_EXPECTING_STATIC)
         return Status.WAITING_FIRST_STICKER
     else:
         logger.info('sticker type ok (animated pack: %s, animated sticker: %s)', animated_pack, animated_sticker)
