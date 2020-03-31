@@ -1,6 +1,7 @@
 class Status:
     # it's important the handlers of the 'create' and 'add' modules
     # return the same statuses because they share com handlers
+    END = -1  # this is the value of ConversationHandler.END
     WAITING_TITLE = 1
     WAITING_NAME = 2
     WAITING_FIRST_STICKER = 3
@@ -9,6 +10,7 @@ class Status:
 
 
 STATUSES_DICT = {
+    -1: 'conversation ended',
     1: 'WAITING_TITLE',
     2: 'WAITING_NAME',
     3: 'WAITING_FIRST_STICKER',
