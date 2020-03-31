@@ -15,28 +15,29 @@ from bot import stickersbot
 from bot.strings import Strings
 from bot.sticker import StickerFile
 import bot.sticker.error as error
+from ..conversation_statuses import Status
 from ..fallback_commands import cancel_command
 from ...utils import decorators
 from ...utils import utils
 
 logger = logging.getLogger(__name__)
 
-WAITING_STICKERS = range(1)
-
 
 @decorators.action(ChatAction.TYPING)
 @decorators.restricted
 @decorators.failwithmessage
+@decorators.logconversation
 def on_remove_command(update: Update, _):
     logger.info('/remove')
 
     update.message.reply_text(Strings.REMOVE_STICKER_SELECT_STICKER)
 
-    return WAITING_STICKERS
+    return Status.WAITING_STICKER
 
 
 @decorators.action(ChatAction.TYPING)
 @decorators.failwithmessage
+@decorators.logconversation
 def on_sticker_receive(update: Update, context: CallbackContext):
     logger.info('user sent the stciker to add')
 
@@ -57,14 +58,14 @@ def on_sticker_receive(update: Update, context: CallbackContext):
         update.message.reply_html(Strings.REMOVE_STICKER_SUCCESS.format(pack_link), quote=True)
     finally:
         # wait for other stickers
-        return WAITING_STICKERS
+        return Status.WAITING_STICKER
 
 
 stickersbot.add_handler(ConversationHandler(
     name='adding_stickers',
     entry_points=[CommandHandler(['remove', 'rem', 'r'], on_remove_command)],
     states={
-        WAITING_STICKERS: [MessageHandler(
+        Status.WAITING_STICKER: [MessageHandler(
             Filters.sticker | Filters.document.category('image/png'),
             on_sticker_receive
         )]
