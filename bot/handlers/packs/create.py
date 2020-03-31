@@ -31,9 +31,6 @@ from ...utils import utils
 logger = logging.getLogger(__name__)
 
 
-WAITING_TITLE, WAITING_NAME, WAITING_FIRST_STICKER, WAITING_STATIC_STICKERS, WAITING_ANIMATED_STICKERS = range(5)
-
-
 @decorators.action(ChatAction.TYPING)
 @decorators.restricted
 @decorators.failwithmessage
