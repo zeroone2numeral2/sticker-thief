@@ -21,6 +21,7 @@ from bot.sticker import StickerFile
 import bot.sticker.error as error
 from ..conversation_statuses import Status
 from ..fallback_commands import cancel_command
+from ..fallback_commands import STANDARD_CANCEL_COMMANDS
 from ...customfilters import CustomFilters
 from ...utils import decorators
 from ...utils import utils
@@ -263,8 +264,8 @@ stickersbot.add_handler(ConversationHandler(
     name='adding_stickers',
     entry_points=[CommandHandler(['add', 'a'], on_add_command)],
     states={
-        Status.WAITING_TITLE: [MessageHandler(Filters.text, on_pack_title)],
-        Status.WAITING_NAME: [MessageHandler(Filters.text, on_pack_name)],
+        Status.WAITING_TITLE: [MessageHandler(Filters.text & ~Filters.command(STANDARD_CANCEL_COMMANDS), on_pack_title)],
+        Status.WAITING_NAME: [MessageHandler(Filters.text & ~Filters.command(STANDARD_CANCEL_COMMANDS), on_pack_name)],
         Status.WAITING_STATIC_STICKERS: [
             MessageHandler(
                 CustomFilters.static_sticker | Filters.document.category('image/png'),
@@ -281,5 +282,5 @@ stickersbot.add_handler(ConversationHandler(
 
         ]
     },
-    fallbacks=[CommandHandler(['cancel', 'c', 'done', 'd'], cancel_command)]
+    fallbacks=[CommandHandler(STANDARD_CANCEL_COMMANDS, cancel_command)]
 ))

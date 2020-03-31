@@ -20,6 +20,7 @@ from bot.sticker import StickerFile
 import bot.sticker.error as error
 from ..conversation_statuses import Status
 from ..fallback_commands import cancel_command
+from ..fallback_commands import STANDARD_CANCEL_COMMANDS
 from ..stickers.add import on_static_sticker_receive
 from ..stickers.add import on_animated_sticker_receive
 from ..stickers.add import on_bad_static_sticker_receive
@@ -256,8 +257,8 @@ stickersbot.add_handler(ConversationHandler(
         CommandHandler(['createanimated', 'newanimated', 'na'], on_create_animated_pack_command)
     ],
     states={
-        Status.WAITING_TITLE: [MessageHandler(Filters.text, on_pack_title_receive)],
-        Status.WAITING_NAME: [MessageHandler(Filters.text, on_pack_name_receive)],
+        Status.WAITING_TITLE: [MessageHandler(Filters.text & ~Filters.command(STANDARD_CANCEL_COMMANDS), on_pack_title_receive)],
+        Status.WAITING_NAME: [MessageHandler(Filters.text & ~Filters.command(STANDARD_CANCEL_COMMANDS), on_pack_name_receive)],
         Status.WAITING_FIRST_STICKER: [
             MessageHandler(  # this handler is shared by both static and animated stickers
                 Filters.sticker | Filters.document.category('image/png'),
@@ -279,5 +280,5 @@ stickersbot.add_handler(ConversationHandler(
             ),
         ]
     },
-    fallbacks=[CommandHandler(['cancel', 'c', 'done', 'd'], cancel_command)]
+    fallbacks=[CommandHandler(STANDARD_CANCEL_COMMANDS, cancel_command)]
 ))
