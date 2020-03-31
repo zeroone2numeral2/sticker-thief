@@ -27,7 +27,7 @@ from ...utils import utils
 logger = logging.getLogger(__name__)
 
 
-WAITING_TITLE, WAITING_NAME, WAITING_FIRST_STICKER, ADDING_STATIC_STICKERS, ADDING_ANIMATED_STICKERS = range(5)
+WAITING_TITLE, WAITING_NAME, WAITING_FIRST_STICKER, WAITING_STATIC_STICKERS, WAITING_ANIMATED_STICKERS = range(5)
 
 
 @decorators.action(ChatAction.TYPING)
@@ -232,9 +232,9 @@ def on_first_sticker_receive(update: Update, context: CallbackContext):
 
         # wait for other stickers
         if animated_pack:
-            return ADDING_ANIMATED_STICKERS
+            return WAITING_ANIMATED_STICKERS
         else:
-            return ADDING_STATIC_STICKERS
+            return WAITING_STATIC_STICKERS
 
 
 @decorators.action(ChatAction.TYPING)
@@ -260,7 +260,7 @@ def on_bad_static_sticker_receive(update: Update, _):
 
     update.message.reply_text(Strings.ADD_STICKER_EXPECTING_STATIC)
 
-    return ADDING_STATIC_STICKERS
+    return WAITING_STATIC_STICKERS
 
 
 @decorators.action(ChatAction.TYPING)
@@ -270,7 +270,7 @@ def on_bad_animated_sticker_receive(update: Update, _):
 
     update.message.reply_text(Strings.ADD_STICKER_EXPECTING_ANIMATED)
 
-    return ADDING_ANIMATED_STICKERS
+    return WAITING_ANIMATED_STICKERS
 
 
 stickersbot.add_handler(ConversationHandler(
@@ -288,14 +288,14 @@ stickersbot.add_handler(ConversationHandler(
                 on_first_sticker_receive
             )
         ],
-        ADDING_STATIC_STICKERS: [
+        WAITING_STATIC_STICKERS: [
             MessageHandler(
                 CustomFilters.static_sticker | Filters.document.category('image/png'),
                 on_static_sticker_receive
             ),
             MessageHandler(CustomFilters.animated_sticker, on_bad_static_sticker_receive),
         ],
-        ADDING_ANIMATED_STICKERS: [
+        WAITING_ANIMATED_STICKERS: [
             MessageHandler(CustomFilters.animated_sticker, on_animated_sticker_receive),
             MessageHandler(
                 CustomFilters.static_sticker | Filters.document.category('image/png'),
