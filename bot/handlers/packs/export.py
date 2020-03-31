@@ -19,6 +19,7 @@ from telegram.error import BadRequest, TelegramError
 
 from bot import stickersbot
 from bot.strings import Strings
+from ..conversation_statuses import Status
 from ..fallback_commands import cancel_command
 from ...customfilters import CustomFilters
 from ...utils import decorators
@@ -29,9 +30,6 @@ from bot.sticker import StickerFile
 logger = logging.getLogger(__name__)
 
 
-WAITING_STICKER = range(1)
-
-
 @decorators.action(ChatAction.TYPING)
 @decorators.restricted
 @decorators.failwithmessage
@@ -40,7 +38,7 @@ def on_export_command(update: Update, _):
 
     update.message.reply_text(Strings.EXPORT_PACK_SELECT)
 
-    return WAITING_STICKER
+    return Status.WAITING_STICKER
 
 
 @run_async
@@ -51,7 +49,7 @@ def on_sticker_receive(update: Update, context: CallbackContext):
 
     if not update.message.sticker.set_name:
         update.message.reply_text(Strings.EXPORT_PACK_NO_PACK)
-        return WAITING_STICKER
+        return Status.WAITING_STICKER
 
     sticker_set = context.bot.get_sticker_set(update.message.sticker.set_name)
 
@@ -118,14 +116,14 @@ def on_animated_sticker_receive(update: Update, _):
 
     update.message.reply_text(Strings.EXPORT_ANIMATED_STICKERS_NOT_SUPPORTED)
 
-    return WAITING_STICKER
+    return Status.WAITING_STICKER
 
 
 stickersbot.add_handler(ConversationHandler(
     name='export_command',
     entry_points=[CommandHandler(['export', 'e', 'dump'], on_export_command)],
     states={
-        WAITING_STICKER: [
+        Status.WAITING_STICKER: [
             MessageHandler(CustomFilters.static_sticker, on_sticker_receive),
             MessageHandler(CustomFilters.animated_sticker, on_animated_sticker_receive),
         ],
