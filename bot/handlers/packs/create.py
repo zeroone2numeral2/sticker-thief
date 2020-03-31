@@ -42,7 +42,7 @@ def on_create_static_pack_command(update: Update, context: CallbackContext):
 
     context.user_data['pack'] = dict(animated=False)
 
-    update.message.reply_text(Strings.PACK_CREATION_WAITING_TITLE)
+    update.message.reply_text(Strings.PACK_CREATION_STATIC_WAITING_TITLE)
     
     return Status.WAITING_TITLE
 
@@ -55,7 +55,7 @@ def on_create_animated_pack_command(update: Update, context: CallbackContext):
 
     context.user_data['pack'] = dict(animated=True)
 
-    update.message.reply_text(Strings.PACK_CREATION_WAITING_TITLE)
+    update.message.reply_text(Strings.PACK_CREATION_ANIMATED_WAITING_TITLE)
 
     return Status.WAITING_TITLE
 

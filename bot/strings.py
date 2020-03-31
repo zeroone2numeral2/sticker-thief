@@ -30,8 +30,13 @@ class Strings:
                     "<b>Correct way of building your own custom pack</b>\n"
                     "Use @MyPackBot. It doesn't steal stickers like I do. It's blazing fast too. Really suggested")
 
-    PACK_CREATION_WAITING_TITLE = ("Please send me the pack title (must not exceed 64 characters).\n"
-                                   "Use /cancel to cancel")
+    PACK_CREATION_STATIC_WAITING_TITLE = ("Alright, a new stickers pack! Please send me the pack title "
+                                          "(must not exceed 64 characters).\n"
+                                          "Use /cancel to cancel")
+
+    PACK_CREATION_ANIMATED_WAITING_TITLE = ("Alright, a new animated pack! Please send me the pack title "
+                                            "(must not exceed 64 characters).\n"
+                                            "Use /cancel to cancel")
 
     PACK_TITLE_TOO_LONG = "I'm sorry, the title must be at max 64 characters long. Try with another title"
 
