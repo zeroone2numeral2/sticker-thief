@@ -34,6 +34,7 @@ logger = logging.getLogger(__name__)
 @decorators.action(ChatAction.TYPING)
 @decorators.restricted
 @decorators.failwithmessage
+@decorators.logconversation
 def on_create_static_pack_command(update: Update, context: CallbackContext):
     logger.info('/create')
 
@@ -47,6 +48,7 @@ def on_create_static_pack_command(update: Update, context: CallbackContext):
 @decorators.action(ChatAction.TYPING)
 @decorators.restricted
 @decorators.failwithmessage
+@decorators.logconversation
 def on_create_animated_pack_command(update: Update, context: CallbackContext):
     logger.info('/createanimated')
 
@@ -59,6 +61,7 @@ def on_create_animated_pack_command(update: Update, context: CallbackContext):
 
 @decorators.action(ChatAction.TYPING)
 @decorators.failwithmessage
+@decorators.logconversation
 def on_pack_title_receive(update: Update, context: CallbackContext):
     logger.info('received possible pack title')
 
@@ -89,6 +92,7 @@ def on_pack_title_receive(update: Update, context: CallbackContext):
 
 @decorators.action(ChatAction.TYPING)
 @decorators.failwithmessage
+@decorators.logconversation
 def on_pack_name_receive(update: Update, context: CallbackContext):
     logger.info('received possible pack name (link)')
     logger.debug('user_data: %s', context.user_data)
@@ -135,6 +139,7 @@ def on_pack_name_receive(update: Update, context: CallbackContext):
 
 @decorators.action(ChatAction.TYPING)
 @decorators.failwithmessage
+@decorators.logconversation
 def on_bad_first_static_sticker_receive(update: Update, _):
     logger.info('user sent an animated sticker instead of a static one')
 
@@ -145,6 +150,7 @@ def on_bad_first_static_sticker_receive(update: Update, _):
 
 @decorators.action(ChatAction.TYPING)
 @decorators.failwithmessage
+@decorators.logconversation
 def on_first_sticker_receive(update: Update, context: CallbackContext):
     logger.info('first sticker of the pack received')
     logger.debug('user_data: %s', context.user_data)

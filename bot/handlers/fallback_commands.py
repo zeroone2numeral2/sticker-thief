@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 @decorators.action(ChatAction.TYPING)
 @decorators.restricted
 @decorators.failwithmessage
+@decorators.logconversation
 def cancel_command(update: Update, context: CallbackContext):
     logger.info('%s command', update.message.text)
 

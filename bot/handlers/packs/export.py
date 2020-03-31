@@ -33,6 +33,7 @@ logger = logging.getLogger(__name__)
 @decorators.action(ChatAction.TYPING)
 @decorators.restricted
 @decorators.failwithmessage
+@decorators.logconversation
 def on_export_command(update: Update, _):
     logger.info('/export')
 
@@ -44,6 +45,7 @@ def on_export_command(update: Update, _):
 @run_async
 @decorators.action(ChatAction.UPLOAD_DOCUMENT)
 @decorators.failwithmessage
+@decorators.logconversation
 def on_sticker_receive(update: Update, context: CallbackContext):
     logger.info('user sent a stciker from the pack to export')
 
@@ -111,6 +113,7 @@ def on_sticker_receive(update: Update, context: CallbackContext):
 
 @decorators.action(ChatAction.TYPING)
 @decorators.failwithmessage
+@decorators.logconversation
 def on_animated_sticker_receive(update: Update, _):
     logger.info('user sent an animated sticker')
 

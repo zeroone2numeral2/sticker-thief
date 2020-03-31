@@ -31,6 +31,7 @@ logger = logging.getLogger(__name__)
 @decorators.action(ChatAction.TYPING)
 @decorators.restricted
 @decorators.failwithmessage
+@decorators.logconversation
 def on_add_command(update: Update, _):
     logger.info('/add')
 
@@ -50,6 +51,7 @@ def on_add_command(update: Update, _):
 
 @decorators.action(ChatAction.TYPING)
 @decorators.failwithmessage
+@decorators.logconversation
 def on_pack_title(update: Update, context: CallbackContext):
     logger.info('user selected the pack title from the keyboard')
 
@@ -99,6 +101,7 @@ def on_pack_title(update: Update, context: CallbackContext):
 
 @decorators.action(ChatAction.TYPING)
 @decorators.failwithmessage
+@decorators.logconversation
 def on_pack_name(update: Update, context: CallbackContext):
     logger.info('user selected the pack name from the keyboard')
     logger.debug('user_data: %s', context.user_data)
@@ -138,6 +141,7 @@ def on_pack_name(update: Update, context: CallbackContext):
 
 @decorators.action(ChatAction.TYPING)
 @decorators.failwithmessage
+@decorators.logconversation
 def on_animated_sticker_receive(update: Update, _):
     logger.info('user sent an animated sticker')
 
@@ -215,6 +219,7 @@ def add_sticker_to_set(update: Update, context: CallbackContext, animated_pack):
 
 @decorators.action(ChatAction.TYPING)
 @decorators.failwithmessage
+@decorators.logconversation
 def on_static_sticker_receive(update: Update, context: CallbackContext):
     logger.info('user sent a static sticker to add')
     logger.debug('user_data: %s', context.user_data)
@@ -224,6 +229,7 @@ def on_static_sticker_receive(update: Update, context: CallbackContext):
 
 @decorators.action(ChatAction.TYPING)
 @decorators.failwithmessage
+@decorators.logconversation
 def on_animated_sticker_receive(update: Update, context: CallbackContext):
     logger.info('user sent an animated sticker to add')
     logger.debug('user_data: %s', context.user_data)
@@ -233,6 +239,7 @@ def on_animated_sticker_receive(update: Update, context: CallbackContext):
 
 @decorators.action(ChatAction.TYPING)
 @decorators.failwithmessage
+@decorators.logconversation
 def on_bad_static_sticker_receive(update: Update, _):
     logger.info('user sent an animated sticker instead of a static one')
 
@@ -243,6 +250,7 @@ def on_bad_static_sticker_receive(update: Update, _):
 
 @decorators.action(ChatAction.TYPING)
 @decorators.failwithmessage
+@decorators.logconversation
 def on_bad_animated_sticker_receive(update: Update, _):
     logger.info('user sent a static sticker instead of an animated one')
 
