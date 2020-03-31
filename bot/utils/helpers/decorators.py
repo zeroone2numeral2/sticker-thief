@@ -1,6 +1,8 @@
 import logging
+import time
 from functools import wraps
 from html import escape as html_escape
+import uuid
 
 # noinspection PyPackageRequirements
 from telegram import Update
@@ -9,9 +11,13 @@ from telegram.ext import CallbackContext, ConversationHandler
 from sqlalchemy.exc import SQLAlchemyError
 
 from bot.database.base import Session
+from bot.handlers.conversation_statuses import get_status_description
 from config import config
 
 logger = logging.getLogger(__name__)
+loggerc = logging.getLogger('conversation')
+
+UUID_REFRESH_EVERY = 12 * 60 * 60  # in seconds
 
 
 def action(chat_action):
@@ -24,6 +30,42 @@ def action(chat_action):
         return wrapped
 
     return real_decorator
+
+
+def get_user_uuid(user_data):
+    """returns the user's uuid and refreshes it every n hours"""
+
+    uuid_data = user_data.get('uuid_data', False)
+    if not uuid_data:
+        user_data['uuid_data'] = dict(uuid=uuid.uuid4(), generated=time.time())
+    else:
+        # re-generate uuid after n seconds
+        now = time.time()
+        if now - user_data['uuid_data']['generated'] > UUID_REFRESH_EVERY:
+            loggerc.debug('refreshing uuid (%d seconds expired)', UUID_REFRESH_EVERY)
+            user_data['uuid_data'] = dict(uuid=uuid.uuid4(), generated=now)
+
+    return user_data['uuid_data']['uuid']
+
+
+def logconversation(func):
+    @wraps(func)
+    def wrapped(update: Update, context: CallbackContext, *args, **kwargs):
+        # this is to anonimize logs
+        user_uuid = get_user_uuid(context.user_data)
+
+        step_returned = func(update, context, *args, **kwargs)
+        loggerc.debug(
+            'user %d: function <%s> returned step %d (%s)',
+            user_uuid,
+            func.__name__,
+            step_returned,
+            get_status_description(step_returned)
+        )
+
+        return step_returned
+
+    return wrapped
 
 
 def failwithmessage(func):

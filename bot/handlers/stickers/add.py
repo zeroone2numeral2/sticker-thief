@@ -19,19 +19,20 @@ from bot.database.models.pack import Pack
 from bot.markups import Keyboard
 from bot.sticker import StickerFile
 import bot.sticker.error as error
+from ..conversation_statuses import Status
 from ..fallback_commands import cancel_command
+from ..fallback_commands import STANDARD_CANCEL_COMMANDS
 from ...customfilters import CustomFilters
 from ...utils import decorators
 from ...utils import utils
 
 logger = logging.getLogger(__name__)
 
-WAITING_TITLE, WAITING_NAME, WAITING_STICKERS = range(3)
-
 
 @decorators.action(ChatAction.TYPING)
 @decorators.restricted
 @decorators.failwithmessage
+@decorators.logconversation
 def on_add_command(update: Update, _):
     logger.info('/add')
 
@@ -46,11 +47,12 @@ def on_add_command(update: Update, _):
         markup = Keyboard.from_list(pack_titles)
         update.message.reply_text(Strings.ADD_STICKER_SELECT_PACK, reply_markup=markup)
 
-        return WAITING_TITLE
+        return Status.WAITING_TITLE
 
 
 @decorators.action(ChatAction.TYPING)
 @decorators.failwithmessage
+@decorators.logconversation
 def on_pack_title(update: Update, context: CallbackContext):
     logger.info('user selected the pack title from the keyboard')
 
@@ -64,12 +66,13 @@ def on_pack_title(update: Update, context: CallbackContext):
         # so we preload the list here in case we're going to need it later, to avoid a more complex handling
         # of the session
         pack_names = [pack.name.replace('_by_' + context.bot.username, '') for pack in packs_by_title]  # strip the '_by_bot' part
+        pack_animated = packs_by_title[0].is_animated  # we need this in case there's only one pack and we need to know whether it is animated or not
 
     if not packs_by_title:
         logger.error('cannot find any pack with this title: %s', selected_title)
         update.message.reply_text(Strings.ADD_STICKER_SELECTED_TITLE_DOESNT_EXIST.format(selected_title[:150]))
         # do not change the user status
-        return WAITING_TITLE
+        return Status.WAITING_TITLE
 
     if len(packs_by_title) > 1:
         logger.info('user has multiple packs with this title: %s', selected_title)
@@ -81,20 +84,25 @@ def on_pack_title(update: Update, context: CallbackContext):
         text = Strings.ADD_STICKER_SELECTED_TITLE_MULTIPLE.format(selected_title, '\n• '.join(pack_links))
         update.message.reply_html(text, reply_markup=markup)
 
-        return WAITING_NAME  # we now have to wait for the user to tap on a pack name
+        return Status.WAITING_NAME  # we now have to wait for the user to tap on a pack name
 
-    logger.info('there is only one pack with the selected title, proceeding...')
+    logger.info('there is only one pack with the selected title (animated: %s), proceeding...', pack_animated)
     pack_name = '{}_by_{}'.format(pack_names[0], context.bot.username)
 
-    context.user_data['pack'] = dict(name=pack_name)
+    context.user_data['pack'] = dict(name=pack_name, animated=pack_animated)
     pack_link = utils.name2link(pack_name)
-    update.message.reply_html(Strings.ADD_STICKER_PACK_SELECTED.format(pack_link), reply_markup=Keyboard.HIDE)
+    base_string = Strings.ADD_STICKER_PACK_SELECTED_STATIC if not pack_animated else Strings.ADD_STICKER_PACK_SELECTED_ANIMATED
+    update.message.reply_html(base_string.format(pack_link), reply_markup=Keyboard.HIDE)
 
-    return WAITING_STICKERS
+    if pack_animated:
+        return Status.WAITING_ANIMATED_STICKERS
+    else:
+        return Status.WAITING_STATIC_STICKERS
 
 
 @decorators.action(ChatAction.TYPING)
 @decorators.failwithmessage
+@decorators.logconversation
 def on_pack_name(update: Update, context: CallbackContext):
     logger.info('user selected the pack name from the keyboard')
     logger.debug('user_data: %s', context.user_data)
@@ -106,43 +114,44 @@ def on_pack_name(update: Update, context: CallbackContext):
         markup = Keyboard.from_list(pack_titles)
         update.message.reply_text(Strings.ADD_STICKER_SELECT_PACK, reply_markup=markup)
 
-        return WAITING_TITLE
+        return Status.WAITING_TITLE
 
     # the buttons list has the name without "_by_botusername"
     selected_name = '{}_by_{}'.format(update.message.text, context.bot.username)
 
     with session_scope() as session:
-        pack_name = session.query(Pack).filter_by(name=selected_name, user_id=update.effective_user.id).first().name
+        pack = session.query(Pack).filter_by(name=selected_name, user_id=update.effective_user.id).first().name
+        pack_name = pack.name
+        pack_animated = pack.is_animated
 
     if not pack_name:
         logger.error('user %d does not have any pack with name %s', update.effective_user.id, selected_name)
         update.message.reply_text(Strings.ADD_STICKER_SELECTED_NAME_DOESNT_EXIST)
         # do not reset the user status
-        return WAITING_NAME
+        return Status.WAITING_NAME
 
-    context.user_data['pack'] = dict(name=pack_name)
+    logger.info('selected pack is animated: %s', pack_animated)
+
+    context.user_data['pack'] = dict(name=pack_name, animated=pack_animated)
     pack_link = utils.name2link(pack_name)
-    update.message.reply_html(Strings.ADD_STICKER_PACK_SELECTED.format(pack_link), reply_markup=Keyboard.HIDE)
+    base_string = Strings.ADD_STICKER_PACK_SELECTED_STATIC if not pack_animated else Strings.ADD_STICKER_PACK_SELECTED_ANIMATED
+    update.message.reply_html(base_string.format(pack_link), reply_markup=Keyboard.HIDE)
 
-    return WAITING_STICKERS
+    return Status.WAITING_STATIC_STICKERS
 
 
 @decorators.action(ChatAction.TYPING)
 @decorators.failwithmessage
+@decorators.logconversation
 def on_animated_sticker_receive(update: Update, _):
     logger.info('user sent an animated sticker')
 
     update.message.reply_text(Strings.ADD_STICKER_ANIMATED_UNSUPPORTED)
 
-    return WAITING_STICKERS
+    return Status.WAITING_STATIC_STICKERS
 
 
-@decorators.action(ChatAction.TYPING)
-@decorators.failwithmessage
-def on_sticker_receive(update: Update, context: CallbackContext):
-    logger.info('user sent a sticker to add')
-    logger.debug('user_data: %s', context.user_data)
-
+def add_sticker_to_set(update: Update, context: CallbackContext, animated_pack):
     name = context.user_data['pack'].get('name', None)
     if not name:
         logger.error('pack name missing (%s)', name)
@@ -168,7 +177,8 @@ def on_sticker_receive(update: Update, context: CallbackContext):
     except error.PackInvalid:
         # pack name invalid or that pack has been deleted: delete it from the db
         with session_scope() as session:
-            deleted_rows = session.query(Pack).filter(Pack.user_id==update.effective_user.id, Pack.name==name).delete('fetch')
+            deleted_rows = session.query(Pack).filter(Pack.user_id == update.effective_user.id,
+                                                      Pack.name == name).delete('fetch')
             logger.debug('rows deleted: %d', deleted_rows or 0)
 
             # get the remaining packs' titles
@@ -189,7 +199,7 @@ def on_sticker_receive(update: Update, context: CallbackContext):
 
             logger.debug('calling sticker.delete()...')
             sticker.close()
-            return WAITING_TITLE
+            return Status.WAITING_TITLE
     except error.UnknwonError as e:
         update.message.reply_html(Strings.ADD_STICKER_GENERIC_ERROR.format(pack_link, e.message), quote=True)
     except Exception as e:
@@ -201,22 +211,76 @@ def on_sticker_receive(update: Update, context: CallbackContext):
         # this is entered even when we enter the 'else'
         logger.debug('calling sticker.close()...')
         sticker.close()
-        return WAITING_STICKERS
+
+        if animated_pack:
+            return Status.WAITING_ANIMATED_STICKERS
+        else:
+            return Status.WAITING_STATIC_STICKERS
+
+
+@decorators.action(ChatAction.TYPING)
+@decorators.failwithmessage
+@decorators.logconversation
+def on_static_sticker_receive(update: Update, context: CallbackContext):
+    logger.info('user sent a static sticker to add')
+    logger.debug('user_data: %s', context.user_data)
+
+    return add_sticker_to_set(update, context, animated_pack=False)
+
+
+@decorators.action(ChatAction.TYPING)
+@decorators.failwithmessage
+@decorators.logconversation
+def on_animated_sticker_receive(update: Update, context: CallbackContext):
+    logger.info('user sent an animated sticker to add')
+    logger.debug('user_data: %s', context.user_data)
+
+    return add_sticker_to_set(update, context, animated_pack=True)
+
+
+@decorators.action(ChatAction.TYPING)
+@decorators.failwithmessage
+@decorators.logconversation
+def on_bad_static_sticker_receive(update: Update, _):
+    logger.info('user sent an animated sticker instead of a static one')
+
+    update.message.reply_text(Strings.ADD_STICKER_EXPECTING_STATIC)
+
+    return Status.WAITING_STATIC_STICKERS
+
+
+@decorators.action(ChatAction.TYPING)
+@decorators.failwithmessage
+@decorators.logconversation
+def on_bad_animated_sticker_receive(update: Update, _):
+    logger.info('user sent a static sticker instead of an animated one')
+
+    update.message.reply_text(Strings.ADD_STICKER_EXPECTING_ANIMATED)
+
+    return Status.WAITING_ANIMATED_STICKERS
 
 
 stickersbot.add_handler(ConversationHandler(
     name='adding_stickers',
     entry_points=[CommandHandler(['add', 'a'], on_add_command)],
     states={
-        WAITING_TITLE: [MessageHandler(Filters.text, on_pack_title)],
-        WAITING_NAME: [MessageHandler(Filters.text, on_pack_name)],
-        WAITING_STICKERS: [
+        Status.WAITING_TITLE: [MessageHandler(Filters.text & ~Filters.command(STANDARD_CANCEL_COMMANDS), on_pack_title)],
+        Status.WAITING_NAME: [MessageHandler(Filters.text & ~Filters.command(STANDARD_CANCEL_COMMANDS), on_pack_name)],
+        Status.WAITING_STATIC_STICKERS: [
             MessageHandler(
                 CustomFilters.static_sticker | Filters.document.category('image/png'),
-                on_sticker_receive
+                on_static_sticker_receive
             ),
+            MessageHandler(CustomFilters.animated_sticker, on_bad_static_sticker_receive),
+        ],
+        Status.WAITING_ANIMATED_STICKERS: [
             MessageHandler(CustomFilters.animated_sticker, on_animated_sticker_receive),
+            MessageHandler(
+                CustomFilters.static_sticker | Filters.document.category('image/png'),
+                on_bad_animated_sticker_receive
+            ),
+
         ]
     },
-    fallbacks=[CommandHandler(['cancel', 'c', 'done', 'd'], cancel_command)]
+    fallbacks=[CommandHandler(STANDARD_CANCEL_COMMANDS, cancel_command)]
 ))

@@ -10,14 +10,28 @@
         "file": {
             "class": "logging.handlers.RotatingFileHandler",
             "formatter": "standard",
-            "level": "DEBUG",
+            "level": "INFO",
             "encoding": "utf8",
             "maxBytes": 1048576,
             "filename": "logs/stickersbot.log",
-            "backupCount": 500
+            "backupCount": 20
+        },
+        "file_conversation": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "formatter": "conversation_status",
+            "level": "DEBUG",
+            "encoding": "utf8",
+            "maxBytes": 1048576,
+            "filename": "logs/stickersbot_conversations.log",
+            "backupCount": 20
         }
     },
     "loggers": {
+        "conversation": {
+            "handlers": ["console", "file_conversation"],
+            "propagate": false,
+            "level": "DEBUG"
+        },
         "": {
             "handlers": [
                 "console",
@@ -40,6 +54,9 @@
         },
         "bot.bot": {
             "level": "INFO"
+        },
+        "StickerFile": {
+            "level": "DEBUG"
         }
     },
     "formatters": {
@@ -48,6 +65,9 @@
         },
         "standard": {
             "format": "[%(asctime)s][%(name)s][%(module)s:%(funcName)s:%(lineno)d][%(levelname)s] >>> %(message)s"
+        },
+        "conversation_status": {
+            "format": "[%(asctime)s][%(levelname)s] >>> %(message)s"
         }
     }
 }

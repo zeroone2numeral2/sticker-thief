@@ -4,11 +4,13 @@ class Strings:
                      "\n"
                      "Main commands:\n"
                      "/create to create a new pack\n"
+                     "/createanimated to create a new animated pack\n"
                      "/add to add stickers to an existing pack\n"
                      "/help for more commands")
 
     HELP_MESSAGE = ("<b>Full commands list</b>:\n"
                     "- /create: create a new pack\n"
+                    "- /createanimated to create a new animated pack\n"
                     "- /add: add a sticker to a pack\n"
                     "- /remove: remove a sticker from its pack\n"
                     "- send me a sticker and I will send you its png back\n"
@@ -30,8 +32,13 @@ class Strings:
                     "<b>Correct way of building your own custom pack</b>\n"
                     "Use @MyPackBot. It doesn't steal stickers like I do. It's blazing fast too. Really suggested")
 
-    PACK_CREATION_WAITING_TITLE = ("Please send me the pack title (must not exceed 64 characters).\n"
-                                   "Use /cancel to cancel")
+    PACK_CREATION_STATIC_WAITING_TITLE = ("Alright, a new stickers pack! Please send me the pack title "
+                                          "(must not exceed 64 characters).\n"
+                                          "Use /cancel to cancel")
+
+    PACK_CREATION_ANIMATED_WAITING_TITLE = ("Alright, a new animated pack! Please send me the pack title "
+                                            "(must not exceed 64 characters).\n"
+                                            "Use /cancel to cancel")
 
     PACK_TITLE_TOO_LONG = "I'm sorry, the title must be at max 64 characters long. Try with another title"
 
@@ -39,7 +46,7 @@ class Strings:
 
     PACK_CREATION_WAITING_NAME = ("Good, this is going to be the pack title: <i>{}</i>\n"
                                   "\n"
-                                  "Please send the what will be the pack link (must be at max {} characters long. "
+                                  "Please send me what will be the pack link (must be at max {} characters long. "
                                   "<b>Doesn't</b> need to include <code>https://t.me/addstickers/</code>)")
 
     PACK_NAME_TOO_LONG = "I'm sorry, this link is too long ({}/{}). Try again with another link"
@@ -54,7 +61,11 @@ class Strings:
 
     PACK_NAME_DUPLICATE = "I'm sorry, you already have a pack with this link saved. try with another link"
 
-    PACK_CREATION_WAITING_FIRST_STICKER = "Got it, we are almost done. Now send me the first sticker of the pack"
+    PACK_CREATION_WAITING_FIRST_STATIC_STICKER = "Got it, we are almost done. Now send me the first sticker " \
+                                                 "of the pack (or a png file)"
+
+    PACK_CREATION_WAITING_FIRST_ANIMATED_STICKER = "Got it, we are almost done. Now send me the first animated sticker " \
+                                                   "of the pack"
 
     PACK_CREATION_FIRST_STICKER_PACK_DATA_MISSING = ("Ooops, something went wrong.\n"
                                                      "Please repeat the creation process with /create")
@@ -82,8 +93,11 @@ class Strings:
                                            "Please select the pack you want to choose from the keyboard below. Packs reference:\n"
                                            "• {}")
 
-    ADD_STICKER_PACK_SELECTED = ("Good, we are going to add stickers to <a href=\"{}\">this pack</a>.\n"
-                                 "Send me a sticker or a png file")
+    ADD_STICKER_PACK_SELECTED_STATIC = ("Good, we are going to add stickers to <a href=\"{}\">this pack</a>.\n"
+                                        "Send me a sticker or a png file")
+
+    ADD_STICKER_PACK_SELECTED_ANIMATED = ("Good, we are going to add stickers to <a href=\"{}\">this pack</a>.\n"
+                                          "Send me an animated sticker")
 
     ADD_STICKER_SELECTED_NAME_DOESNT_EXIST = ("It seems like the pack \"{}\" doesn't exist.\n"
                                               "Please select a valid pack from the keyboard")
@@ -115,6 +129,12 @@ class Strings:
     ADD_STICKER_ANIMATED_UNSUPPORTED = ("I am sorry, I do not support animated stickers yet :(\n"
                                         "Please send a static sticker")
 
+    ADD_STICKER_EXPECTING_STATIC = ("Uh-oh. I was waiting for a normal sticker, not an animated one. "
+                                    "Please send me a static sticker, or /cancel")
+
+    ADD_STICKER_EXPECTING_ANIMATED= ("Uh-oh. I was waiting for an animated sticker, not a normal one. "
+                                     "Please send me an animated sticker, or /cancel")
+
     REMOVE_STICKER_SELECT_STICKER = "Send me the sticker you want to remove from its pack, or /cancel"
 
     REMOVE_STICKER_SUCCESS = ("Sticker removed from <a href=\"{}\">its pack</a>.\n"
@@ -137,6 +157,8 @@ class Strings:
 
     LIST_NO_PACKS = "You don't have any pack. Use /create to create one"
 
+    ANIMATED_STICKERS_NO_FILE = "Oh no, I can't send you animated stickers back as file!"
+
     EXPORT_PACK_SELECT = "Please send me a stciker from the pack you want to export, or /cancel"
 
     EXPORT_PACK_NO_PACK = "This sticker doesn't belong to any pack. Please send me a stciker from a pack, or /cancel"
@@ -144,3 +166,5 @@ class Strings:
     EXPORT_PACK_START = "Exporting stickers from <i>{}</i>... it may take some minutes. Please hold on"
 
     EXPORT_PACK_UPLOADING = "Zipping png files and uploading..."
+
+    EXPORT_ANIMATED_STICKERS_NOT_SUPPORTED = "Exporting animated packs is not supported yet"

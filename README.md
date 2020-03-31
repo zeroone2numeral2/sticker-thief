@@ -4,7 +4,7 @@ I made this bot because I was exausted of wasting my time looking for _that_ per
 
 Features:
 
-- create stickerpacks
+- create static and animated stickerpacks
 - add stickers to an existing pack just by sending other stickers (png files are accepted too)
 - automatically resize png files so they can fit Telegram's rateo size requirements
 - remove stickers from a pack

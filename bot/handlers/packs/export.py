@@ -19,6 +19,7 @@ from telegram.error import BadRequest, TelegramError
 
 from bot import stickersbot
 from bot.strings import Strings
+from ..conversation_statuses import Status
 from ..fallback_commands import cancel_command
 from ...customfilters import CustomFilters
 from ...utils import decorators
@@ -29,29 +30,28 @@ from bot.sticker import StickerFile
 logger = logging.getLogger(__name__)
 
 
-WAITING_STICKER = range(1)
-
-
 @decorators.action(ChatAction.TYPING)
 @decorators.restricted
 @decorators.failwithmessage
+@decorators.logconversation
 def on_export_command(update: Update, _):
     logger.info('/export')
 
     update.message.reply_text(Strings.EXPORT_PACK_SELECT)
 
-    return WAITING_STICKER
+    return Status.WAITING_STICKER
 
 
 @run_async
 @decorators.action(ChatAction.UPLOAD_DOCUMENT)
 @decorators.failwithmessage
+@decorators.logconversation
 def on_sticker_receive(update: Update, context: CallbackContext):
     logger.info('user sent a stciker from the pack to export')
 
     if not update.message.sticker.set_name:
         update.message.reply_text(Strings.EXPORT_PACK_NO_PACK)
-        return WAITING_STICKER
+        return Status.WAITING_STICKER
 
     sticker_set = context.bot.get_sticker_set(update.message.sticker.set_name)
 
@@ -113,19 +113,20 @@ def on_sticker_receive(update: Update, context: CallbackContext):
 
 @decorators.action(ChatAction.TYPING)
 @decorators.failwithmessage
+@decorators.logconversation
 def on_animated_sticker_receive(update: Update, _):
     logger.info('user sent an animated sticker')
 
-    update.message.reply_text(Strings.ADD_STICKER_ANIMATED_UNSUPPORTED)
+    update.message.reply_text(Strings.EXPORT_ANIMATED_STICKERS_NOT_SUPPORTED)
 
-    return WAITING_STICKER
+    return Status.WAITING_STICKER
 
 
 stickersbot.add_handler(ConversationHandler(
     name='export_command',
     entry_points=[CommandHandler(['export', 'e', 'dump'], on_export_command)],
     states={
-        WAITING_STICKER: [
+        Status.WAITING_STICKER: [
             MessageHandler(CustomFilters.static_sticker, on_sticker_receive),
             MessageHandler(CustomFilters.animated_sticker, on_animated_sticker_receive),
         ],

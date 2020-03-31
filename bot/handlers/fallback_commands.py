@@ -11,10 +11,13 @@ from ..utils import decorators
 
 logger = logging.getLogger(__name__)
 
+STANDARD_CANCEL_COMMANDS = ['cancel', 'c', 'done', 'd']
+
 
 @decorators.action(ChatAction.TYPING)
 @decorators.restricted
 @decorators.failwithmessage
+@decorators.logconversation
 def cancel_command(update: Update, context: CallbackContext):
     logger.info('%s command', update.message.text)
 
