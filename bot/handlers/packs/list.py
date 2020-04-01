@@ -1,7 +1,7 @@
 import logging
 
 # noinspection PyPackageRequirements
-from telegram.ext import CommandHandler
+from telegram.ext import CommandHandler, ConversationHandler
 # noinspection PyPackageRequirements
 from telegram import ChatAction, Update
 
@@ -32,6 +32,8 @@ def on_list_command(update: Update, _):
         return
 
     update.message.reply_html('• {}'.format('\n• '.join(strings_list)) + Strings.LIST_FOOTER)
+
+    return ConversationHandler.END  # /list should end whatever conversation the user was having
 
 
 stickersbot.add_handler(CommandHandler(['list', 'l'], on_list_command))

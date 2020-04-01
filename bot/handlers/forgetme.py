@@ -1,7 +1,7 @@
 import logging
 
 # noinspection PyPackageRequirements
-from telegram.ext import CommandHandler
+from telegram.ext import CommandHandler, ConversationHandler
 # noinspection PyPackageRequirements
 from telegram import ChatAction, Update
 
@@ -25,6 +25,8 @@ def on_forgetme_command(update: Update, _):
         logger.info('deleted rows: %d', deleted_rows or 0)
 
     update.message.reply_text(Strings.FORGETME_SUCCESS)
+
+    return ConversationHandler.END  # /forgetme should end whatever conversation the user was having
 
 
 stickersbot.add_handler(CommandHandler(['forgetme', 'fm'], on_forgetme_command))

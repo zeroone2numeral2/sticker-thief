@@ -1,7 +1,7 @@
 import logging
 
 # noinspection PyPackageRequirements
-from telegram.ext import CommandHandler, CallbackContext
+from telegram.ext import CommandHandler, CallbackContext, ConversationHandler
 # noinspection PyPackageRequirements
 from telegram import ChatAction, Update, TelegramError
 
@@ -68,6 +68,8 @@ def on_cleanup_command(update: Update, context: CallbackContext):
     packs_links = ['<a href="{}">{}</a>'.format(utils.name2link(pack[1]), pack[0]) for pack in packs_to_delete]
 
     update.message.reply_html(Strings.CLEANUP_HEADER + '• {}'.format('\n• '.join(packs_links)))
+
+    return ConversationHandler.END  # /cleanup should end whatever conversation the user was having
 
 
 stickersbot.add_handler(CommandHandler(['cleanup', 'cu'], on_cleanup_command))
