@@ -28,6 +28,9 @@ from ...utils import utils
 
 logger = logging.getLogger(__name__)
 
+MAX_PACK_SIZE_STATIC = 120
+MAX_PACK_SIZE_ANIMATED = 50
+
 
 @decorators.action(ChatAction.TYPING)
 @decorators.restricted
@@ -170,7 +173,10 @@ def add_sticker_to_set(update: Update, context: CallbackContext, animated_pack):
         logger.debug('executing request...')
         sticker.add_to_set(context.bot, update.effective_user.id, name)
     except error.PackFull:
-        update.message.reply_html(Strings.ADD_STICKER_PACK_FULL.format(pack_link), quote=True)
+        max_pack_size = MAX_PACK_SIZE_ANIMATED if animated_pack else MAX_PACK_SIZE_STATIC
+        update.message.reply_html(Strings.ADD_STICKER_PACK_FULL.format(pack_link, max_pack_size), quote=True)
+
+        return ConversationHandler.END  # end the conversation when a pack is full
     except error.FileDimensionInvalid:
         logger.error('resized sticker has the wrong size: %s', str(sticker))
         update.message.reply_html(Strings.ADD_STICKER_SIZE_ERROR.format(*sticker.size), quote=True)

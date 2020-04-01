@@ -115,9 +115,9 @@ class Strings:
     ADD_STICKER_SUCCESS = ("Sticker added to <a href=\"{}\">this pack</a>. "
                            "Continue to send me stickers to add more, use /done when you're done")
 
-    ADD_STICKER_PACK_FULL = ("I'm sorry, <a href=\"{}\">this pack</a> is full (120 stickers), "
+    ADD_STICKER_PACK_FULL = ("I'm sorry, <a href=\"{}\">this pack</a> is full ({} stickers), "
                              "you can no longer add stickers to it. Use /remove to remove some stickers\n"
-                             "Use /done when you've finished")
+                             "You've exited the \"adding stickers\" mode")
 
     ADD_STICKER_SIZE_ERROR = ("Whoops, it looks like an error happened while resizing the sticker "
                               "and now its dimensions are {}x{} px. I can't add this sticker to the pack due to wrong resizing logic.\n"
