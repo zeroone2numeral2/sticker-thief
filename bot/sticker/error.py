@@ -50,5 +50,5 @@ EXCEPTIONS = {
     'Stickerpack_stickers_too_much': PackFull,  # pack is full
     'file is too big': FileTooBig,  # png size > 350 kb
     'Sticker_png_dimensions': FileDimensionInvalid,  # invalid png size
-    '': UnknwonError
+    'ext_unknown_api_exception': UnknwonError  # not an actual exception, we reiase it when we receive an unknown exception
 }
