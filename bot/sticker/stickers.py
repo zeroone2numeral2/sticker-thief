@@ -84,6 +84,7 @@ class StickerFile:
 
     @staticmethod
     def _raise_exception(received_error_message):
+        logger.info('raising stickers exception: %s', received_error_message)
         for expected_api_error_message, exception_to_raise in EXCEPTIONS.items():
             if re.search(expected_api_error_message, received_error_message, re.I):
                 raise exception_to_raise(received_error_message)
