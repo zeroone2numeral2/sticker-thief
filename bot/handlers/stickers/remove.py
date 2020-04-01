@@ -63,6 +63,7 @@ def on_sticker_receive(update: Update, context: CallbackContext):
 
 stickersbot.add_handler(ConversationHandler(
     name='adding_stickers',
+    # persistent=True,  # do not make this conversation persistent
     entry_points=[CommandHandler(['remove', 'rem', 'r'], on_remove_command)],
     states={
         Status.WAITING_STICKER: [MessageHandler(

@@ -268,6 +268,7 @@ def on_bad_animated_sticker_receive(update: Update, _):
 
 stickersbot.add_handler(ConversationHandler(
     name='adding_stickers',
+    persistent=True,
     entry_points=[CommandHandler(['add', 'a'], on_add_command)],
     states={
         Status.WAITING_TITLE: [MessageHandler(Filters.text & ~Filters.command(STANDARD_CANCEL_COMMANDS), on_pack_title)],

@@ -252,6 +252,7 @@ def on_first_sticker_receive(update: Update, context: CallbackContext):
 
 stickersbot.add_handler(ConversationHandler(
     name='pack_creation',
+    persistent=True,
     entry_points=[
         CommandHandler(['create', 'new', 'n'], on_create_static_pack_command),
         CommandHandler(['createanimated', 'newanimated', 'na'], on_create_animated_pack_command)
