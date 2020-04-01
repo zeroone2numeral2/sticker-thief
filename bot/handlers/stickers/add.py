@@ -143,17 +143,6 @@ def on_pack_name(update: Update, context: CallbackContext):
     return Status.WAITING_STATIC_STICKERS
 
 
-@decorators.action(ChatAction.TYPING)
-@decorators.failwithmessage
-@decorators.logconversation
-def on_animated_sticker_receive(update: Update, _):
-    logger.info('user sent an animated sticker')
-
-    update.message.reply_text(Strings.ADD_STICKER_ANIMATED_UNSUPPORTED)
-
-    return Status.WAITING_STATIC_STICKERS
-
-
 def add_sticker_to_set(update: Update, context: CallbackContext, animated_pack):
     name = context.user_data['pack'].get('name', None)
     if not name:
