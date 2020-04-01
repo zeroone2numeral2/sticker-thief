@@ -7,6 +7,7 @@ import uuid
 # noinspection PyPackageRequirements
 from telegram import Update
 # noinspection PyPackageRequirements
+from telegram.error import TimedOut
 from telegram.ext import CallbackContext, ConversationHandler
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -73,6 +74,9 @@ def failwithmessage(func):
     def wrapped(update: Update, context: CallbackContext, *args, **kwargs):
         try:
             return func(update, context, *args, **kwargs)
+        except TimedOut:
+            # what should this return when we are inside a conversation?
+            logger.error('Telegram exception: TimedOut')
         except Exception as e:
             logger.error('error while running handler callback: %s', str(e), exc_info=True)
             text = 'An error occurred while processing the message: <code>{}</code>'.format(html_escape(str(e)))
