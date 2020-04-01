@@ -14,8 +14,6 @@ from bot.strings import Strings
 
 logger = logging.getLogger(__name__)
 
-RANDOM_FILE_ID = 'CAACAgQAAxkBAAEC2wdehE0E8h1kfSZwYUrP9Axz2tfH7AACW2UAAuOnXQVS1pXsJFAxLxgE'
-
 
 @decorators.action(ChatAction.TYPING)
 @decorators.restricted
