@@ -12,3 +12,4 @@ config.toml
 .idea/
 *.zip
 venv/
+data.pickle
