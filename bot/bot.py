@@ -5,9 +5,67 @@ import re
 from pathlib import Path
 
 # noinspection PyPackageRequirements
+from telegram import Bot, InputFile
+# noinspection PyPackageRequirements
+from telegram.bot import log
+# noinspection PyPackageRequirements
 from telegram.ext import Updater, ConversationHandler
 
 logger = logging.getLogger(__name__)
+
+
+class CustomBot(Bot):
+    @staticmethod
+    def _prepare_request_payload(data, png_sticker=None, tgs_sticker=None):
+        if png_sticker is not None:
+            if InputFile.is_file(png_sticker):
+                png_sticker = InputFile(png_sticker)
+
+            data['png_sticker'] = png_sticker
+
+        if tgs_sticker is not None:
+            if InputFile.is_file(tgs_sticker):
+                tgs_sticker = InputFile(tgs_sticker)
+
+            data['tgs_sticker'] = tgs_sticker
+
+        return data
+
+    @log
+    def add_sticker_to_set(self, user_id, name, emojis, png_sticker=None, tgs_sticker=None, mask_position=None,
+                           timeout=20, **kwargs):
+        url = '{0}/addStickerToSet'.format(self.base_url)
+
+        data = {'user_id': user_id, 'name': name, 'emojis': emojis}
+
+        data = self._prepare_request_payload(data, png_sticker, tgs_sticker)
+
+        if mask_position is not None:
+            data['mask_position'] = mask_position
+        data.update(kwargs)
+
+        result = self._request.post(url, data, timeout=timeout)
+
+        return result
+
+    @log
+    def create_new_sticker_set(self, user_id, name, title, emojis, png_sticker=None, tgs_sticker=None,
+                               contains_masks=None, mask_position=None, timeout=20, **kwargs):
+        url = '{0}/createNewStickerSet'.format(self.base_url)
+
+        data = {'user_id': user_id, 'name': name, 'title': title, 'emojis': emojis}
+
+        data = self._prepare_request_payload(data, png_sticker, tgs_sticker)
+
+        if contains_masks is not None:
+            data['contains_masks'] = contains_masks
+        if mask_position is not None:
+            data['mask_position'] = mask_position
+        data.update(kwargs)
+
+        result = self._request.post(url, data, timeout=timeout)
+
+        return result
 
 
 class StickersBot(Updater):
