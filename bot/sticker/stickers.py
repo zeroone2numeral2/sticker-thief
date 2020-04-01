@@ -86,7 +86,7 @@ class StickerFile:
     def _raise_exception(received_error_message):
         for expected_api_error_message, exception_to_raise in EXCEPTIONS.items():
             if re.search(expected_api_error_message, received_error_message, re.I):
-                logger.info('known exception: %s', received_error_message)
+                logger.info('known exception: %s, %s', received_error_message, type(exception_to_raise))
                 raise exception_to_raise(received_error_message)
 
         # raise unknown error if no description matched
