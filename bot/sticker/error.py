@@ -43,6 +43,7 @@ class UnknwonError(StickerError):
 EXCEPTIONS = {
     'sticker set name is already occupied': NameAlreadyOccupied,
     'STICKERSET_INVALID': PackInvalid,  # eg. trying to remove a sticker from a set the bot doesn't own, pack name doesn't exist, or pack has been deleted
+    'Stickerset_invalid': PackInvalid,  # new STICKERSET_INVALID
     'STICKERSET_NOT_MODIFIED': PackNotModified,
     'sticker set name invalid': NameInvalid,  # eg. starting with a number
     'Stickers_too_much': PackFull,  # pack is full (old exception)
