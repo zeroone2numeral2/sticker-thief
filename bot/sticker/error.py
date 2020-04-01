@@ -45,7 +45,8 @@ EXCEPTIONS = {
     'STICKERSET_INVALID': PackInvalid,  # eg. trying to remove a sticker from a set the bot doesn't own, pack name doesn't exist, or pack has been deleted
     'STICKERSET_NOT_MODIFIED': PackNotModified,
     'sticker set name invalid': NameInvalid,  # eg. starting with a number
-    'Stickers_too_much': PackFull,  # pack is full
+    'Stickers_too_much': PackFull,  # pack is full (old exception)
+    'Stickerpack_stickers_too_much': PackFull,  # pack is full
     'file is too big': FileTooBig,  # png size > 350 kb
     'Sticker_png_dimensions': FileDimensionInvalid,  # invalid png size
     '': UnknwonError
