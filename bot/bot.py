@@ -3,6 +3,7 @@ import os
 import importlib
 import re
 from pathlib import Path
+from collections import OrderedDict
 
 # noinspection PyPackageRequirements
 from telegram import Bot, InputFile
@@ -67,8 +68,32 @@ class CustomBot(Bot):
 
         return result
 
+    @log
+    def set_my_commands(self, commands):
+        url = '{0}/setMyCommands'.format(self.base_url)
+
+        data = {'commands': []}
+        for command, description in commands.items():
+            data['commands'].append({'command': command, 'description': description})
+
+        result = self._request.post(url, data, timeout=20)
+
+        return result
+
 
 class StickersBot(Updater):
+    COMMANDS = OrderedDict({
+        'create': 'create a new stickers pack',
+        'createanimated': 'create a new animated stickers pack',
+        'add': 'add stickers to an existing pack',
+        'remove': 'remove stickers from their pack',
+        'list': 'list your packs',
+        'cleanup': 'remove fom the database packs deleted from @stickers',
+        'forgetme': 'delete yourself from the database',
+        'export': 'export a pack to a zip file',
+        'cancel': 'cancel the current operation'
+    })
+
     @staticmethod
     def _load_manifest(manifest_path):
         if not manifest_path:
@@ -141,6 +166,8 @@ class StickersBot(Updater):
 
     def run(self, *args, **kwargs):
         logger.info('running as @%s', self.bot.username)
+
+        self.bot.set_my_commands(self.COMMANDS)
         self.start_polling(*args, **kwargs)
         self.idle()
 
