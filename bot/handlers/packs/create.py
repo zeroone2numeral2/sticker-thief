@@ -221,7 +221,7 @@ def on_first_sticker_receive(update: Update, context: CallbackContext):
         return Status.WAITING_NAME  # do not continue, wait for another name
     except error.InvalidAnimatedSticker as e:
         logger.error('Telegram error while creating animated pack: %s', e.message)
-        update.message.reply_html(Strings.ADD_STICKER_INVALID_ANIMATED, quote=True)
+        update.message.reply_html(Strings.ADD_STICKER_INVALID_ANIMATED, quote=True, disable_web_page_preview=True)
 
         return Status.WAITING_FIRST_STICKER
     except error.UnknwonError as e:
