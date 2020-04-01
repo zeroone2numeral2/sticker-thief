@@ -17,6 +17,7 @@ class Strings:
                     "- /list: list your packs (max 100 entries)\n"
                     "- /export: export a sticker pack as a zip of png files\n"
                     "- /forgetme: delete yourself from my database. The packs you created will <b>not</b> be deleted from Telegram\n"
+                    "- /cleanup: remove from the list of your packs all the packs that you have deleted using @stickers\n"
                     "\n"
                     "<b>Other operations</b>\n"
                     "You can delete a pack, change a sticker's emojis, change stickers order and see a sticker/pack stats from @stickers\n"
@@ -168,3 +169,8 @@ class Strings:
     EXPORT_PACK_UPLOADING = "Zipping png files and uploading..."
 
     EXPORT_ANIMATED_STICKERS_NOT_SUPPORTED = "Exporting animated packs is not supported yet"
+
+    CLEANUP_NO_PACK = ("It looks like all your packs are still there. No pack has been removed from the database.\n"
+                       "Use /list to see the list of your packs")
+
+    CLEANUP_HEADER = "These are the packs that no longer exist and has been removed from the database:\n"
