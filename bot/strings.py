@@ -123,6 +123,12 @@ class Strings:
                               "and now its dimensions are {}x{} px. I can't add this sticker to the pack due to wrong resizing logic.\n"
                               "Send me another sticker, or use /done when you're done")
 
+    ADD_STICKER_INVALID_ANIMATED = ("It looks like this animated sticker is no loger compliant with the latest "
+                                    "<a href=\"https://core.telegram.org/animated_stickers\">Telegram guidelines</a> "
+                                    "about animated stickers. I'm sorry but I can't add it :(\n"
+                                    "You can try to send the sticker again or "
+                                    "send another animated sticker (or /cancel)")
+
     ADD_STICKER_GENERIC_ERROR = ("An error occurred while adding this sticker to <a href=\"{}\">this pack</a>: "
                                  "<code>{}</code>.\n"
                                  "Try again, send me another sticker or use /done when you're done")

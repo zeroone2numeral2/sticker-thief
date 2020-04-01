@@ -36,19 +36,42 @@ class FileDimensionInvalid(StickerError):
     pass
 
 
+class InvalidAnimatedSticker(StickerError):
+    pass
+
+
 class UnknwonError(StickerError):
     pass
 
 
 EXCEPTIONS = {
+    # pack name is already used
     'sticker set name is already occupied': NameAlreadyOccupied,
-    'STICKERSET_INVALID': PackInvalid,  # the bot doesn't own the pack/pack name doesn't exist/pack has been deleted
-    'Stickerset_invalid': PackInvalid,  # new STICKERSET_INVALID
+
+    # the bot doesn't own the pack/pack name doesn't exist/pack has been deleted
+    'STICKERSET_INVALID': PackInvalid,
+    'Stickerset_invalid': PackInvalid,  # new exception description
+
     'STICKERSET_NOT_MODIFIED': PackNotModified,
-    'sticker set name invalid': NameInvalid,  # eg. starting with a number
-    'Stickers_too_much': PackFull,  # pack is full (old exception)
-    'Stickerpack_stickers_too_much': PackFull,  # pack is full
-    'file is too big': FileTooBig,  # png size > 350 kb
-    'Sticker_png_dimensions': FileDimensionInvalid,  # invalid png size
-    'ext_unknown_api_exception': UnknwonError  # not an actual exception, we reiase it when we receive an unknown exception
+
+    # invalid pack name, eg. starting with a number
+    'sticker set name invalid': NameInvalid,
+
+    # pack is full
+    'Stickers_too_much': PackFull,  # old exception description
+    'Stickerpack_stickers_too_much': PackFull,  # new exception description
+
+    # png size > 350 kb
+    'file is too big': FileTooBig,
+
+    # invalid png size
+    'Sticker_png_dimensions': FileDimensionInvalid,
+
+    # this happens when we receive an animated sticker which is no longer compliant with the current specifications
+    # it also should have as mime type "application/x-bad-tgsticker"
+    # https://core.telegram.org/animated_stickers
+    'Wrong file type': InvalidAnimatedSticker,
+
+    # not an actual API exception, we reiase it when we receive an unknown exception
+    'ext_unknown_api_exception': UnknwonError
 }

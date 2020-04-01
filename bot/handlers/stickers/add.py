@@ -171,6 +171,8 @@ def add_sticker_to_set(update: Update, context: CallbackContext, animated_pack):
     except error.FileDimensionInvalid:
         logger.error('resized sticker has the wrong size: %s', str(sticker))
         update.message.reply_html(Strings.ADD_STICKER_SIZE_ERROR.format(*sticker.size), quote=True)
+    except error.InvalidAnimatedSticker:
+        update.message.reply_html(Strings.ADD_STICKER_INVALID_ANIMATED, quote=True)
     except error.PackInvalid:
         # pack name invalid or that pack has been deleted: delete it from the db
         with session_scope() as session:
