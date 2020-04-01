@@ -40,19 +40,15 @@ def on_cleanup_command(update: Update, context: CallbackContext):
             emojis='🗑'
         )
 
-        if pack[2]:
-            # is animated
-            request_payload['tgs_sticker'] = open('requirements.txt', 'rb')  # yeah, uhhh... we need this
+        if pack[2]:  # pack.is_animated
+            request_payload['tgs_sticker'] = open('assets/dummy_animated.tgs', 'rb')
         else:
-            request_payload['png_sticker'] = open('requirements.txt', 'rb')
+            request_payload['png_sticker'] = open('assets/dummy_static.png', 'rb')
 
         try:
             context.bot.add_sticker_to_set(**request_payload)
         except TelegramError as telegram_error:
-            # this only work because Telegram first check the validity of the pack name, and then
-            # if we passed a correct png_sticker/tgs_sticker. Will they ever change this, this command will break
-            # and we have to pass a correct png/tgs file (right know we pass requirements.txt as bytes object)
-            if 'Stickerset_invalid' in telegram_error.message:
+            if telegram_error.message == 'Stickerset_invalid':
                 logger.debug('this pack will be removed from the db (%s)', telegram_error.message)
                 packs_to_delete.append(pack)  # list of packs we will have to delete
             else:
