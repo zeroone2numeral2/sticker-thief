@@ -25,6 +25,7 @@ from ..fallback_commands import STANDARD_CANCEL_COMMANDS
 from ...customfilters import CustomFilters
 from ...utils import decorators
 from ...utils import utils
+from ...utils.pyrogram import get_sticker_emojis
 
 logger = logging.getLogger(__name__)
 

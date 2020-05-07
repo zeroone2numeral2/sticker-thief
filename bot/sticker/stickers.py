@@ -28,11 +28,12 @@ def get_correct_size(sizes):
 
 
 class StickerFile:
-    def __init__(self, sticker: [Sticker, Document], caption=None, temp_file=None):
+    def __init__(self, sticker: [Sticker, Document], caption=None, temp_file=None, emojis=None):
         self._animated = False
         self._file = sticker
         self._is_sticker = True
         self._emoji = None
+        self._emojis = list()
         self._size_original = (0, 0)
         self._size_resized = (0, 0)
         self._tempfile_downloaded = temp_file or tempfile.SpooledTemporaryFile()  # webp or tgs files
@@ -50,6 +51,9 @@ class StickerFile:
                 self._emoji = utils.get_emojis(caption)
             if not self._emoji:
                 self._emoji = '💈'
+
+        if emojis:
+            self._emojis = emojis
 
     @property
     def emoji(self):
@@ -144,7 +148,7 @@ class StickerFile:
         request_payload = dict(
             user_id=user_id,
             name=pack_name,
-            emojis=self._emoji,
+            emojis=self._emoji if not self._emojis else ''.join(self._emojis),
             mask_position=None
         )
 
