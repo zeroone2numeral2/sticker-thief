@@ -4,5 +4,5 @@ pillow
 toml
 emoji
 alembic
-pyrogram
-tgcrypto
+pyrogram==0.17.1
+tgcrypto==1.2.1
