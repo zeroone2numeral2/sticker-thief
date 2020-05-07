@@ -25,20 +25,6 @@ logger = logging.getLogger(__name__)
 @decorators.restricted
 @decorators.action(ChatAction.UPLOAD_DOCUMENT)
 @decorators.failwithmessage
-def on_static_sticker_receive(update: Update, _):
-    logger.info('user sent a static stciker to convert')
-
-    sticker = StickerFile(update.message.sticker)
-    sticker.download(prepare_png=True)
-
-    update.message.reply_document(sticker.png_file, filename=update.message.sticker.file_id + '.png', quote=True)
-
-    sticker.close()
-
-
-@decorators.restricted
-@decorators.action(ChatAction.UPLOAD_DOCUMENT)
-@decorators.failwithmessage
 def on_animated_sticker_receive(update: Update, _):
     logger.info('user sent an animated stciker to convert')
 
@@ -55,9 +41,10 @@ def on_animated_sticker_receive(update: Update, _):
 
 
 @decorators.restricted
+@decorators.action(ChatAction.UPLOAD_DOCUMENT)
 @decorators.failwithmessage
-def on_static_sticker_return_emojis(update: Update, _):
-    logger.info('user sent a static stciker, we will return its emojis (as a test)')
+def on_static_sticker_receive(update: Update, _):
+    logger.info('user sent a static stciker, we will return it as a file + its emojis')
 
     client = Client(
         'stickers-bot',
@@ -69,11 +56,13 @@ def on_static_sticker_return_emojis(update: Update, _):
     )
 
     with client as c:
+        sticker = c.get_messages(update.effective_chat.id, update.message.message_id).sticker
+
         input_sticker_set_short_name = InputStickerSetShortName(short_name=update.message.sticker.set_name)
         sticker_set = c.send(GetStickerSet(stickerset=input_sticker_set_short_name))
         # print(sticker_set.documents)
 
-        print('bot api file_id:', update.message.sticker.file_id)
+        emojis_str = ''
         for document in sticker_set.documents:
             sticker_attributes = image_size_attributes = file_name = None
             for attribute in document.attributes:
@@ -85,19 +74,20 @@ def on_static_sticker_return_emojis(update: Update, _):
                     file_name = attribute.file_name
 
             # noinspection PyProtectedMember
-            sticker = Sticker._parse(
+            pack_sticker = Sticker._parse(
                 sticker=document,
                 image_size_attributes=image_size_attributes,
                 sticker_attributes=sticker_attributes,
                 file_name=file_name,
                 client=c
             )
-            if sticker.file_id != update.message.sticker.file_id:
+            if pack_sticker.file_id != sticker.file_id:
                 # these two won't be the same: one is from pyrogram, the other one is from the bot api
-                print('file_id match failed:', sticker.file_id)
+                # logger.debug('file_id match failed: %s', pack_sticker.file_id)
+                continue
 
-            print('id:', document.id)
-            print('', 'main:', sticker_attributes.alt)  # sticker_attributes.alt actually contains the pack's main emoji
+            logger.debug('id: %d', document.id)
+            logger.debug('main: %s', sticker_attributes.alt)  # sticker_attributes.alt actually contains the pack's main emoji
 
             # each pack in sticker_set.packs is an emoji. A pack has a 'documents' attribute, which contains
             # a list of document ids bound to that emoji
@@ -107,9 +97,23 @@ def on_static_sticker_return_emojis(update: Update, _):
                     if document_id == document.id:
                         all_sticker_emojis.append(emoji.emoticon)
 
-            print('', 'all:', ', '.join(all_sticker_emojis))
+            logger.debug('all: %s', ', '.join(all_sticker_emojis))
+            emojis_str = ''.join(all_sticker_emojis)
+
+            break
+
+    sticker = StickerFile(update.message.sticker)
+    sticker.download(prepare_png=True)
+
+    update.message.reply_document(
+        sticker.png_file,
+        filename=update.message.sticker.file_id + '.png',
+        caption=emojis_str,
+        quote=True
+    )
+
+    sticker.close()
 
 
-stickersbot.add_handler(MessageHandler(CustomFilters.static_sticker, on_static_sticker_return_emojis))
 stickersbot.add_handler(MessageHandler(CustomFilters.static_sticker, on_static_sticker_receive))
 stickersbot.add_handler(MessageHandler(Filters.sticker, on_animated_sticker_receive))
