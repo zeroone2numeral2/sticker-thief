@@ -154,7 +154,13 @@ def add_sticker_to_set(update: Update, context: CallbackContext, animated_pack):
 
         return ConversationHandler.END
 
-    sticker = StickerFile(update.message.sticker or update.message.document, caption=update.message.caption)
+    sticker_emojis = get_sticker_emojis(update.message)
+
+    sticker = StickerFile(
+        update.message.sticker or update.message.document,
+        caption=update.message.caption,
+        emojis=sticker_emojis
+    )
     sticker.download(prepare_png=True)
 
     pack_link = utils.name2link(name)

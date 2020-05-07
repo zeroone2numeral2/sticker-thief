@@ -28,6 +28,7 @@ from ..stickers.add import on_bad_animated_sticker_receive
 from ...customfilters import CustomFilters
 from ...utils import decorators
 from ...utils import utils
+from ...utils.pyrogram import get_sticker_emojis
 
 logger = logging.getLogger(__name__)
 
@@ -184,7 +185,13 @@ def on_first_sticker_receive(update: Update, context: CallbackContext):
 
     full_name = '{}_by_{}'.format(name, context.bot.username)
 
-    sticker = StickerFile(update.message.sticker or update.message.document, caption=update.message.caption)
+    sticker_emojis = get_sticker_emojis(update.message)
+
+    sticker = StickerFile(
+        update.message.sticker or update.message.document,
+        caption=update.message.caption,
+        emojis=sticker_emojis
+    )
     sticker.download(prepare_png=True)
 
     try:
@@ -193,7 +200,7 @@ def on_first_sticker_receive(update: Update, context: CallbackContext):
             user_id=update.effective_user.id,
             title=title,
             name=full_name,
-            emojis=sticker.emoji,
+            emojis=''.join(sticker.emojis),
         )
 
         if animated_pack:

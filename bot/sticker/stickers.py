@@ -28,7 +28,7 @@ def get_correct_size(sizes):
 
 
 class StickerFile:
-    def __init__(self, sticker: [Sticker, Document], caption=None, temp_file=None, emojis=None):
+    def __init__(self, sticker: [Sticker, Document], caption=None, temp_file=None, emojis: [list, None] = None):
         self._animated = False
         self._file = sticker
         self._is_sticker = True
@@ -58,6 +58,10 @@ class StickerFile:
     @property
     def emoji(self):
         return self._emoji
+
+    @property
+    def emojis(self):
+        return self._emojis if self._emojis else [self._emoji]
 
     @property
     def size(self):
