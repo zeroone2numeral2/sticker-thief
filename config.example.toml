@@ -6,6 +6,10 @@ admins_only = false
 maintenance_mode = false
 persistent_temp_data = true
 
+[pyrogram]
+api_id = 0
+api_hash = ""
+
 [sqlite]
 filename = "stickersbot.sqlite"
 
