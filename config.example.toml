@@ -7,7 +7,7 @@ maintenance_mode = false
 persistent_temp_data = true
 
 [pyrogram]
-enabled = true
+enabled = false
 api_id = 0
 api_hash = ""
 
