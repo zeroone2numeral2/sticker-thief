@@ -19,9 +19,17 @@ If you respect other people's work, want to give credits to the original pack cr
 
 ### Running the bot
 
+#### Native
+
 1. install requirements with `pip3 install -r requirements.txt`
 2. rename `config.example.toml` to `config.toml` and change relevant values (that is, `telegram.token` and `telegram.admins`)
 3. run the bot with `python3 main.py`
+
+#### Docker
+
+1. rename `config.example.toml` to `config.toml` and change relevant values (that is, `telegram.token` and `telegram.admins`)
+2. with docker installed run `sudo docker build -t sticker-thief .` in the project root
+3. then run `sudo docker run --rm sticker-thief` (add a `-d` flag after `--rm` if you want to run the bot in the background)
 
 ### Notes for those who are going to run this
 
@@ -29,4 +37,4 @@ This bot is not made to be used by a large amount of users and I cannot guarante
 
 By default, everyone can use this bot (with the exception of some special commands, listed below). If you want to restrict its use to only the users listed in `telegram.admins` (`condfig.toml` file), open `config.toml` and change `telegram.admins_only` to `true`.
 
-When you pull from git, make sure to run alembic to upgrade your database schema: `alembic upgrade head` 
+When you pull from git, make sure to run alembic to upgrade your database schema: `alembic upgrade head`
