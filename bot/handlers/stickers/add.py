@@ -154,13 +154,7 @@ def add_sticker_to_set(update: Update, context: CallbackContext, animated_pack):
 
         return ConversationHandler.END
 
-    sticker_emojis = get_sticker_emojis(update.message)
-
-    sticker = StickerFile(
-        update.message.sticker or update.message.document,
-        caption=update.message.caption,
-        emojis=sticker_emojis
-    )
+    sticker = StickerFile(bot=context.bot, message=update.message)
     sticker.download(prepare_png=True)
 
     pack_link = utils.name2link(name)
@@ -169,7 +163,7 @@ def add_sticker_to_set(update: Update, context: CallbackContext, animated_pack):
     end_conversation = False
     try:
         logger.debug('executing request...')
-        sticker.add_to_set(context.bot, update.effective_user.id, name)
+        sticker.add_to_set(name)
     except error.PackFull:
         max_pack_size = MAX_PACK_SIZE_ANIMATED if animated_pack else MAX_PACK_SIZE_STATIC
         update.message.reply_html(Strings.ADD_STICKER_PACK_FULL.format(pack_link, max_pack_size), quote=True)

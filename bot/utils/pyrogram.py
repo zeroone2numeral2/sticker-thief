@@ -10,6 +10,7 @@ from pyrogram.api.types import DocumentAttributeFilename
 # noinspection PyPackageRequirements
 from telegram import Message
 
+from .helpers.utils import get_emojis_from_message
 from config import config
 
 logger = logging.getLogger(__name__)
@@ -69,8 +70,8 @@ def get_emojis_from_pack(message: Message) -> list:
             # logger.debug('file_id match failed: %s', pack_sticker.file_id)
             continue
 
-        logger.debug('id: %d', document.id)
-        logger.debug('main: %s', sticker_attributes.alt)  # 'alt' actually contains the pack's main emoji
+        # logger.debug('id: %d', document.id)
+        # logger.debug('main: %s', sticker_attributes.alt)  # 'alt' actually contains the pack's main emoji
 
         # each pack in sticker_set.packs is an emoji. A pack has a 'documents' attribute, which contains
         # a list of document ids bound to that emoji
@@ -80,17 +81,22 @@ def get_emojis_from_pack(message: Message) -> list:
                 if document_id == document.id:
                     all_sticker_emojis.append(emoji.emoticon)
 
-        logger.debug('all: %s', ', '.join(all_sticker_emojis))
+        # logger.debug('all: %s', ', '.join(all_sticker_emojis))
 
         return all_sticker_emojis
 
 
 def get_sticker_emojis(message: Message, use_pyrogram=True) -> list:
-    if isinstance(client, FakeClient) or not use_pyrogram:
-        return [message.sticker.emoji]
+    """Will return a list of emojis, or None. If the message has a sticker, it will return the sticker's main emoji (or
+    the full emojis list if configured to use pyrogram); if the message is a document, it will return the list of
+    emojis in the caption (or None)"""
+
+    if isinstance(client, FakeClient) or not use_pyrogram or message.document:
+        # this function will also search a document's caption for emojis
+        return get_emojis_from_message(message)
 
     try:
         return get_emojis_from_pack(message)
     except Exception as e:
         logger.error('error while fetching a sticker\'s emojis list with pyrogram: %s', str(e), exc_info=True)
-        return [message.sticker.emoji]
+        return get_emojis_from_message(message)

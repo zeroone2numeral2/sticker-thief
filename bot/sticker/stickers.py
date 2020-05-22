@@ -5,11 +5,12 @@ import tempfile
 
 from PIL import Image
 # noinspection PyPackageRequirements
-from telegram import Sticker, Document, InputFile
+from telegram import Sticker, Document, InputFile, Bot, Message
 # noinspection PyPackageRequirements
 from telegram.error import BadRequest, TelegramError
 
 from ..utils import utils
+from ..utils.pyrogram import get_sticker_emojis
 from .error import EXCEPTIONS
 
 logger = logging.getLogger('StickerFile')
@@ -28,40 +29,36 @@ def get_correct_size(sizes):
 
 
 class StickerFile:
-    def __init__(self, sticker: [Sticker, Document], caption=None, temp_file=None, emojis: [list, None] = None):
+    DEFAULT_EMOJI = '💈'
+
+    def __init__(self, bot: Bot, message: Message, temp_file=None):
+        self._bot = bot
         self._animated = False
-        self._file = sticker
+        self._sticker = message.sticker or message.document
         self._is_sticker = True
-        self._emoji = None
-        self._emojis = list()
+        self._emojis = get_sticker_emojis(message) or [self.DEFAULT_EMOJI]
         self._size_original = (0, 0)
         self._size_resized = (0, 0)
+        self._user_id = message.from_user.id  # we need this in case we have to create a pack or to add to a pack
         self._tempfile_downloaded = temp_file or tempfile.SpooledTemporaryFile()  # webp or tgs files
         self._tempfile_converted = tempfile.SpooledTemporaryFile()  # png file (webp converted to png)
 
-        if isinstance(sticker, Sticker):
-            logger.debug('StickerFile object is a Sticker (animated: %s)', self._file.is_animated)
+        if isinstance(self._sticker, Sticker):
+            logger.debug('StickerFile object is a Sticker (animated: %s)', self._sticker.is_animated)
             self._is_sticker = True
-            self._animated = self._file.is_animated
-            self._emoji = sticker.emoji if sticker.emoji is not None else '💈'
-        elif isinstance(sticker, Document):
+            self._animated = self._sticker.is_animated
+        elif isinstance(self._sticker, Document):
             logger.debug('StickerFile object is a Document')
             self._is_sticker = False
-            if caption:
-                self._emoji = utils.get_emojis(caption)
-            if not self._emoji:
-                self._emoji = '💈'
 
-        if emojis:
-            self._emojis = emojis
-
-    @property
-    def emoji(self):
-        return self._emoji
+        logger.debug('emojis: %s', self._emojis)
 
     @property
     def emojis(self):
-        return self._emojis if self._emojis else [self._emoji]
+        if not isinstance(self._emojis, (list, tuple)):
+            raise ValueError('StickerFile._emojis is not of type list/tuple')
+
+        return self._emojis
 
     @property
     def size(self):
@@ -78,7 +75,7 @@ class StickerFile:
     @property
     def png_input_file(self):
         """returns a telegram InputFile"""
-        return InputFile(self.png_file, filename=self._file.file_id + '.png')
+        return InputFile(self.png_file, filename=self._sticker.file_id + '.png')
 
     @property
     def tgs_file(self):
@@ -88,7 +85,7 @@ class StickerFile:
     @property
     def tgs_input_file(self):
         """returns a telegram InputFile"""
-        return InputFile(self.tgs_file, filename=self._file.file_id + '.tgs')
+        return InputFile(self.tgs_file, filename=self._sticker.file_id + '.tgs')
 
     @staticmethod
     def _raise_exception(received_error_message):
@@ -102,7 +99,7 @@ class StickerFile:
 
     def download(self, prepare_png=False):
         logger.debug('downloading sticker')
-        new_file = self._file.get_file()
+        new_file = self._sticker.get_file()
 
         logger.debug('downloading to bytes object: self._tempfile_downloaded')
         new_file.download(out=self._tempfile_downloaded)
@@ -146,13 +143,13 @@ class StickerFile:
             except Exception as e:
                 logger.error('error while trying to close result png tempfile: %s', str(e))
 
-    def add_to_set(self, bot, user_id, pack_name):
+    def add_to_set(self, pack_name):
         logger.debug('adding sticker to set %s', pack_name)
 
         request_payload = dict(
-            user_id=user_id,
+            user_id=self._user_id,
             name=pack_name,
-            emojis=self._emoji if not self._emojis else ''.join(self._emojis),
+            emojis=''.join(self._emojis),
             mask_position=None
         )
 
@@ -162,30 +159,44 @@ class StickerFile:
             request_payload['tgs_sticker'] = self.tgs_input_file
 
         try:
-            bot.add_sticker_to_set(**request_payload)
+            self._bot.add_sticker_to_set(**request_payload)
             logger.debug('...sticker added')
         except (BadRequest, TelegramError) as e:
             logger.error('Telegram exception while trying to add a sticker to %s: %s', pack_name, e.message)
             self._raise_exception(e.message)
 
-    def remove_from_set(self, bot):
-        logger.debug('removing sticker from set %s', self._file.set_name)
+    def remove_from_set(self):
+        logger.debug('removing sticker from set %s', self._sticker.set_name)
 
         try:
-            bot.delete_sticker_from_set(self._file.file_id)
+            self._bot.delete_sticker_from_set(self._sticker.file_id)
             return 0
         except (BadRequest, TelegramError) as e:
-            logger.error('Telegram exception while trying to remove a sticker from %s: %s', self._file.set_name,
+            logger.error('Telegram exception while trying to remove a sticker from %s: %s', self._sticker.set_name,
                          e.message)
             self._raise_exception(e.message)
 
-    @classmethod
-    def create_set(cls, bot, *args, **kwargs):
+    def create_set(self, title, name, **kwargs):
+        request_payload = kwargs
+        request_payload['user_id'] = self._user_id
+        request_payload['title'] = title
+        request_payload['name'] = name
+
+        if self._animated:
+            request_payload['tgs_sticker'] = self.tgs_input_file
+        else:
+            # we need to use an input file becase a tempfile.SpooledTemporaryFile has a 'name' attribute which
+            # makes python-telegram-bot retrieve the file's path using os (https://github.com/python-telegram-bot/python-telegram-bot/blob/2a3169a22f7227834dd05a35f90306375136e41a/telegram/files/inputfile.py#L58)
+            # to populate the 'filename' attribute, which would result an exception since it is
+            # a byte object. That means we have to do it ourself by  creating the InputFile and
+            # assigning it a custom 'filename'
+            request_payload['png_sticker'] = self.png_input_file
+
         try:
-            return bot.create_new_sticker_set(*args, **kwargs)
+            return self._bot.create_new_sticker_set(**request_payload)
         except (BadRequest, TelegramError) as e:
             logger.error('Telegram exception while trying to create a pack: %s', e.message)
-            cls._raise_exception(e.message)
+            self._raise_exception(e.message)
 
     def __repr__(self):
         return 'StickerFile object of original type {} (animated: {}, original size: {}, resized: {})'.format(

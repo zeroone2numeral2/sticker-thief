@@ -1,7 +1,7 @@
 import logging
 
 # noinspection PyPackageRequirements
-from telegram.ext import MessageHandler, Filters
+from telegram.ext import MessageHandler, Filters, CallbackContext
 # noinspection PyPackageRequirements
 from telegram import Update, ChatAction
 
@@ -37,18 +37,16 @@ def on_animated_sticker_receive(update: Update, _):
 @decorators.restricted
 @decorators.action(ChatAction.UPLOAD_DOCUMENT)
 @decorators.failwithmessage
-def on_static_sticker_receive(update: Update, _):
+def on_static_sticker_receive(update: Update, context: CallbackContext):
     logger.info('user sent a static stciker, we will return it as a file + its emojis')
 
-    sticker_emojis = get_sticker_emojis(update.message)
-
-    sticker = StickerFile(update.message.sticker)
+    sticker = StickerFile(context.bot, update.message)
     sticker.download(prepare_png=True)
 
     update.message.reply_document(
         sticker.png_file,
         filename=update.message.sticker.file_id + '.png',
-        caption=''.join(sticker_emojis),
+        caption=''.join(sticker.emojis),
         quote=True
     )
 
