@@ -20,9 +20,17 @@ If you respect other people's work, want to give credits to the original pack cr
 
 ## Running the bot
 
+#### Native
+
 1. install requirements with `pip3 install -r requirements.txt`
 2. rename `config.example.toml` to `config.toml` and change relevant values (that is, `telegram.token` and `telegram.admins`)
 3. run the bot with `python3 main.py`
+
+#### Docker
+
+1. rename `config.example.toml` to `config.toml` and change relevant values (that is, `telegram.token` and `telegram.admins`)
+2. with docker installed run `sudo docker build -t sticker-thief .` in the project root
+3. then run `sudo docker run --rm sticker-thief` (add a `-d` flag after `--rm` if you want to run the bot in the background)
 
 ### Pyrogram integration
 
