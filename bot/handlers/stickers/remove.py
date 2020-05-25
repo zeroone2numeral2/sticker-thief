@@ -41,12 +41,12 @@ def on_remove_command(update: Update, _):
 def on_sticker_receive(update: Update, context: CallbackContext):
     logger.info('user sent the stciker to add')
 
-    sticker = StickerFile(update.message.sticker)
+    sticker = StickerFile(context.bot, update.message)
 
     pack_link = utils.name2link(update.message.sticker.set_name)
 
     try:
-        sticker.remove_from_set(context.bot)
+        sticker.remove_from_set()
     except error.PackInvalid:
         update.message.reply_html(Strings.REMOVE_STICKER_FOREIGN_PACK.format(pack_link), quote=True)
     except error.PackNotModified:

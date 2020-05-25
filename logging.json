@@ -57,6 +57,9 @@
         },
         "StickerFile": {
             "level": "DEBUG"
+        },
+        "pyrogram": {
+            "level": "WARNING"
         }
     },
     "formatters": {

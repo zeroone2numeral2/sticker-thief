@@ -1,9 +1,10 @@
 import logging
 import logging.config
 import json
-import re
 
 import emoji
+# noinspection PyPackageRequirements
+from telegram import Message
 
 logger = logging.getLogger(__name__)
 
@@ -33,5 +34,25 @@ def name2link(name, bot_username=None):
     return 'https://t.me/addstickers/{}'.format(name)
 
 
-def get_emojis(text):
-    return ''.join(c for c in text if c in emoji.UNICODE_EMOJI)
+def get_emojis(text, as_list=False):
+    emojis = [c for c in text if c in emoji.UNICODE_EMOJI]
+    if as_list:
+        return emojis
+    else:
+        return ''.join(emojis)
+
+
+def get_emojis_from_message(message: Message) -> [list, None]:
+    """Will return a list: either the sticker's emoji (in a list) or the emojis in the document's caption. Will
+    return None if the document's caption doesn't have any emoji"""
+
+    if message.sticker:
+        return [message.sticker]
+    elif message.document and not message.caption:
+        return None
+    elif message.document and message.caption:
+        emojis_list = get_emojis(message.caption, as_list=True)
+        if not emojis_list:
+            return None
+
+        return emojis_list

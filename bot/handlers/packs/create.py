@@ -28,6 +28,7 @@ from ..stickers.add import on_bad_animated_sticker_receive
 from ...customfilters import CustomFilters
 from ...utils import decorators
 from ...utils import utils
+from ...utils.pyrogram import get_sticker_emojis
 
 logger = logging.getLogger(__name__)
 
@@ -184,7 +185,10 @@ def on_first_sticker_receive(update: Update, context: CallbackContext):
 
     full_name = '{}_by_{}'.format(name, context.bot.username)
 
-    sticker = StickerFile(update.message.sticker or update.message.document, caption=update.message.caption)
+    sticker = StickerFile(
+        bot=context.bot,
+        message=update.message
+    )
     sticker.download(prepare_png=True)
 
     try:
@@ -193,20 +197,10 @@ def on_first_sticker_receive(update: Update, context: CallbackContext):
             user_id=update.effective_user.id,
             title=title,
             name=full_name,
-            emojis=sticker.emoji,
+            emojis=''.join(sticker.emojis),
         )
 
-        if animated_pack:
-            request_payload['tgs_sticker'] = sticker.tgs_input_file
-        else:
-            # we need to use an input file becase a tempfile.SpooledTemporaryFile has a 'name' attribute which
-            # makes python-telegram-bot retrieve the file's path using os (https://github.com/python-telegram-bot/python-telegram-bot/blob/2a3169a22f7227834dd05a35f90306375136e41a/telegram/files/inputfile.py#L58)
-            # to populate the 'filename' attribute, which would result an exception since it is
-            # a byte object. That means we have to do it ourself by  creating the InputFile and
-            # assigning it a custom 'filename'
-            request_payload['png_sticker'] = sticker.png_input_file
-
-        StickerFile.create_set(bot=context.bot, **request_payload)
+        sticker.create_set(**request_payload)
     except (error.PackInvalid, error.NameInvalid, error.NameAlreadyOccupied) as e:
         logger.error('Telegram error while creating stickers pack: %s', e.message)
         if isinstance(e, error.NameAlreadyOccupied):

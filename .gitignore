@@ -13,3 +13,5 @@ config.toml
 *.zip
 venv/
 data.pickle
+*.session
+*.session-journal
