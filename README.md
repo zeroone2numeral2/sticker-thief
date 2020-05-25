@@ -10,6 +10,7 @@ Features:
 - remove stickers from a pack
 - convert stickers to png files (and resize them if they're too big)
 - export a sticker pack as a zip of png files
+- bonus: stickers added to a pack inherits all the emojis bind to the original sticker, by hacking around with the Telegram API
 
 ## Disclaimer
 
