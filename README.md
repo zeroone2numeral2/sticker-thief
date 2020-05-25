@@ -28,12 +28,12 @@ If you respect other people's work, want to give credits to the original pack cr
 [Pyrogram](https://docs.pyrogram.org/) is an MTProto client, that is, a software (a Python library, in this case) that allows to interact with the [Telegram API](https://core.telegram.org/api#telegram-api) (not to be confused with the [bot API](https://core.telegram.org/api#bot-api)).
 
 The Telegram API is mainly designed to let organic user accounts interact with Telegram, but it also allows to login as a bot (fun fact: the bot API is just an http interface that exposes some methods to simply let your bot login and interact with the Telegram API). 
-By skipping the bot API middleware and connecting directly to the Telegram API, we are allowed to use a set of methods which are not exposed by the standard bot API, and we wouldn't be able to use otherwise.
+By skipping the bot API middleware and connecting directly to the Telegram API, we are allowed to use a set of methods which are not exposed by the standard bot API, and that we wouldn't be able to use otherwise.
 
 _**So, what we need Pyrogram for?**_ This bot makes use of Pyrogram to overcome a bot API limitation: 
- when a bot (or, more precisely, any user) receives a sticker, Telegram will tell the receiver only the _main_ emoji associated with that sticker object. 
+ when a bot (or, to be fair, any user) receives a sticker, Telegram will tell the receiver only the _main_ emoji associated with that sticker object. 
  This behavior is designed into the Telegram API, so it is obviously inherited by the bot API.
- In our context, this is not ideal, because when we add a sticker to a pack, we are able to tell Telegram only one emoji to bind to it (the sticker's main one).
+ This is not ideal in our context, because when we add a sticker to a pack, we are able to tell Telegram only one emoji to bind to it (the sticker's main one).
 To get a sticker's full list of emojis, we have to request to the API the _whole_ pack, which in fact is the only way to obtain this information. This request can be executed only by authenticating as a bot account through the Telegram API.
 
 _**Does this mean the bot is not using the bot API, but directly uses the Telegram API instead?**_ No, all the interaction with Telegram are still done through the bot API. 
