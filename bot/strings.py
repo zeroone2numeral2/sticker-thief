@@ -6,7 +6,7 @@ class Strings:
                      "/create to create a new pack\n"
                      "/createanimated to create a new animated pack\n"
                      "/add to add stickers to an existing pack\n"
-                     "/help for more commands")
+                     "/help for more commands\n")
 
     HELP_MESSAGE = ("<b>Full commands list</b>:\n"
                     "- /create: create a new pack\n"

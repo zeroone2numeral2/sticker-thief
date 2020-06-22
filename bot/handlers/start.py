@@ -39,7 +39,9 @@ def on_start_command(update: Update, _):
 
     start_message = Strings.START_MESSAGE
     if config.bot.sourcecode:
-        start_message = '{}\n\n<a href="{}">source code</a>'.format(start_message, config.bot.sourcecode)
+        start_message = '{}\n🛠 <a href="{}">source code</a>'.format(start_message, config.bot.sourcecode)
+    if config.bot.get('channel', None):
+        start_message = '{}\n📣 announcements channel: @{}'.format(start_message, config.bot.channel)
 
     update.message.reply_html(start_message, disable_web_page_preview=True)
 
