@@ -117,7 +117,7 @@ class Strings:
 
     ADD_STICKER_TOO_MANY_EMOJIS = "Whoa, that's a lot of emojis! I can only use 10 at max, please try again"
 
-    ADD_STICKER_EMOJIS_SAVED = "Okay, we will use these {} emojis for the next sticker you will send me: {}"
+    ADD_STICKER_EMOJIS_SAVED = "Oh, some emojis! We will use these {} emojis for the next sticker you will send me: {}"
 
     ADD_STICKER_SUCCESS = ("Sticker added to <a href=\"{}\">this pack</a>. "
                            "Continue to send me stickers to add more, use /done when you're done")
