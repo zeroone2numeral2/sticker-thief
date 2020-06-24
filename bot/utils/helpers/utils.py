@@ -2,6 +2,8 @@ import logging
 import logging.config
 import json
 import os
+import pickle
+from pickle import UnpicklingError
 
 import emoji
 # noinspection PyPackageRequirements
@@ -65,13 +67,21 @@ def persistence_object(config_enabled=True, file_path='persistence/data.pickle')
     if not config_enabled:
         return
 
-    for i in range(2):  # try two times
+    logger.info('unpickling persistence: %s', file_path)
+    try:
+        # try to load the file
         try:
-            return PicklePersistence(
-                filename=file_path,
-                store_chat_data=False,
-                store_bot_data=False
-            )
-        except (EOFError, TypeError):
-            logger.warning('deserialization failed: removing persistence file and trying again')
-            os.remove(file_path)
+            with open(file_path, "rb") as f:
+                pickle.load(f)
+        except FileNotFoundError:
+            pass
+
+    except UnpicklingError:
+        logger.warning('deserialization failed: removing persistence file and trying again')
+        os.remove(file_path)
+
+    return PicklePersistence(
+        filename=file_path,
+        store_chat_data=False,
+        store_bot_data=False
+    )
