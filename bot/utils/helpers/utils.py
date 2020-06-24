@@ -72,6 +72,6 @@ def persistence_object(config_enabled=True, file_path='persistence/data.pickle')
                 store_chat_data=False,
                 store_bot_data=False
             )
-        except TypeError:
+        except (EOFError, TypeError):
             logger.warning('deserialization failed: removing persistence file and trying again')
             os.remove(file_path)
