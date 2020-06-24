@@ -25,10 +25,10 @@ from ..stickers.add import on_static_sticker_receive
 from ..stickers.add import on_animated_sticker_receive
 from ..stickers.add import on_bad_static_sticker_receive
 from ..stickers.add import on_bad_animated_sticker_receive
+from ..stickers.add import on_text_receive
 from ...customfilters import CustomFilters
 from ...utils import decorators
 from ...utils import utils
-from ...utils.pyrogram import get_sticker_emojis
 
 logger = logging.getLogger(__name__)
 
@@ -185,9 +185,11 @@ def on_first_sticker_receive(update: Update, context: CallbackContext):
 
     full_name = '{}_by_{}'.format(name, context.bot.username)
 
+    user_emojis = context.user_data['pack'].pop('emojis', None)  # we also remove them
     sticker = StickerFile(
         bot=context.bot,
-        message=update.message
+        message=update.message,
+        emojis=user_emojis
     )
     sticker.download(prepare_png=True)
 
@@ -249,6 +251,31 @@ def on_first_sticker_receive(update: Update, context: CallbackContext):
             return Status.WAITING_STATIC_STICKERS
 
 
+@decorators.action(ChatAction.TYPING)
+@decorators.failwithmessage
+@decorators.logconversation
+def on_first_sticker_text_receive(update: Update, context: CallbackContext):
+    logger.info('user sent a text message while we were waiting for the first sticker of a pack')
+    logger.debug('user_data: %s', context.user_data)
+
+    emojis = utils.get_emojis(update.message.text, as_list=True)
+    if not emojis:
+        update.message.reply_text(Strings.ADD_STICKER_NO_EMOJI_IN_TEXT)
+        return Status.WAITING_FIRST_STICKER
+    elif len(emojis) > 10:
+        update.message.reply_text(Strings.ADD_STICKER_TOO_MANY_EMOJIS)
+        return Status.WAITING_FIRST_STICKER
+
+    context.user_data['pack']['emojis'] = emojis
+
+    update.message.reply_text(Strings.ADD_STICKER_EMOJIS_SAVED.format(
+        len(emojis),
+        ''.join(emojis)
+    ))
+
+    return Status.WAITING_FIRST_STICKER
+
+
 stickersbot.add_handler(ConversationHandler(
     name='pack_creation',
     persistent=True,
@@ -260,12 +287,14 @@ stickersbot.add_handler(ConversationHandler(
         Status.WAITING_TITLE: [MessageHandler(Filters.text & ~Filters.command(STANDARD_CANCEL_COMMANDS), on_pack_title_receive)],
         Status.WAITING_NAME: [MessageHandler(Filters.text & ~Filters.command(STANDARD_CANCEL_COMMANDS), on_pack_name_receive)],
         Status.WAITING_FIRST_STICKER: [
+            MessageHandler(Filters.text & ~Filters.command, on_first_sticker_text_receive),
             MessageHandler(  # this handler is shared by both static and animated stickers
                 Filters.sticker | Filters.document.category('image/png'),
                 on_first_sticker_receive
             )
         ],
         Status.WAITING_STATIC_STICKERS: [
+            MessageHandler(Filters.text & ~Filters.command, on_text_receive),
             MessageHandler(
                 CustomFilters.static_sticker | Filters.document.category('image/png'),
                 on_static_sticker_receive
@@ -273,6 +302,7 @@ stickersbot.add_handler(ConversationHandler(
             MessageHandler(CustomFilters.animated_sticker, on_bad_static_sticker_receive),
         ],
         Status.WAITING_ANIMATED_STICKERS: [
+            MessageHandler(Filters.text & ~Filters.command, on_text_receive),
             MessageHandler(CustomFilters.animated_sticker, on_animated_sticker_receive),
             MessageHandler(
                 CustomFilters.static_sticker | Filters.document.category('image/png'),

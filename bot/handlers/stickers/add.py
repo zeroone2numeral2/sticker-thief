@@ -25,7 +25,6 @@ from ..fallback_commands import STANDARD_CANCEL_COMMANDS
 from ...customfilters import CustomFilters
 from ...utils import decorators
 from ...utils import utils
-from ...utils.pyrogram import get_sticker_emojis
 
 logger = logging.getLogger(__name__)
 
@@ -154,7 +153,8 @@ def add_sticker_to_set(update: Update, context: CallbackContext, animated_pack):
 
         return ConversationHandler.END
 
-    sticker = StickerFile(bot=context.bot, message=update.message)
+    user_emojis = context.user_data['pack'].pop('emojis', None)  # we also remove them
+    sticker = StickerFile(bot=context.bot, message=update.message, emojis=user_emojis)
     sticker.download(prepare_png=True)
 
     pack_link = utils.name2link(name)
@@ -206,7 +206,12 @@ def add_sticker_to_set(update: Update, context: CallbackContext, animated_pack):
         logger.error('non-telegram exception while adding a sticker to a set', exc_info=True)
         raise e  # this is not raised
     else:
-        update.message.reply_html(Strings.ADD_STICKER_SUCCESS.format(pack_link), quote=True)
+        if not user_emojis:
+            text = Strings.ADD_STICKER_SUCCESS.format(pack_link)
+        else:
+            text = Strings.ADD_STICKER_SUCCESS_USER_EMOJIS.format(pack_link, ''.join(user_emojis))
+
+        update.message.reply_html(text, quote=True)
     finally:
         # this is entered even when we enter the 'else' or we return in an 'except'
         # https://stackoverflow.com/a/19805746
@@ -264,6 +269,35 @@ def on_bad_animated_sticker_receive(update: Update, _):
     return Status.WAITING_ANIMATED_STICKERS
 
 
+@decorators.action(ChatAction.TYPING)
+@decorators.failwithmessage
+@decorators.logconversation
+def on_text_receive(update: Update, context: CallbackContext):
+    logger.info('user sent a text message while we were waiting for a sticker')
+    logger.debug('user_data: %s', context.user_data)
+
+    status_to_return = Status.WAITING_STATIC_STICKERS
+    if context.user_data['pack']['animated']:
+        status_to_return = Status.WAITING_ANIMATED_STICKERS
+
+    emojis = utils.get_emojis(update.message.text, as_list=True)
+    if not emojis:
+        update.message.reply_text(Strings.ADD_STICKER_NO_EMOJI_IN_TEXT)
+        return status_to_return
+    elif len(emojis) > 10:
+        update.message.reply_text(Strings.ADD_STICKER_TOO_MANY_EMOJIS)
+        return status_to_return
+
+    context.user_data['pack']['emojis'] = emojis
+
+    update.message.reply_text(Strings.ADD_STICKER_EMOJIS_SAVED.format(
+        len(emojis),
+        ''.join(emojis)
+    ))
+
+    return status_to_return
+
+
 stickersbot.add_handler(ConversationHandler(
     name='adding_stickers',
     persistent=True,
@@ -272,6 +306,7 @@ stickersbot.add_handler(ConversationHandler(
         Status.WAITING_TITLE: [MessageHandler(Filters.text & ~Filters.command(STANDARD_CANCEL_COMMANDS), on_pack_title)],
         Status.WAITING_NAME: [MessageHandler(Filters.text & ~Filters.command(STANDARD_CANCEL_COMMANDS), on_pack_name)],
         Status.WAITING_STATIC_STICKERS: [
+            MessageHandler(Filters.text & ~Filters.command, on_text_receive),
             MessageHandler(
                 CustomFilters.static_sticker | Filters.document.category('image/png'),
                 on_static_sticker_receive
@@ -279,6 +314,7 @@ stickersbot.add_handler(ConversationHandler(
             MessageHandler(CustomFilters.animated_sticker, on_bad_static_sticker_receive),
         ],
         Status.WAITING_ANIMATED_STICKERS: [
+            MessageHandler(Filters.text & ~Filters.command, on_text_receive),
             MessageHandler(CustomFilters.animated_sticker, on_animated_sticker_receive),
             MessageHandler(
                 CustomFilters.static_sticker | Filters.document.category('image/png'),
