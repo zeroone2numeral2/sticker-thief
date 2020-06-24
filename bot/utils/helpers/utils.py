@@ -1,10 +1,13 @@
 import logging
 import logging.config
 import json
+import os
 
 import emoji
 # noinspection PyPackageRequirements
 from telegram import Message
+# noinspection PyPackageRequirements
+from telegram.ext import PicklePersistence
 
 logger = logging.getLogger(__name__)
 
@@ -56,3 +59,19 @@ def get_emojis_from_message(message: Message) -> [list, None]:
             return None
 
         return emojis_list
+
+
+def persistence_object(config_enabled=True, file_path='persistence/data.pickle'):
+    if not config_enabled:
+        return
+
+    for i in range(2):  # try two times
+        try:
+            return PicklePersistence(
+                filename=file_path,
+                store_chat_data=False,
+                store_bot_data=False
+            )
+        except TypeError:
+            logger.warning('deserialization failed: removing persistence file and trying again')
+            os.remove(file_path)
