@@ -23,6 +23,7 @@ class Strings:
                     "You can delete a pack, change a sticker's emojis, change stickers order and see a sticker/pack stats from @stickers\n"
                     "\n"
                     "<b>Tips</b>:\n"
+                    "- when adding a sticker, you can set its emojis by sending them before sending the sticker\n"
                     "- when adding a sticker or creating a pack, you can either pass a sticker or a png file\n"
                     "- when adding a sticker as png, you can pass its emojis in the caption\n"
                     "\n"
