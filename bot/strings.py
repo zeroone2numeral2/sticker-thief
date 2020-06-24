@@ -62,11 +62,11 @@ class Strings:
 
     PACK_NAME_DUPLICATE = "I'm sorry, you already have a pack with this link saved. try with another link"
 
-    PACK_CREATION_WAITING_FIRST_STATIC_STICKER = "Got it, we are almost done. Now send me the first sticker " \
-                                                 "of the pack (or a png file)"
+    PACK_CREATION_WAITING_FIRST_STATIC_STICKER = ("Got it, we are almost done. Now send me the first sticker "
+                                                  "of the pack (or a png file, or the emojis to use for the sticker)")
 
-    PACK_CREATION_WAITING_FIRST_ANIMATED_STICKER = "Got it, we are almost done. Now send me the first animated sticker " \
-                                                   "of the pack"
+    PACK_CREATION_WAITING_FIRST_ANIMATED_STICKER = ("Got it, we are almost done. Now send me the first animated "
+                                                    "sticker of the pack (or the emojis to use for the sticker)")
 
     PACK_CREATION_FIRST_STICKER_PACK_DATA_MISSING = ("Ooops, something went wrong.\n"
                                                      "Please repeat the creation process with /create")
@@ -112,8 +112,18 @@ class Strings:
     ADD_STICKER_PACK_NOT_VALID_NO_PACKS = ("Ooops, it looks like <a href=\"{}\">this pack</a> doesn't exist.\n"
                                            "Please create a new pack with /create")
 
+    ADD_STICKER_NO_EMOJI_IN_TEXT = ("Uhm, I don't understand. Send me a sticker, or send me a list of emojis to "
+                                    "use for the next sticker (or /done to exit)")
+
+    ADD_STICKER_TOO_MANY_EMOJIS = "Whoa, that's a lot of emojis! I can only use 10 at max, please try again"
+
+    ADD_STICKER_EMOJIS_SAVED = "Okay, we will use these {} emojis for the next sticker you will send me: {}"
+
     ADD_STICKER_SUCCESS = ("Sticker added to <a href=\"{}\">this pack</a>. "
                            "Continue to send me stickers to add more, use /done when you're done")
+
+    ADD_STICKER_SUCCESS_USER_EMOJIS = ("Sticker added to <a href=\"{}\">this pack</a> using these emojis: {}\n"
+                                       "Continue to send me stickers to add more, use /done when you're done")
 
     ADD_STICKER_PACK_FULL = ("I'm sorry, <a href=\"{}\">this pack</a> is full ({} stickers), "
                              "you can no longer add stickers to it. Use /remove to remove some stickers\n"
