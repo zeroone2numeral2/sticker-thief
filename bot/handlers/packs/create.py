@@ -29,7 +29,6 @@ from ..stickers.add import on_text_receive
 from ...customfilters import CustomFilters
 from ...utils import decorators
 from ...utils import utils
-from ...utils.pyrogram import get_sticker_emojis
 
 logger = logging.getLogger(__name__)
 
