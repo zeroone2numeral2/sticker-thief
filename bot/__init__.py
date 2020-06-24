@@ -3,7 +3,6 @@ import logging
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 import os
 
-from telegram.ext import PicklePersistence
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from telegram.utils.request import Request
 
@@ -11,13 +10,12 @@ from .utils import utils
 from .utils.pyrogram import client
 from .database import base
 from .bot import StickersBot
-from .bot import CustomBot
 from config import config
 
 logger = logging.getLogger(__name__)
 
 stickersbot = StickersBot(
-    bot=CustomBot(token=config.telegram.token, request=Request(con_pool_size=config.telegram.get('workers', 1) + 4)),
+    token=config.telegram.token,
     use_context=True,
     persistence=utils.persistence_object(config_enabled=config.telegram.get('persistent_temp_data', True)),
 )
