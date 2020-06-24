@@ -76,7 +76,7 @@ def persistence_object(config_enabled=True, file_path='persistence/data.pickle')
         except FileNotFoundError:
             pass
 
-    except UnpicklingError:
+    except (UnpicklingError, EOFError):
         logger.warning('deserialization failed: removing persistence file and trying again')
         os.remove(file_path)
 
