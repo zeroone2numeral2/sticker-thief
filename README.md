@@ -12,12 +12,6 @@ Features:
 - export a sticker pack as a zip of png files
 - bonus: stickers added to a pack inherits all the emojis bind to the original sticker, by hacking around with the Telegram API
 
-## Disclaimer
-
-Using this kind of bots is an horrible solution. You are taking away from the community content made by other users to anonymize it by including it in your custom packs. This strongly arms good packs' sharing - and sometimes stickers appropriation may also fall into copyright infringement.
-
-If you respect other people's work, want to give credits to the original pack creators and want to share the packs from which you took your favourite stickers, please use [@MyPackBot](https://t.me/MyPackBot). I can guarantee you this bot is great
-
 ## Running the bot
 
 #### Native
