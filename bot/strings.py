@@ -193,3 +193,5 @@ class Strings:
                        "Use /list to see the list of your packs")
 
     CLEANUP_HEADER = "These are the packs that no longer exist and has been removed from the database:\n"
+
+    TO_DOCUMENT_DEBUG = "<code>[DEBUG] document mime-type: {}</code>"
