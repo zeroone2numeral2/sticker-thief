@@ -5,7 +5,7 @@ import tempfile
 
 from PIL import Image
 # noinspection PyPackageRequirements
-from telegram import Sticker, Document, InputFile, Bot, Message
+from telegram import Sticker, Document, InputFile, Bot, Message, File
 # noinspection PyPackageRequirements
 from telegram.error import BadRequest, TelegramError
 
@@ -105,7 +105,7 @@ class StickerFile:
 
     def download(self, prepare_png=False):
         logger.debug('downloading sticker')
-        new_file = self._sticker.get_file()
+        new_file: File = self._sticker.get_file()
 
         logger.debug('downloading to bytes object: self._tempfile_downloaded')
         new_file.download(out=self._tempfile_downloaded)
