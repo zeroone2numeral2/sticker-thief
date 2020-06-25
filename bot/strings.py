@@ -177,7 +177,7 @@ class Strings:
 
     LIST_FOOTER = "\n\n<b>s</b>: static\n<b>a</b>: animated"
 
-    ANIMATED_STICKERS_NO_FILE = "Oh no, I can't send you animated stickers back as file!"
+    ANIMATED_STICKERS_NO_FILE = "Unfortunately I can't send you animated stickers back as file :("
 
     EXPORT_PACK_SELECT = "Please send me a stciker from the pack you want to export, or /cancel"
 
@@ -194,4 +194,4 @@ class Strings:
 
     CLEANUP_HEADER = "These are the packs that no longer exist and has been removed from the database:\n"
 
-    TO_FILE_MIME_TYPE = "<code>mime-type: {}</code>"
+    TO_FILE_MIME_TYPE = "mime-type: {}"
