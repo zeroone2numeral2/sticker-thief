@@ -194,4 +194,4 @@ class Strings:
 
     CLEANUP_HEADER = "These are the packs that no longer exist and has been removed from the database:\n"
 
-    TO_DOCUMENT_DEBUG = "<code>[DEBUG] document mime-type: {}</code>"
+    TO_FILE_MIME_TYPE = "<code>mime-type: {}</code>"
