@@ -67,6 +67,13 @@ class StickerFile:
         return self._emojis
 
     @property
+    def emojis_str(self):
+        if not isinstance(self._emojis, (list, tuple)):
+            raise ValueError('StickerFile._emojis is not of type list/tuple')
+
+        return ''.join(self._emojis)
+
+    @property
     def size(self):
         if self._size_resized == (0, 0):
             return self._size_original
@@ -92,6 +99,10 @@ class StickerFile:
     def tgs_input_file(self):
         """returns a telegram InputFile"""
         return InputFile(self.tgs_file, filename=self._sticker.file_id + '.tgs')
+
+    @property
+    def file_id(self):
+        return self._sticker.file_id
 
     @staticmethod
     def _raise_exception(received_error_message):
