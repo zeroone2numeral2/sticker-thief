@@ -4,6 +4,7 @@ import json
 import os
 import pickle
 from pickle import UnpicklingError
+from html import escape
 
 import emoji
 # noinspection PyPackageRequirements
@@ -30,6 +31,10 @@ def load_logging_config(file_name='logging.json'):
         logging_config = json.load(f)
 
     logging.config.dictConfig(logging_config)
+
+
+def escape_html(*args, **kwargs):
+    return escape(*args, **kwargs)
 
 
 def name2link(name, bot_username=None):
