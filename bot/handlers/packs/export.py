@@ -10,7 +10,7 @@ from telegram.ext import (
     MessageHandler,
     ConversationHandler,
     CallbackContext,
-    run_async
+    run_async, Filters
 )
 # noinspection PyPackageRequirements
 from telegram import ChatAction, ParseMode, Update
@@ -20,7 +20,7 @@ from telegram.error import BadRequest, TelegramError
 from bot import stickersbot
 from bot.strings import Strings
 from ..conversation_statuses import Status
-from ..fallback_commands import cancel_command
+from ..fallback_commands import cancel_command, on_timeout
 from ...customfilters import CustomFilters
 from ...utils import decorators
 from ...utils import utils
@@ -131,6 +131,8 @@ stickersbot.add_handler(ConversationHandler(
             MessageHandler(CustomFilters.static_sticker, on_sticker_receive),
             MessageHandler(CustomFilters.animated_sticker, on_animated_sticker_receive),
         ],
+        ConversationHandler.TIMEOUT: [MessageHandler(Filters.all, on_timeout)]
     },
-    fallbacks=[CommandHandler(['cancel', 'c', 'done', 'd'], cancel_command)]
+    fallbacks=[CommandHandler(['cancel', 'c', 'done', 'd'], cancel_command)],
+    conversation_timeout=15 * 60
 ))

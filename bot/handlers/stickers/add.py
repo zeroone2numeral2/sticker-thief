@@ -20,7 +20,7 @@ from bot.markups import Keyboard
 from bot.sticker import StickerFile
 import bot.sticker.error as error
 from ..conversation_statuses import Status
-from ..fallback_commands import cancel_command
+from ..fallback_commands import cancel_command, on_timeout
 from ..fallback_commands import STANDARD_CANCEL_COMMANDS
 from ...customfilters import CustomFilters
 from ...utils import decorators
@@ -321,7 +321,9 @@ stickersbot.add_handler(ConversationHandler(
                 on_bad_animated_sticker_receive
             ),
 
-        ]
+        ],
+        ConversationHandler.TIMEOUT: [MessageHandler(Filters.all, on_timeout)]
     },
-    fallbacks=[CommandHandler(STANDARD_CANCEL_COMMANDS, cancel_command)]
+    fallbacks=[CommandHandler(STANDARD_CANCEL_COMMANDS, cancel_command)],
+    conversation_timeout=15 * 60
 ))

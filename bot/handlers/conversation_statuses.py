@@ -2,6 +2,7 @@ class Status:
     # it's important the handlers of the 'create' and 'add' modules
     # return the same statuses because they share com handlers
     END = -1  # this is the value of ConversationHandler.END
+    TIMEOUT = -2  # this is the value of ConversationHandler.TIMEOUT
     WAITING_TITLE = 1
     WAITING_NAME = 2
     WAITING_FIRST_STICKER = 3
@@ -12,6 +13,7 @@ class Status:
 
 STATUSES_DICT = {
     Status.END: 'conversation ended',
+    Status.TIMEOUT: 'conversation timed out',
     Status.WAITING_TITLE: 'WAITING_TITLE',
     Status.WAITING_NAME: 'WAITING_NAME',
     Status.WAITING_FIRST_STICKER: 'WAITING_FIRST_STICKER',

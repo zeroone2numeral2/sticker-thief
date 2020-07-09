@@ -16,7 +16,7 @@ from bot.strings import Strings
 from bot.sticker import StickerFile
 import bot.sticker.error as error
 from ..conversation_statuses import Status
-from ..fallback_commands import cancel_command
+from ..fallback_commands import cancel_command, on_timeout
 from ...utils import decorators
 from ...utils import utils
 
@@ -69,7 +69,9 @@ stickersbot.add_handler(ConversationHandler(
         Status.WAITING_STICKER: [MessageHandler(
             Filters.sticker | Filters.document.category('image/png'),
             on_sticker_receive
-        )]
+        )],
+        ConversationHandler.TIMEOUT: [MessageHandler(Filters.all, on_timeout)]
     },
-    fallbacks=[CommandHandler(['cancel', 'c', 'done', 'd'], cancel_command)]
+    fallbacks=[CommandHandler(['cancel', 'c', 'done', 'd'], cancel_command)],
+    conversation_timeout=15 * 60
 ))

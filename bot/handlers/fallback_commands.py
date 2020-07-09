@@ -27,3 +27,17 @@ def cancel_command(update: Update, context: CallbackContext):
     context.user_data.pop('pack', None)
     
     return ConversationHandler.END
+
+
+@decorators.action(ChatAction.TYPING)
+@decorators.failwithmessage
+@decorators.logconversation
+def on_timeout(update: Update, context: CallbackContext):
+    logger.debug('conversation timeout')
+
+    # remove temporary data
+    context.user_data.pop('pack', None)
+
+    update.message.reply_text(Strings.TIMEOUT)
+
+    return ConversationHandler.END
