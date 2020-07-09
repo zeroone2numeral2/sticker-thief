@@ -38,6 +38,6 @@ def on_timeout(update: Update, context: CallbackContext):
     # remove temporary data
     context.user_data.pop('pack', None)
 
-    update.message.reply_text(Strings.TIMEOUT, disable_notification=True)
+    update.message.reply_text(Strings.TIMEOUT, reply_markup=Keyboard.HIDE, disable_notification=True)
 
     return ConversationHandler.END
