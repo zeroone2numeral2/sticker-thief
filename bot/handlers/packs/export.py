@@ -124,7 +124,7 @@ def on_animated_sticker_receive(update: Update, _):
 
 stickersbot.add_handler(ConversationHandler(
     name='export_command',
-    persistent=True,
+    persistent=False,
     entry_points=[CommandHandler(['export', 'e', 'dump'], on_export_command)],
     states={
         Status.WAITING_STICKER: [
