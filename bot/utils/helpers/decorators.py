@@ -37,17 +37,17 @@ def action(chat_action):
 def get_user_uuid(user_data):
     """returns the user's uuid and refreshes it every n hours"""
 
-    uuid_data = user_data.get('uuid_data', False)
+    uuid_data = user_data.get('_uuid_data', False)
     if not uuid_data:
-        user_data['uuid_data'] = dict(uuid=uuid.uuid4(), generated=time.time())
+        user_data['_uuid_data'] = dict(uuid=uuid.uuid4(), generated=time.time())
     else:
         # re-generate uuid after n seconds
         now = time.time()
-        if now - user_data['uuid_data']['generated'] > UUID_REFRESH_EVERY:
+        if now - user_data['_uuid_data']['generated'] > UUID_REFRESH_EVERY:
             loggerc.debug('refreshing uuid (%d seconds expired)', UUID_REFRESH_EVERY)
-            user_data['uuid_data'] = dict(uuid=uuid.uuid4(), generated=now)
+            user_data['_uuid_data'] = dict(uuid=uuid.uuid4(), generated=now)
 
-    return user_data['uuid_data']['uuid']
+    return user_data['_uuid_data']['uuid']
 
 
 def logconversation(func):
