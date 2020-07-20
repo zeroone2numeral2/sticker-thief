@@ -10,7 +10,7 @@
         "file": {
             "class": "logging.handlers.RotatingFileHandler",
             "formatter": "standard",
-            "level": "INFO",
+            "level": "DEBUG",
             "encoding": "utf8",
             "maxBytes": 1048576,
             "filename": "logs/stickersbot.log",
