@@ -220,6 +220,14 @@ def on_first_sticker_receive(update: Update, context: CallbackContext):
         update.message.reply_html(Strings.ADD_STICKER_INVALID_ANIMATED, quote=True, disable_web_page_preview=True)
 
         return Status.WAITING_FIRST_STICKER
+    except error.FloodControlExceeded as e:
+        logger.error('Telegram error while creating animated pack: %s', e.message)
+        retry_in = re.search(r'retry in (\d+) seconds', e.message, re.I).group(1)  # Retry in 8 seconds
+        text = Strings.ADD_STICKER_FLOOD_EXCEPTION.format(retry_in)
+
+        update.message.reply_html(text, quote=True, disable_web_page_preview=True)
+
+        return ConversationHandler.END  # do not continue, end the conversation
     except error.UnknwonError as e:
         logger.error('Unknown error while creating the pack: %s', e.message)
         update.message.reply_html(Strings.PACK_CREATION_ERROR_GENERIC.format(e.message))

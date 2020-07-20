@@ -40,6 +40,10 @@ class InvalidAnimatedSticker(StickerError):
     pass
 
 
+class FloodControlExceeded(StickerError):
+    pass
+
+
 class UnknwonError(StickerError):
     pass
 
@@ -71,6 +75,9 @@ EXCEPTIONS = {
     # it also should have as mime type "application/x-bad-tgsticker"
     # https://core.telegram.org/animated_stickers
     'Wrong file type': InvalidAnimatedSticker,
+
+    # too many attempts at creating the pack
+    'Flood control exceeded': FloodControlExceeded,
 
     # not an actual API exception, we reiase it when we receive an unknown exception
     'ext_unknown_api_exception': UnknwonError
