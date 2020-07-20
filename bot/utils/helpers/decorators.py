@@ -58,10 +58,10 @@ def logconversation(func):
 
         step_returned = func(update, context, *args, **kwargs)
         loggerc.debug(
-            'user %d: function <%s> returned step %d (%s)',
+            'user %d: function <%s> returned step %s (%s)',
             user_uuid,
             func.__name__,
-            step_returned,
+            str(step_returned),
             get_status_description(step_returned)
         )
 
