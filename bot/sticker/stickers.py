@@ -43,12 +43,6 @@ class StickerFile:
         self._tempfile_downloaded = temp_file or tempfile.SpooledTemporaryFile()  # webp or tgs files
         self._tempfile_converted = tempfile.SpooledTemporaryFile()  # png file (webp converted to png)
 
-        if emojis:
-            # the user sent some emojis before sending the sticker
-            self._emojis = emojis
-        else:
-            self._emojis = get_sticker_emojis(message) or [self.DEFAULT_EMOJI]
-
         if isinstance(self._sticker, Sticker):
             logger.debug('StickerFile object is a Sticker (animated: %s)', self._sticker.is_animated)
             self._is_sticker = True
@@ -56,6 +50,15 @@ class StickerFile:
         elif isinstance(self._sticker, Document):
             logger.debug('StickerFile object is a Document')
             self._is_sticker = False
+
+        if emojis:
+            # the user sent some emojis before sending the sticker
+            self._emojis = emojis
+        elif self._is_sticker and not message.sticker.emoji:
+            logger.info("the sticker doesn't have a pack, using default emoji")
+            self._emojis = [self.DEFAULT_EMOJI]
+        else:
+            self._emojis = get_sticker_emojis(message) or [self.DEFAULT_EMOJI]
 
         logger.debug('emojis: %s', self._emojis)
 

@@ -46,7 +46,11 @@ def get_emojis_from_message(message: Message) -> [list, None]:
     return None if the document's caption doesn't have any emoji"""
 
     if message.sticker:
-        return [message.sticker]
+        if message.sticker.emoji:
+            return [message.sticker.emoji]
+        else:
+            # the sticker doesn't have a pack -> no emoji
+            return None
     elif message.document and not message.caption:
         return None
     elif message.document and message.caption:
