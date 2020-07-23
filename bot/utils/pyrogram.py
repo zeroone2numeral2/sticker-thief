@@ -48,7 +48,9 @@ def get_emojis_from_pack(message: Message) -> list:
     # print(sticker_set.documents)
 
     for document in sticker_set.documents:
-        sticker_attributes = image_size_attributes = file_name = None
+        # sticker_set.documents: list of stickers in the pack
+
+        sticker_attributes, image_size_attributes, file_name = None, None, None
         for attribute in document.attributes:
             if isinstance(attribute, DocumentAttributeSticker):
                 sticker_attributes = attribute
@@ -81,7 +83,7 @@ def get_emojis_from_pack(message: Message) -> list:
                 if document_id == document.id:
                     all_sticker_emojis.append(emoji.emoticon)
 
-        # logger.debug('all: %s', ', '.join(all_sticker_emojis))
+        logger.debug('all: %s', all_sticker_emojis)
 
         return all_sticker_emojis
 
@@ -96,7 +98,12 @@ def get_sticker_emojis(message: Message, use_pyrogram=True) -> list:
         return get_emojis_from_message(message)
 
     try:
-        return get_emojis_from_pack(message)
+        logger.debug('trying to get emojis with pyrogram')
+        emojis = get_emojis_from_pack(message)
+        if not emojis:
+            raise ValueError('trying to get the emojis with pyrogram returned None')
+
+        return emojis
     except Exception as e:
         logger.error('error while fetching a sticker\'s emojis list with pyrogram: %s', str(e), exc_info=True)
         return get_emojis_from_message(message)
