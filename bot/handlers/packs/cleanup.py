@@ -1,7 +1,7 @@
 import logging
 
 # noinspection PyPackageRequirements
-from telegram.ext import CommandHandler, CallbackContext, ConversationHandler
+from telegram.ext import CommandHandler, CallbackContext, ConversationHandler, run_async
 # noinspection PyPackageRequirements
 from telegram import ChatAction, Update, TelegramError
 
@@ -15,6 +15,7 @@ from bot.strings import Strings
 logger = logging.getLogger(__name__)
 
 
+@run_async
 @decorators.action(ChatAction.TYPING)
 @decorators.restricted
 @decorators.failwithmessage
