@@ -46,6 +46,9 @@ class Strings:
 
     PACK_TITLE_CONTAINS_NEWLINES = "I'm sorry, the title must be a single line (no newline characters)"
 
+    PACK_TITLE_INVALID_MESSAGE = ("Oh no! This is not the pack title I was waiting for! Please send me the "
+                                  "new pack's title, or /cancel")
+
     PACK_CREATION_WAITING_NAME = ("Good, this is going to be the pack title: <i>{}</i>\n"
                                   "\n"
                                   "Please send me what will be the pack link (must be at max {} characters long. "
@@ -60,6 +63,9 @@ class Strings:
                          "• not end with an underscore\n"
                          "\n"
                          "Please try again")
+
+    PACK_NAME_INVALID_MESSAGE = ("Oh no! This is not the pack link I was waiting for! Please send me the "
+                                 "new pack's link, or /cancel")
 
     PACK_NAME_DUPLICATE = "I'm sorry, you already have a pack with this link saved. try with another link"
 

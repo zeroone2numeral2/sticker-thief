@@ -284,6 +284,28 @@ def on_first_sticker_text_receive(update: Update, context: CallbackContext):
     return Status.WAITING_FIRST_STICKER
 
 
+@decorators.action(ChatAction.TYPING)
+@decorators.failwithmessage
+@decorators.logconversation
+def on_waiting_title_invalid_message(update: Update, _):
+    logger.info('waiting title: wrong type of message received')
+
+    update.message.reply_html(Strings.PACK_TITLE_INVALID_MESSAGE)
+
+    return Status.WAITING_TITLE
+
+
+@decorators.action(ChatAction.TYPING)
+@decorators.failwithmessage
+@decorators.logconversation
+def on_waiting_name_invalid_message(update: Update, _):
+    logger.info('waiting name: wrong type of message received')
+
+    update.message.reply_html(Strings.PACK_NAME_INVALID_MESSAGE)
+
+    return Status.WAITING_NAME
+
+
 stickersbot.add_handler(ConversationHandler(
     name='pack_creation',
     persistent=True,
@@ -292,8 +314,14 @@ stickersbot.add_handler(ConversationHandler(
         CommandHandler(['createanimated', 'newanimated', 'na'], on_create_animated_pack_command)
     ],
     states={
-        Status.WAITING_TITLE: [MessageHandler(Filters.text & ~Filters.command(STANDARD_CANCEL_COMMANDS), on_pack_title_receive)],
-        Status.WAITING_NAME: [MessageHandler(Filters.text & ~Filters.command(STANDARD_CANCEL_COMMANDS), on_pack_name_receive)],
+        Status.WAITING_TITLE: [
+            MessageHandler(Filters.text & ~Filters.command(STANDARD_CANCEL_COMMANDS), on_pack_title_receive),
+            MessageHandler(~Filters.text, on_waiting_title_invalid_message)
+        ],
+        Status.WAITING_NAME: [
+            MessageHandler(Filters.text & ~Filters.command(STANDARD_CANCEL_COMMANDS), on_pack_name_receive),
+            MessageHandler(~Filters.text, on_waiting_name_invalid_message)
+        ],
         Status.WAITING_FIRST_STICKER: [
             MessageHandler(Filters.text & ~Filters.command, on_first_sticker_text_receive),
             MessageHandler(  # this handler is shared by both static and animated stickers
