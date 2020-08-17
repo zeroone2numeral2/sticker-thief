@@ -17,7 +17,11 @@ logger = logging.getLogger(__name__)
 @decorators.action(ChatAction.UPLOAD_DOCUMENT)
 @decorators.failwithmessage
 def on_sticker_receive(update: Update, context: CallbackContext):
-    logger.info('user sent an animated stciker to convert')
+    logger.info('user sent a sticker to convert')
+
+    if update.message.sticker.is_animated:
+        # do nothing with animated stickers. We keep the code here just for debugging purposes
+        return
 
     sticker = StickerFile(context.bot, update.message)
     sticker.download(prepare_png=not update.message.sticker.is_animated)
