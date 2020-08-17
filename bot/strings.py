@@ -205,4 +205,6 @@ class Strings:
 
     CLEANUP_HEADER = "These are the packs that no longer exist and has been removed from the database:\n"
 
+    CLEANUP_WAIT = "Hold on, this operation might take some time..."
+
     TO_FILE_MIME_TYPE = "mime-type: {}"

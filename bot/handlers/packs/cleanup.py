@@ -30,6 +30,8 @@ def on_cleanup_command(update: Update, context: CallbackContext):
         update.message.reply_text(Strings.LIST_NO_PACKS)
         return
 
+    update.message.reply_html(Strings.CLEANUP_WAIT)
+
     packs_to_delete = list()
     for pack in packs:
         logger.debug('checking pack: %s', pack[1])
