@@ -123,7 +123,7 @@ def on_pack_name(update: Update, context: CallbackContext):
     selected_name = '{}_by_{}'.format(update.message.text, context.bot.username)
 
     with session_scope() as session:
-        pack = session.query(Pack).filter_by(name=selected_name, user_id=update.effective_user.id).first().name
+        pack = session.query(Pack).filter_by(name=selected_name, user_id=update.effective_user.id).first()
         pack_name = pack.name
         pack_animated = pack.is_animated
 

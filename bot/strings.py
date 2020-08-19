@@ -102,7 +102,7 @@ class Strings:
                                            "• {}")
 
     ADD_STICKER_PACK_SELECTED_STATIC = ("Good, we are going to add stickers to <a href=\"{}\">this pack</a>.\n"
-                                        "Send me a sticker or a png file")
+                                        "Send me a sticker or a png file, or /cancel")
 
     ADD_STICKER_PACK_SELECTED_ANIMATED = ("Good, we are going to add stickers to <a href=\"{}\">this pack</a>.\n"
                                           "Send me an animated sticker")
