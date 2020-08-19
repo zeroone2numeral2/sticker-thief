@@ -24,6 +24,7 @@ from bot.strings import Strings
 from ..conversation_statuses import Status
 from ..fallback_commands import cancel_command, on_timeout
 from ...customfilters import CustomFilters
+from ...utils.pyrogram import get_set_emojis_dict
 from ...utils import decorators
 from ...utils import utils
 
@@ -72,7 +73,10 @@ def on_sticker_receive(update: Update, context: CallbackContext):
     base_progress_message = Strings.EXPORT_PACK_START.format(html_escape(sticker_set.title))
     message_to_edit = update.message.reply_html(base_progress_message, quote=True)
 
-    pack_emojis = dict()
+    pack_emojis = dict()  # we need to create this dict just in case the pyrogram request fails
+
+    # test
+    print(get_set_emojis_dict(update.message.sticker.set_name))
 
     with tempfile.TemporaryDirectory() as tmp_dir:
         logger.info('using %s as TemporaryDirectory', tmp_dir)
@@ -113,8 +117,14 @@ def on_sticker_receive(update: Update, context: CallbackContext):
                         except (TelegramError, BadRequest) as e:
                             logger.warning('error while editing progress message: %s', e.message)
 
+                try:
+                    stickers_emojis_dict = get_set_emojis_dict(update.message.sticker.set_name)
+                except Exception as e:
+                    logger.error('error while trying to get the pack emojis with pyrogram: %s', str(e), exc_info=True)
+                    stickers_emojis_dict = pack_emojis
+
                 with tempfile.SpooledTemporaryFile() as tmp_json:
-                    tmp_json.write(json.dumps(pack_emojis, indent=2).encode())
+                    tmp_json.write(json.dumps(stickers_emojis_dict, indent=2).encode())
                     tmp_json.seek(0)
                     zip_file.writestr('emojis.json', tmp_json.read())
 
