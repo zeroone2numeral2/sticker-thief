@@ -1,4 +1,5 @@
 import logging
+import time
 from html import escape as html_escape
 import zipfile
 import tempfile
@@ -10,7 +11,8 @@ from telegram.ext import (
     MessageHandler,
     ConversationHandler,
     CallbackContext,
-    run_async, Filters
+    Filters,
+    run_async
 )
 # noinspection PyPackageRequirements
 from telegram import ChatAction, ParseMode, Update
@@ -28,6 +30,18 @@ from ...utils import utils
 from bot.sticker import StickerFile
 
 logger = logging.getLogger(__name__)
+
+
+class DummyUser:
+    def __init__(self, user_id):
+        self.user_id = user_id
+
+
+class DummyMessage:
+    def __init__(self, sticker):
+        self.sticker = sticker
+        self.document = None
+        self.from_user = DummyUser(0)
 
 
 @decorators.action(ChatAction.TYPING)
@@ -62,15 +76,23 @@ def on_sticker_receive(update: Update, context: CallbackContext):
 
     with tempfile.TemporaryDirectory() as tmp_dir:
         logger.info('using %s as TemporaryDirectory', tmp_dir)
+
         with tempfile.TemporaryFile() as tmp_file:  # temporary zip file
             with zipfile.ZipFile(tmp_file, 'w') as zip_file:
 
                 total = len(sticker_set.stickers)
                 for i, sticker in enumerate(sticker_set.stickers):
-                    sticker_file = StickerFile(sticker, temp_file=tempfile.NamedTemporaryFile(dir=tmp_dir))
+                    # noinspection PyTypeChecker
+                    sticker_file = StickerFile(
+                        sticker,
+                        message=DummyMessage(sticker),  # we do not have a Message but we need it,
+                        emojis=sticker.emoji,  # we need to pass them explicitly so we avoid the Pyrogram request
+                        temp_file=tempfile.NamedTemporaryFile(dir=tmp_dir)
+                    )
+
                     try:
                         sticker_file.download(prepare_png=True)
-                        pack_emojis[sticker.file_id] = sticker.emoji
+                        pack_emojis[sticker.file_id] = sticker.emojis
                     except Exception as e:
                         logger.info('error while downloading and converting a sticker we need to export: %s', str(e))
                     finally:
@@ -83,8 +105,11 @@ def on_sticker_receive(update: Update, context: CallbackContext):
                     progress = i + 1
                     if progress == total or progress % 10 == 0:
                         try:
-                            message_to_edit.edit_text('{} (progress: {}/{})'.format(base_progress_message, progress, total),
-                                                      parse_mode=ParseMode.HTML)
+                            message_to_edit.edit_text(
+                                '{} (progress: {}/{})'.format(base_progress_message, progress, total),
+                                parse_mode=ParseMode.HTML
+                            )
+                            time.sleep(1)  # we do not want to get rate-limited
                         except (TelegramError, BadRequest) as e:
                             logger.warning('error while editing progress message: %s', e.message)
 
