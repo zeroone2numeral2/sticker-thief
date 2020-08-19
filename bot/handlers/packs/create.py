@@ -2,12 +2,11 @@ import logging
 import re
 
 # noinspection PyPackageRequirements
+from telegram.error import BadRequest
 from telegram.ext import (
-    CommandHandler,
-    MessageHandler,
     ConversationHandler,
     CallbackContext,
-    Filters
+    CallbackQueryHandler
 )
 # noinspection PyPackageRequirements
 from telegram import ChatAction, Update
@@ -16,17 +15,10 @@ from bot import stickersbot
 from bot.strings import Strings
 from bot.database.base import session_scope
 from bot.database.models.pack import Pack
+from bot.markups import InlineKeyboard
 from bot.sticker import StickerFile
 import bot.sticker.error as error
 from ..conversation_statuses import Status
-from ..fallback_commands import cancel_command, on_timeout
-from ..fallback_commands import STANDARD_CANCEL_COMMANDS
-from ..stickers.add import on_static_sticker_receive
-from ..stickers.add import on_animated_sticker_receive
-from ..stickers.add import on_bad_static_sticker_receive
-from ..stickers.add import on_bad_animated_sticker_receive
-from ..stickers.add import on_text_receive
-from ...customfilters import CustomFilters
 from ...utils import decorators
 from ...utils import utils
 
@@ -42,23 +34,12 @@ def on_create_static_pack_command(update: Update, context: CallbackContext):
 
     context.user_data['pack'] = dict(animated=False)
 
-    update.message.reply_text(Strings.PACK_CREATION_STATIC_WAITING_TITLE)
+    update.message.reply_html(
+        Strings.PACK_CREATION_WAITING_TITLE,
+        reply_markup=InlineKeyboard.static_animated_switch()
+    )
     
-    return Status.WAITING_TITLE
-
-
-@decorators.action(ChatAction.TYPING)
-@decorators.restricted
-@decorators.failwithmessage
-@decorators.logconversation
-def on_create_animated_pack_command(update: Update, context: CallbackContext):
-    logger.info('/createanimated')
-
-    context.user_data['pack'] = dict(animated=True)
-
-    update.message.reply_text(Strings.PACK_CREATION_ANIMATED_WAITING_TITLE)
-
-    return Status.WAITING_TITLE
+    return Status.CREATE_WAITING_TITLE
 
 
 @decorators.action(ChatAction.TYPING)
@@ -71,13 +52,13 @@ def on_pack_title_receive(update: Update, context: CallbackContext):
         logger.info('pack title too long: %s', update.message.text)
         update.message.reply_text(Strings.PACK_TITLE_TOO_LONG)
         # do not change the user status and let him send another title
-        return Status.WAITING_TITLE
+        return Status.CREATE_WAITING_TITLE
 
     if '\n' in update.message.text:
         logger.info('pack title contains newline character')
         update.message.reply_text(Strings.PACK_TITLE_CONTAINS_NEWLINES)
         # do not change the user status and let him send another title
-        return Status.WAITING_TITLE
+        return Status.CREATE_WAITING_TITLE
 
     logger.info('pack title is valid')
 
@@ -89,7 +70,7 @@ def on_pack_title_receive(update: Update, context: CallbackContext):
     text = Strings.PACK_CREATION_WAITING_NAME.format(update.message.text, max_name_len)
     update.message.reply_html(text)
     
-    return Status.WAITING_NAME
+    return Status.CREATE_WAITING_NAME
 
 
 @decorators.action(ChatAction.TYPING)
@@ -105,13 +86,13 @@ def on_pack_name_receive(update: Update, context: CallbackContext):
         logger.info('pack name too long (%d/%d)', len(candidate_name), max_name_len)
         update.message.reply_text(Strings.PACK_NAME_TOO_LONG.format(len(update.message.text), max_name_len))
         # do not change the user status and let him send another name
-        return Status.WAITING_NAME
+        return Status.CREATE_WAITING_NAME
 
     if not re.search(r'^[a-z](?!__)\w+$', candidate_name, re.IGNORECASE):
         logger.info('pack name not valid: %s', update.message.text)
         update.message.reply_html(Strings.PACK_NAME_INVALID)
         # do not change the user status and let him send another name
-        return Status.WAITING_NAME
+        return Status.CREATE_WAITING_NAME
 
     name_already_used = False
     with session_scope() as session:
@@ -123,7 +104,7 @@ def on_pack_name_receive(update: Update, context: CallbackContext):
     if name_already_used:
         update.message.reply_text(Strings.PACK_NAME_DUPLICATE)
         # do not change the user status and let him send another name
-        return Status.WAITING_NAME
+        return Status.CREATE_WAITING_NAME
 
     logger.info('valid pack name: %s', candidate_name)
 
@@ -136,7 +117,7 @@ def on_pack_name_receive(update: Update, context: CallbackContext):
 
     update.message.reply_text(text)
 
-    return Status.WAITING_FIRST_STICKER
+    return Status.CREATE_WAITING_FIRST_STICKER
 
 
 @decorators.action(ChatAction.TYPING)
@@ -147,7 +128,7 @@ def on_bad_first_static_sticker_receive(update: Update, _):
 
     update.message.reply_text(Strings.ADD_STICKER_EXPECTING_STATIC)
 
-    return Status.WAITING_FIRST_STICKER
+    return Status.CREATE_WAITING_FIRST_STICKER
 
 
 @decorators.action(ChatAction.TYPING)
@@ -166,11 +147,11 @@ def on_first_sticker_receive(update: Update, context: CallbackContext):
     if animated_pack and not animated_sticker:
         logger.info('invalid sticker: static sticker for an animated pack')
         update.message.reply_text(Strings.ADD_STICKER_EXPECTING_ANIMATED)
-        return Status.WAITING_FIRST_STICKER
+        return Status.CREATE_WAITING_FIRST_STICKER
     elif not animated_pack and animated_sticker:
         logger.info('invalid sticker: animated sticker for a static pack')
         update.message.reply_text(Strings.ADD_STICKER_EXPECTING_STATIC)
-        return Status.WAITING_FIRST_STICKER
+        return Status.CREATE_WAITING_FIRST_STICKER
     else:
         logger.info('sticker type ok (animated pack: %s, animated sticker: %s)', animated_pack, animated_sticker)
 
@@ -214,12 +195,12 @@ def on_first_sticker_receive(update: Update, context: CallbackContext):
         context.user_data['pack'].pop('name', None)  # remove pack name
         sticker.close()
 
-        return Status.WAITING_NAME  # do not continue, wait for another name
+        return Status.CREATE_WAITING_NAME  # do not continue, wait for another name
     except error.InvalidAnimatedSticker as e:
         logger.error('Telegram error while creating animated pack: %s', e.message)
         update.message.reply_html(Strings.ADD_STICKER_INVALID_ANIMATED, quote=True, disable_web_page_preview=True)
 
-        return Status.WAITING_FIRST_STICKER
+        return Status.CREATE_WAITING_FIRST_STICKER
     except error.FloodControlExceeded as e:
         logger.error('Telegram error while creating animated pack: %s', e.message)
         retry_in = re.search(r'retry in (\d+) seconds', e.message, re.I).group(1)  # Retry in 8 seconds
@@ -269,10 +250,10 @@ def on_first_sticker_text_receive(update: Update, context: CallbackContext):
     emojis = utils.get_emojis(update.message.text, as_list=True)
     if not emojis:
         update.message.reply_text(Strings.ADD_STICKER_NO_EMOJI_IN_TEXT)
-        return Status.WAITING_FIRST_STICKER
+        return Status.CREATE_WAITING_FIRST_STICKER
     elif len(emojis) > 10:
         update.message.reply_text(Strings.ADD_STICKER_TOO_MANY_EMOJIS)
-        return Status.WAITING_FIRST_STICKER
+        return Status.CREATE_WAITING_FIRST_STICKER
 
     context.user_data['pack']['emojis'] = emojis
 
@@ -281,72 +262,66 @@ def on_first_sticker_text_receive(update: Update, context: CallbackContext):
         ''.join(emojis)
     ))
 
-    return Status.WAITING_FIRST_STICKER
+    return Status.CREATE_WAITING_FIRST_STICKER
 
 
 @decorators.action(ChatAction.TYPING)
 @decorators.failwithmessage
 @decorators.logconversation
 def on_waiting_title_invalid_message(update: Update, _):
-    logger.info('waiting title: wrong type of message received')
+    logger.info('(create) waiting title: wrong type of message received')
 
     update.message.reply_html(Strings.PACK_TITLE_INVALID_MESSAGE)
 
-    return Status.WAITING_TITLE
+    return Status.CREATE_WAITING_TITLE
 
 
 @decorators.action(ChatAction.TYPING)
 @decorators.failwithmessage
 @decorators.logconversation
 def on_waiting_name_invalid_message(update: Update, _):
-    logger.info('waiting name: wrong type of message received')
+    logger.info('(create) waiting name: wrong type of message received')
 
     update.message.reply_html(Strings.PACK_NAME_INVALID_MESSAGE)
 
-    return Status.WAITING_NAME
+    return Status.CREATE_WAITING_NAME
 
 
-stickersbot.add_handler(ConversationHandler(
-    name='pack_creation',
-    persistent=True,
-    entry_points=[
-        CommandHandler(['create', 'new', 'n'], on_create_static_pack_command),
-        CommandHandler(['createanimated', 'newanimated', 'na'], on_create_animated_pack_command)
-    ],
-    states={
-        Status.WAITING_TITLE: [
-            MessageHandler(Filters.text & ~Filters.command(STANDARD_CANCEL_COMMANDS), on_pack_title_receive),
-            MessageHandler(~Filters.text, on_waiting_title_invalid_message)
-        ],
-        Status.WAITING_NAME: [
-            MessageHandler(Filters.text & ~Filters.command(STANDARD_CANCEL_COMMANDS), on_pack_name_receive),
-            MessageHandler(~Filters.text, on_waiting_name_invalid_message)
-        ],
-        Status.WAITING_FIRST_STICKER: [
-            MessageHandler(Filters.text & ~Filters.command, on_first_sticker_text_receive),
-            MessageHandler(  # this handler is shared by both static and animated stickers
-                Filters.sticker | Filters.document.category('image/png'),
-                on_first_sticker_receive
-            )
-        ],
-        Status.WAITING_STATIC_STICKERS: [
-            MessageHandler(Filters.text & ~Filters.command, on_text_receive),
-            MessageHandler(
-                CustomFilters.static_sticker | Filters.document.category('image/png'),
-                on_static_sticker_receive
-            ),
-            MessageHandler(CustomFilters.animated_sticker, on_bad_static_sticker_receive),
-        ],
-        Status.WAITING_ANIMATED_STICKERS: [
-            MessageHandler(Filters.text & ~Filters.command, on_text_receive),
-            MessageHandler(CustomFilters.animated_sticker, on_animated_sticker_receive),
-            MessageHandler(
-                CustomFilters.static_sticker | Filters.document.category('image/png'),
-                on_bad_animated_sticker_receive
-            ),
-        ],
-        ConversationHandler.TIMEOUT: [MessageHandler(Filters.all, on_timeout)]
-    },
-    fallbacks=[CommandHandler(STANDARD_CANCEL_COMMANDS, cancel_command)],
-    conversation_timeout=15 * 60
-))
+@decorators.action(ChatAction.TYPING)
+@decorators.failwithmessage
+@decorators.logconversation
+def on_waiting_first_sticker_invalid_message(update: Update, _):
+    logger.info('waiting first sticker: wrong type of message received')
+
+    update.message.reply_html(Strings.PACK_CREATION_WAITING_FIRST_STICKER_INVALID_MESSAGE)
+
+    return Status.CREATE_WAITING_FIRST_STICKER
+
+
+@decorators.failwithmessage
+def on_switch_pack_type(update: Update, context: CallbackContext):
+    logger.info('swicth pack type inline keyboard')
+
+    if not context.user_data.get('pack', None):
+        update.callback_query.answer(Strings.PACK_TYPE_BUTTONS_EXPIRED)
+        update.callback_query.message.edit_reply_markup(reply_markup=InlineKeyboard.REMOVE)
+        return
+
+    match = context.matches[0].group(1)
+    reply_markup = InlineKeyboard.static_animated_switch(animated=match == 'animated')
+
+    if match == 'animated':
+        context.user_data['pack']['animated'] = True
+    else:
+        context.user_data['pack']['animated'] = False
+
+    try:
+        update.callback_query.message.edit_reply_markup(reply_markup=reply_markup)
+    except BadRequest:
+        pass
+
+    update.callback_query.answer(Strings.PACK_TYPE_CHANGED.format(match))
+
+
+stickersbot.add_handler(CallbackQueryHandler(on_switch_pack_type, pattern='packtype:(.+)'))
+

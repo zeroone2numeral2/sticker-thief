@@ -1,11 +1,11 @@
 start
+add_create
 
-packs.cleanup
 packs.create
+packs.cleanup
 packs.export
 packs.list
 
-stickers.add
 stickers.remove
 stickers.tofile
 

@@ -15,7 +15,6 @@ logger = logging.getLogger(__name__)
 class StickersBot(Updater):
     COMMANDS = [
         BotCommand('create', 'create a new stickers pack'),
-        BotCommand('createanimated', 'create a new animated stickers pack'),
         BotCommand('add', 'add stickers to an existing pack'),
         BotCommand('remove', 'remove stickers from their pack'),
         BotCommand('list', 'list your packs'),

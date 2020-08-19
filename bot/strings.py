@@ -4,13 +4,11 @@ class Strings:
                      "\n"
                      "Main commands:\n"
                      "/create to create a new pack\n"
-                     "/createanimated to create a new animated pack\n"
                      "/add to add stickers to an existing pack\n"
                      "/help for more commands\n")
 
     HELP_MESSAGE = ("<b>Full commands list</b>:\n"
-                    "- /create: create a new pack\n"
-                    "- /createanimated to create a new animated pack\n"
+                    "- /create: create a new pack (animated packs are supported)\n"
                     "- /add: add a sticker to a pack\n"
                     "- /remove: remove a sticker from its pack\n"
                     "- send me a sticker and I will send you its png back\n"
@@ -34,9 +32,9 @@ class Strings:
                     "<b>Correct way of building your own custom pack</b>\n"
                     "Use @MyPackBot. It doesn't steal stickers like I do. It's blazing fast too. Really suggested")
 
-    PACK_CREATION_STATIC_WAITING_TITLE = ("Alright, a new stickers pack! Please send me the pack title "
-                                          "(must not exceed 64 characters).\n"
-                                          "Use /cancel to cancel")
+    PACK_CREATION_WAITING_TITLE = ("Alright, a new stickers pack! Select the pack type with the buttons below "
+                                   "and <b>send me the pack title</b> (must not exceed 64 characters).\n\n"
+                                   "Use /cancel to cancel")
 
     PACK_CREATION_ANIMATED_WAITING_TITLE = ("Alright, a new animated pack! Please send me the pack title "
                                             "(must not exceed 64 characters).\n"
@@ -46,8 +44,8 @@ class Strings:
 
     PACK_TITLE_CONTAINS_NEWLINES = "I'm sorry, the title must be a single line (no newline characters)"
 
-    PACK_TITLE_INVALID_MESSAGE = ("Oh no! This is not the pack title I was waiting for! Please send me the "
-                                  "new pack's title, or /cancel")
+    PACK_TITLE_INVALID_MESSAGE = ("Oh no! This is not what I was waiting for! Please send me the "
+                                  "pack title, or /cancel")
 
     PACK_CREATION_WAITING_NAME = ("Good, this is going to be the pack title: <i>{}</i>\n"
                                   "\n"
@@ -64,10 +62,14 @@ class Strings:
                          "\n"
                          "Please try again")
 
-    PACK_NAME_INVALID_MESSAGE = ("Oh no! This is not the pack link I was waiting for! Please send me the "
-                                 "new pack's link, or /cancel")
+    PACK_NAME_INVALID_MESSAGE = ("Oh no! This is not what I was waiting for! Please send me the "
+                                 "pack link, or /cancel")
 
     PACK_NAME_DUPLICATE = "I'm sorry, you already have a pack with this link saved. try with another link"
+
+    PACK_TYPE_BUTTONS_EXPIRED = "These buttons are no longer valid"
+
+    PACK_TYPE_CHANGED = "Pack type: {}. I'm waiting for the pack title!"
 
     PACK_CREATION_WAITING_FIRST_STATIC_STICKER = ("Got it, we are almost done. Now send me the first sticker "
                                                   "of the pack (or a png file, or the emojis to use for the sticker)")
@@ -77,6 +79,9 @@ class Strings:
 
     PACK_CREATION_FIRST_STICKER_PACK_DATA_MISSING = ("Ooops, something went wrong.\n"
                                                      "Please repeat the creation process with /create")
+
+    PACK_CREATION_WAITING_FIRST_STICKER_INVALID_MESSAGE = ("Uhmm 🤔 I was waiting for the first sticker of the pack. "
+                                                           "Please send me a sticker, or /cancel")
 
     PACK_CREATION_ERROR_DUPLICATE_NAME = ("I'm sorry, there's already a pack with <a href=\"{}\">this link</a>.\n"
                                           "Please send me a new link, or /cancel")
@@ -159,8 +164,10 @@ class Strings:
     ADD_STICKER_EXPECTING_STATIC = ("Uh-oh. I was waiting for a normal sticker, not an animated one. "
                                     "Please send me a static sticker, or /cancel")
 
-    ADD_STICKER_EXPECTING_ANIMATED= ("Uh-oh. I was waiting for an animated sticker, not a normal one. "
+    ADD_STICKER_EXPECTING_ANIMATED = ("Uh-oh. I was waiting for an animated sticker, not a normal one. "
                                      "Please send me an animated sticker, or /cancel")
+
+    ADD_STICKER_INVALID_MESSAGE = "Uhmm 🤔 I was waiting for the sticker to add. Send me a sticker, or /cancel"
 
     REMOVE_STICKER_SELECT_STICKER = "Send me the sticker you want to remove from its pack, or /cancel"
 

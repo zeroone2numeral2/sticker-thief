@@ -3,16 +3,12 @@ import re
 
 # noinspection PyPackageRequirements
 from telegram.ext import (
-    CommandHandler,
-    MessageHandler,
     ConversationHandler,
-    CallbackContext,
-    Filters
+    CallbackContext
 )
 # noinspection PyPackageRequirements
 from telegram import ChatAction, Update
 
-from bot import stickersbot
 from bot.strings import Strings
 from bot.database.base import session_scope
 from bot.database.models.pack import Pack
@@ -20,9 +16,6 @@ from bot.markups import Keyboard
 from bot.sticker import StickerFile
 import bot.sticker.error as error
 from ..conversation_statuses import Status
-from ..fallback_commands import cancel_command, on_timeout
-from ..fallback_commands import STANDARD_CANCEL_COMMANDS
-from ...customfilters import CustomFilters
 from ...utils import decorators
 from ...utils import utils
 
@@ -50,7 +43,7 @@ def on_add_command(update: Update, _):
         markup = Keyboard.from_list(pack_titles)
         update.message.reply_text(Strings.ADD_STICKER_SELECT_PACK, reply_markup=markup)
 
-        return Status.WAITING_TITLE
+        return Status.ADD_WAITING_TITLE
 
 
 @decorators.action(ChatAction.TYPING)
@@ -75,7 +68,7 @@ def on_pack_title(update: Update, context: CallbackContext):
         logger.error('cannot find any pack with this title: %s', selected_title)
         update.message.reply_text(Strings.ADD_STICKER_SELECTED_TITLE_DOESNT_EXIST.format(selected_title[:150]))
         # do not change the user status
-        return Status.WAITING_TITLE
+        return Status.ADD_WAITING_TITLE
 
     if len(packs_by_title) > 1:
         logger.info('user has multiple packs with this title: %s', selected_title)
@@ -87,7 +80,7 @@ def on_pack_title(update: Update, context: CallbackContext):
         text = Strings.ADD_STICKER_SELECTED_TITLE_MULTIPLE.format(selected_title, '\n• '.join(pack_links))
         update.message.reply_html(text, reply_markup=markup)
 
-        return Status.WAITING_NAME  # we now have to wait for the user to tap on a pack name
+        return Status.ADD_WAITING_NAME  # we now have to wait for the user to tap on a pack name
 
     logger.info('there is only one pack with the selected title (animated: %s), proceeding...', pack_animated)
     pack_name = '{}_by_{}'.format(pack_names[0], context.bot.username)
@@ -117,7 +110,7 @@ def on_pack_name(update: Update, context: CallbackContext):
         markup = Keyboard.from_list(pack_titles)
         update.message.reply_text(Strings.ADD_STICKER_SELECT_PACK, reply_markup=markup)
 
-        return Status.WAITING_TITLE
+        return Status.ADD_WAITING_TITLE
 
     # the buttons list has the name without "_by_botusername"
     selected_name = '{}_by_{}'.format(update.message.text, context.bot.username)
@@ -131,7 +124,7 @@ def on_pack_name(update: Update, context: CallbackContext):
         logger.error('user %d does not have any pack with name %s', update.effective_user.id, selected_name)
         update.message.reply_text(Strings.ADD_STICKER_SELECTED_NAME_DOESNT_EXIST)
         # do not reset the user status
-        return Status.WAITING_NAME
+        return Status.ADD_WAITING_NAME
 
     logger.info('selected pack is animated: %s', pack_animated)
 
@@ -199,7 +192,7 @@ def add_sticker_to_set(update: Update, context: CallbackContext, animated_pack):
 
             logger.debug('calling sticker.delete()...')
             sticker.close()
-            return Status.WAITING_TITLE
+            return Status.ADD_WAITING_TITLE
     except error.UnknwonError as e:
         update.message.reply_html(Strings.ADD_STICKER_GENERIC_ERROR.format(pack_link, e.message), quote=True)
     except Exception as e:
@@ -298,32 +291,39 @@ def on_text_receive(update: Update, context: CallbackContext):
     return status_to_return
 
 
-stickersbot.add_handler(ConversationHandler(
-    name='adding_stickers',
-    persistent=True,
-    entry_points=[CommandHandler(['add', 'a'], on_add_command)],
-    states={
-        Status.WAITING_TITLE: [MessageHandler(Filters.text & ~Filters.command(STANDARD_CANCEL_COMMANDS), on_pack_title)],
-        Status.WAITING_NAME: [MessageHandler(Filters.text & ~Filters.command(STANDARD_CANCEL_COMMANDS), on_pack_name)],
-        Status.WAITING_STATIC_STICKERS: [
-            MessageHandler(Filters.text & ~Filters.command, on_text_receive),
-            MessageHandler(
-                CustomFilters.static_sticker | Filters.document.category('image/png'),
-                on_static_sticker_receive
-            ),
-            MessageHandler(CustomFilters.animated_sticker, on_bad_static_sticker_receive),
-        ],
-        Status.WAITING_ANIMATED_STICKERS: [
-            MessageHandler(Filters.text & ~Filters.command, on_text_receive),
-            MessageHandler(CustomFilters.animated_sticker, on_animated_sticker_receive),
-            MessageHandler(
-                CustomFilters.static_sticker | Filters.document.category('image/png'),
-                on_bad_animated_sticker_receive
-            ),
+@decorators.action(ChatAction.TYPING)
+@decorators.failwithmessage
+@decorators.logconversation
+def on_waiting_title_invalid_message(update: Update, _):
+    logger.info('(add) waiting title: wrong type of message received')
 
-        ],
-        ConversationHandler.TIMEOUT: [MessageHandler(Filters.all, on_timeout)]
-    },
-    fallbacks=[CommandHandler(STANDARD_CANCEL_COMMANDS, cancel_command)],
-    conversation_timeout=15 * 60
-))
+    update.message.reply_html(Strings.PACK_TITLE_INVALID_MESSAGE)
+
+    return Status.ADD_WAITING_TITLE
+
+
+@decorators.action(ChatAction.TYPING)
+@decorators.failwithmessage
+@decorators.logconversation
+def on_waiting_name_invalid_message(update: Update, _):
+    logger.info('(add) waiting name: wrong type of message received')
+
+    update.message.reply_html(Strings.PACK_NAME_INVALID_MESSAGE)
+
+    return Status.ADD_WAITING_NAME
+
+
+@decorators.action(ChatAction.TYPING)
+@decorators.failwithmessage
+@decorators.logconversation
+def on_waiting_sticker_invalid_message(update: Update, context: CallbackContext):
+    logger.info('(add) waiting sticker: wrong type of message received')
+
+    status_to_return = Status.WAITING_STATIC_STICKERS
+    if context.user_data['pack']['animated']:
+        status_to_return = Status.WAITING_ANIMATED_STICKERS
+
+    update.message.reply_html(Strings.ADD_STICKER_INVALID_MESSAGE)
+
+    return status_to_return
+
