@@ -182,6 +182,8 @@ class Strings:
 
     CANCEL = "Good, we're done with that"
 
+    CANCEL_NO_CONVERSATION = "There is no operation going on 😴"
+
     TIMEOUT = "😴 It looks like you are inactive, I've canceled the current operation"
 
     LIST_NO_PACKS = "You don't have any pack. Use /create to create one"

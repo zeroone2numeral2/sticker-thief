@@ -75,7 +75,7 @@ class StickersBot(Updater):
             for module in manifest_modules:
                 import_path = base_import_path + module
 
-                logger.debug('importing module: %s', import_path)
+                # logger.debug('importing module: %s', import_path)
 
                 paths_to_import.append(import_path)
         else:

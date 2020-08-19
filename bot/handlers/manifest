@@ -1,0 +1,13 @@
+start
+
+packs.cleanup
+packs.create
+packs.export
+packs.list
+
+stickers.add
+stickers.remove
+stickers.tofile
+
+forgetme
+cancel_no_conversation
