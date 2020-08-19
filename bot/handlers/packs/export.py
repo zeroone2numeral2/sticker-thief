@@ -75,9 +75,6 @@ def on_sticker_receive(update: Update, context: CallbackContext):
 
     pack_emojis = dict()  # we need to create this dict just in case the pyrogram request fails
 
-    # test
-    print(get_set_emojis_dict(update.message.sticker.set_name))
-
     with tempfile.TemporaryDirectory() as tmp_dir:
         logger.info('using %s as TemporaryDirectory', tmp_dir)
 
