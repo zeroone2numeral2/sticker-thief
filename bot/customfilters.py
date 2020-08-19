@@ -16,6 +16,18 @@ class StaticSticker(BaseFilter):
             return True
 
 
+class StaticStickerOrPngFile(BaseFilter):
+    def filter(self, message):
+        if (message.sticker and not message.sticker.is_animated) or (message.document and message.document.mime_type.startswith('image/png')):
+            return True
+
+
+class PngFile(BaseFilter):
+    def filter(self, message):
+        if message.document and message.document.mime_type.startswith('image/png'):
+            return True
+
+
 class Cancel(BaseFilter):
     def filter(self, message):
         if message.text and re.search(r'/cancel\b', message.text, re.I):
@@ -37,6 +49,8 @@ class DoneOrCancel(BaseFilter):
 class CustomFilters:
     animated_sticker = AnimatedSticker()
     static_sticker = StaticSticker()
+    static_sticker_or_png_file = StaticStickerOrPngFile()
+    png_file = PngFile()
     cancel = Cancel()
     done = Done()
     done_or_cancel = DoneOrCancel()
