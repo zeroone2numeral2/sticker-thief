@@ -69,7 +69,7 @@ class Strings:
 
     PACK_TYPE_BUTTONS_EXPIRED = "These buttons are no longer valid"
 
-    PACK_TYPE_CHANGED = "Pack type: {}. I'm waiting for the pack title!"
+    PACK_TYPE_CHANGED = "Pack type: {}. Now send me the pack title!"
 
     PACK_CREATION_WAITING_FIRST_STATIC_STICKER = ("Got it, we are almost done. Now send me the first sticker "
                                                   "of the pack (or a png file, or the emojis to use for the sticker)")
