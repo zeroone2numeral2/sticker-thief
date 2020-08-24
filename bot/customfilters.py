@@ -46,6 +46,12 @@ class DoneOrCancel(BaseFilter):
             return True
 
 
+class StickerOrCancel(BaseFilter):
+    def filter(self, message):
+        if message.sticker or (message.text and re.search(r'/(?:done|cancel)\b', message.text, re.I)):
+            return True
+
+
 class CustomFilters:
     animated_sticker = AnimatedSticker()
     static_sticker = StaticSticker()
@@ -54,3 +60,4 @@ class CustomFilters:
     cancel = Cancel()
     done = Done()
     done_or_cancel = DoneOrCancel()
+    sticker_or_cancel = StickerOrCancel()
