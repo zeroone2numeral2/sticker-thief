@@ -171,6 +171,8 @@ class Strings:
 
     REMOVE_STICKER_SELECT_STICKER = "Send me the sticker you want to remove from its pack, or /cancel"
 
+    REMOVE_INVALID_MESSAGE = "Please send the sticker you want to remove from its pack, or /cancel"
+
     REMOVE_STICKER_SUCCESS = ("Sticker removed from <a href=\"{}\">its pack</a>.\n"
                               "Send me another sticker to remove, or /done when you're done")
 

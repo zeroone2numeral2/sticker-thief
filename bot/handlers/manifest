@@ -1,13 +1,13 @@
 start
+
+# conversations first
 add_create
-
-packs.create
-packs.cleanup
-packs.export
-packs.list
-
 stickers.remove
-stickers.tofile
+packs.export
 
+packs.create # CallbackQuery handler for the pack type keyboard
+packs.cleanup
+packs.list
+stickers.tofile
 forgetme
 cancel_no_conversation

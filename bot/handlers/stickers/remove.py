@@ -16,7 +16,8 @@ from bot.strings import Strings
 from bot.sticker import StickerFile
 import bot.sticker.error as error
 from ..conversation_statuses import Status
-from ..fallback_commands import cancel_command, on_timeout
+from ..fallback_commands import cancel_command, on_timeout, STANDARD_CANCEL_COMMANDS
+from ...customfilters import CustomFilters
 from ...utils import decorators
 from ...utils import utils
 
@@ -61,17 +62,28 @@ def on_sticker_receive(update: Update, context: CallbackContext):
         return Status.WAITING_STICKER
 
 
+@decorators.action(ChatAction.TYPING)
+@decorators.failwithmessage
+@decorators.logconversation
+def on_invalid_message(update: Update, _):
+    logger.info('(remove) waiting sticker: wrong type of message received')
+
+    update.message.reply_html(Strings.REMOVE_INVALID_MESSAGE)
+
+    return Status.WAITING_STICKER
+
+
 stickersbot.add_handler(ConversationHandler(
     name='adding_stickers',
     # persistent=True,  # do not make this conversation persistent
-    entry_points=[CommandHandler(['remove', 'rem', 'r'], on_remove_command)],
+    entry_points=[CommandHandler(['remove', 'rem'], on_remove_command)],
     states={
-        Status.WAITING_STICKER: [MessageHandler(
-            Filters.sticker | Filters.document.category('image/png'),
-            on_sticker_receive
-        )],
+        Status.WAITING_STICKER: [
+            MessageHandler(Filters.sticker, on_sticker_receive),
+            MessageHandler(Filters.all & ~CustomFilters.sticker_or_cancel, on_invalid_message),
+        ],
         ConversationHandler.TIMEOUT: [MessageHandler(Filters.all, on_timeout)]
     },
-    fallbacks=[CommandHandler(['cancel', 'c', 'done', 'd'], cancel_command)],
+    fallbacks=[CommandHandler(STANDARD_CANCEL_COMMANDS, cancel_command)],
     conversation_timeout=15 * 60
 ))
