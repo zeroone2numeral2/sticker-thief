@@ -7,8 +7,10 @@ from pickle import UnpicklingError
 from html import escape
 import math
 import tempfile
+from typing import Tuple
 
 from PIL import Image
+from PIL.Image import Image as ImageType  # https://stackoverflow.com/a/58236618/13350541
 import emoji
 # noinspection PyPackageRequirements
 from telegram import Message
@@ -100,27 +102,39 @@ def get_correct_size(sizes):
     return tuple(new)
 
 
-def resize_png(png_file):
-    im = Image.open(png_file)
+def resize_pil_image(im: Image) -> Tuple[ImageType, bool]:
+    resized = False
 
     logger.debug('original image size: %s', im.size)
     if (im.size[0] > 512 or im.size[1] > 512) or (im.size[0] != 512 and im.size[1] != 512):
         logger.debug('resizing file because one of the sides is > 512px or at least one side is not 512px')
         correct_size = get_correct_size(im.size)
         im = im.resize(correct_size, Image.ANTIALIAS)
+        resized = True
     else:
+        logger.debug('original size is ok')
+
+    return im, resized
+
+
+def resize_png(png_file) -> tempfile.SpooledTemporaryFile:
+    im = Image.open(png_file)
+
+    im, resized = resize_pil_image(im)
+
+    if not resized:
         logger.debug('original size is ok')
         png_file.seek(0)
         return png_file
 
-    resized_file = tempfile.SpooledTemporaryFile()
+    resized_tempfile = tempfile.SpooledTemporaryFile()
 
-    im.save(resized_file, 'png')
+    im.save(resized_tempfile, 'png')
     im.close()
 
-    resized_file.seek(0)
+    resized_tempfile.seek(0)
 
-    return resized_file
+    return resized_tempfile
 
 
 def webp_to_png(webp_bo, resize=True) -> tempfile.SpooledTemporaryFile:
@@ -130,12 +144,7 @@ def webp_to_png(webp_bo, resize=True) -> tempfile.SpooledTemporaryFile:
 
     logger.debug('original image size: %s (resize: %s)', im.size, resize)
     if resize:
-        if (im.size[0] > 512 or im.size[1] > 512) or (im.size[0] != 512 and im.size[1] != 512):
-            logger.debug('resizing file because one of the sides is > 512px or at least one side is not 512px')
-            correct_size = get_correct_size(im.size)
-            im = im.resize(correct_size, Image.ANTIALIAS)
-        else:
-            logger.debug('original size is ok')
+        im, _ = resize_pil_image(im)
 
     converted_tempfile = tempfile.SpooledTemporaryFile()
 
