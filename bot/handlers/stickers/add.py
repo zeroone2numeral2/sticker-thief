@@ -178,7 +178,7 @@ def add_sticker_to_set(update: Update, context: CallbackContext, animated_pack):
             logger.debug('rows deleted: %d', deleted_rows or 0)
 
             # get the remaining packs' titles
-            pack_titles = [t.title for t in session.query(Pack.title).filter_by(user_id=update.effective_user.id).all()]
+            pack_titles = [t.title for t in session.query(Pack.title).filter_by(user_id=update.effective_user.id).order_by(Pack.title).all()]
 
         if not pack_titles:
             # user doesn't have any other pack to chose from, reset his status
