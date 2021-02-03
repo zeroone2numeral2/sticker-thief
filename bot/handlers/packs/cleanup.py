@@ -39,17 +39,11 @@ def on_cleanup_command(update: Update, context: CallbackContext):
 
         request_payload = dict(
             user_id=update.effective_user.id,
-            name=pack[1],
-            emojis='🗑'
+            name=pack[1]
         )
 
-        if pack[2]:  # pack.is_animated
-            request_payload['tgs_sticker'] = open('assets/dummy_animated.tgs', 'rb')
-        else:
-            request_payload['png_sticker'] = open('assets/dummy_static.png', 'rb')
-
         try:
-            context.bot.add_sticker_to_set(**request_payload)
+            context.bot.get_sticker_set(**request_payload)
         except TelegramError as telegram_error:
             if telegram_error.message == 'Stickerset_invalid':
                 logger.debug('this pack will be removed from the db (%s)', telegram_error.message)
