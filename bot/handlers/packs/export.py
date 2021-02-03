@@ -82,6 +82,7 @@ def on_sticker_receive(update: Update, context: CallbackContext):
             with zipfile.ZipFile(tmp_file, 'w') as zip_file:
 
                 total = len(sticker_set.stickers)
+                skipped_stickers = 0
                 for i, sticker in enumerate(sticker_set.stickers):
                     # noinspection PyTypeChecker
                     sticker_file = StickerFile(
@@ -92,15 +93,20 @@ def on_sticker_receive(update: Update, context: CallbackContext):
                     )
 
                     try:
-                        sticker_file.download(prepare_png=True)
+                        sticker_file.download()
                         pack_emojis[sticker.file_id] = sticker.emojis
                     except Exception as e:
                         logger.info('error while downloading and converting a sticker we need to export: %s', str(e))
-                    finally:
-                        sticker_file.close(keep_result_png_open=True)
+                        sticker_file.close()
+                        skipped_stickers += 1
+                        continue
+
+                    png_file = utils.webp_to_png(sticker_file.tempfile)
+
+                    sticker_file.close()
 
                     # https://stackoverflow.com/a/54202259
-                    zip_file.writestr('{}.png'.format(sticker.file_id), sticker_file.png_file.read())
+                    zip_file.writestr('{}.png'.format(sticker.file_id), png_file.read())
 
                     # edit message every 10 exported stickers, or when we're done
                     progress = i + 1
@@ -132,9 +138,10 @@ def on_sticker_receive(update: Update, context: CallbackContext):
             update.message.reply_document(
                 tmp_file,
                 filename='{}.zip'.format(sticker_set.name),
-                caption='<a href="{}">{}</a>'.format(
+                caption='<a href="{}">{}</a>{}'.format(
                     utils.name2link(sticker_set.name),
-                    html_escape(sticker_set.title)
+                    html_escape(sticker_set.title),
+                    " - I wasn't able to export {} stickers!" if skipped_stickers != 0 else ""
                 ),
                 parse_mode=ParseMode.HTML,
                 quote=True

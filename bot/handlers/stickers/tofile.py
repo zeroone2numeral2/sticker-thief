@@ -8,6 +8,7 @@ from telegram import Update, ChatAction, Message, ParseMode
 from bot import stickersbot
 from bot.sticker import StickerFile
 from bot.strings import Strings
+from ...utils import utils
 from ...utils import decorators
 
 logger = logging.getLogger(__name__)
@@ -24,7 +25,7 @@ def on_sticker_receive(update: Update, context: CallbackContext):
         return
 
     sticker = StickerFile(context.bot, update.message)
-    sticker.download(prepare_png=not update.message.sticker.is_animated)
+    sticker.download()
 
     request_kwargs = dict(
         caption=sticker.emojis_str,
@@ -32,10 +33,13 @@ def on_sticker_receive(update: Update, context: CallbackContext):
     )
 
     if update.message.sticker.is_animated:
-        request_kwargs['document'] = sticker.tgs_file
+        request_kwargs['document'] = sticker.tempfile
         request_kwargs['filename'] = update.message.sticker.file_id + '.tgs'
     else:
-        request_kwargs['document'] = sticker.png_file
+        logger.debug("converting webp to png")
+        png_file = utils.webp_to_png(sticker.tempfile)
+
+        request_kwargs['document'] = png_file
         request_kwargs['filename'] = update.message.sticker.file_id + '.png'
 
     sent_message: Message = update.message.reply_document(**request_kwargs)
@@ -57,6 +61,8 @@ def on_sticker_receive(update: Update, context: CallbackContext):
         )
     elif sent_message.sticker:
         update.message.reply_text(Strings.ANIMATED_STICKERS_NO_FILE)
+
+    request_kwargs['document'].close()
 
 
 stickersbot.add_handler(MessageHandler(Filters.sticker, on_sticker_receive))

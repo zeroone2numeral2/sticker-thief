@@ -172,7 +172,7 @@ def on_first_sticker_receive(update: Update, context: CallbackContext):
         message=update.message,
         emojis=user_emojis
     )
-    sticker.download(prepare_png=True)
+    sticker.download()
 
     try:
         logger.debug('executing API request...')

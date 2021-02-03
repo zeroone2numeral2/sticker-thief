@@ -148,7 +148,7 @@ def add_sticker_to_set(update: Update, context: CallbackContext, animated_pack):
 
     user_emojis = context.user_data['pack'].pop('emojis', None)  # we also remove them
     sticker = StickerFile(bot=context.bot, message=update.message, emojis=user_emojis)
-    sticker.download(prepare_png=True)
+    sticker.download()
 
     pack_link = utils.name2link(name)
 

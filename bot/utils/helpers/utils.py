@@ -5,7 +5,12 @@ import os
 import pickle
 from pickle import UnpicklingError
 from html import escape
+import math
+import tempfile
+from typing import Tuple
 
+from PIL import Image
+from PIL.Image import Image as ImageType  # https://stackoverflow.com/a/58236618/13350541
 import emoji
 # noinspection PyPackageRequirements
 from telegram import Message
@@ -83,3 +88,71 @@ def persistence_object(config_enabled=True, file_path='persistence/data.pickle')
         store_chat_data=False,
         store_bot_data=False
     )
+
+
+def get_correct_size(sizes):
+    i = 0 if sizes[0] > sizes[1] else 1  # i: index of the biggest size
+    new = [None, None]
+    new[i] = 512
+    rateo = 512 / sizes[i]
+    # print(rateo)
+    new[1 if i == 0 else 0] = int(math.floor(sizes[1 if i == 0 else 0] * round(rateo, 4)))
+
+    # logger.debug('correct sizes: %dx%d', new[0], new[1])
+    return tuple(new)
+
+
+def resize_pil_image(im: Image) -> Tuple[ImageType, bool]:
+    resized = False
+
+    logger.debug('original image size: %s', im.size)
+    if (im.size[0] > 512 or im.size[1] > 512) or (im.size[0] != 512 and im.size[1] != 512):
+        logger.debug('resizing file because one of the sides is > 512px or at least one side is not 512px')
+        correct_size = get_correct_size(im.size)
+        im = im.resize(correct_size, Image.ANTIALIAS)
+        resized = True
+    else:
+        logger.debug('original size is ok')
+
+    return im, resized
+
+
+def resize_png(png_file) -> tempfile.SpooledTemporaryFile:
+    im = Image.open(png_file)
+
+    im, resized = resize_pil_image(im)
+
+    if not resized:
+        logger.debug('original size is ok')
+        png_file.seek(0)
+        return png_file
+
+    resized_tempfile = tempfile.SpooledTemporaryFile()
+
+    im.save(resized_tempfile, 'png')
+    im.close()
+
+    resized_tempfile.seek(0)
+
+    return resized_tempfile
+
+
+def webp_to_png(webp_bo, resize=True) -> tempfile.SpooledTemporaryFile:
+    logger.info('preparing png')
+
+    im = Image.open(webp_bo)  # try to open bytes object
+
+    logger.debug('original image size: %s (resize: %s)', im.size, resize)
+    if resize:
+        im, _ = resize_pil_image(im)
+
+    converted_tempfile = tempfile.SpooledTemporaryFile()
+
+    logger.debug('saving PIL image object as tempfile')
+    im.save(converted_tempfile, 'png')
+    im.close()
+
+    converted_tempfile.seek(0)
+
+    return converted_tempfile
+
