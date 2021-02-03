@@ -8,6 +8,7 @@ packs.export
 packs.create # CallbackQuery handler for the pack type keyboard
 packs.cleanup
 packs.list
+packs.count
 stickers.tofile
 forgetme
 cancel_no_conversation
