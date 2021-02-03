@@ -23,7 +23,7 @@ def on_count_command(update: Update, context: CallbackContext):
     logger.info('/count')
 
     with session_scope() as session:
-        packs = session.query(Pack).filter_by(user_id=update.effective_user.id).all()
+        packs = session.query(Pack).filter_by(user_id=update.effective_user.id).order_by(Pack.title).all()
         packs = [(p.title, p.name, p.is_animated) for p in packs]
 
     if not packs:
