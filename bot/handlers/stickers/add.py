@@ -32,8 +32,10 @@ MAX_PACK_SIZE_ANIMATED = 50
 def on_add_command(update: Update, _):
     logger.info('/add')
 
+    user_id = update.effective_user.id
+
     with session_scope() as session:
-        pack_titles = [t.title for t in session.query(Pack.title).filter_by(user_id=update.effective_user.id).all()]
+        pack_titles = [t.title for t in session.query(Pack.title).filter_by(user_id=user_id).order_by(Pack.title).all()]
 
     if not pack_titles:
         update.message.reply_text(Strings.ADD_STICKER_NO_PACKS)
@@ -53,9 +55,10 @@ def on_pack_title(update: Update, context: CallbackContext):
     logger.info('user selected the pack title from the keyboard')
 
     selected_title = update.message.text
+    user_id = update.effective_user.id
 
     with session_scope() as session:
-        packs_by_title = session.query(Pack).filter_by(title=selected_title, user_id=update.effective_user.id).all()
+        packs_by_title = session.query(Pack).filter_by(title=selected_title, user_id=user_id).order_by(Pack.name).all()
 
         # for some reason, accessing a Pack attribute outside of a session
         # raises an error: https://docs.sqlalchemy.org/en/13/errors.html#object-relational-mapping
