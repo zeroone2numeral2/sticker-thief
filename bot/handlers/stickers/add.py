@@ -137,7 +137,10 @@ def on_pack_name(update: Update, context: CallbackContext):
     base_string = Strings.ADD_STICKER_PACK_SELECTED_STATIC if not pack_animated else Strings.ADD_STICKER_PACK_SELECTED_ANIMATED
     update.message.reply_html(base_string.format(pack_link), reply_markup=Keyboard.HIDE)
 
-    return Status.WAITING_STATIC_STICKERS
+    if pack_animated:
+        return Status.WAITING_ANIMATED_STICKERS
+    else:
+        return Status.WAITING_STATIC_STICKERS
 
 
 def add_sticker_to_set(update: Update, context: CallbackContext, animated_pack):
