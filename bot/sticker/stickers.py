@@ -51,14 +51,14 @@ class StickerFile:
     @property
     def emojis(self):
         if not isinstance(self._emojis, (list, tuple)):
-            raise ValueError('StickerFile._emojis is not of type list/tuple')
+            raise ValueError('StickerFile._emojis is not of type list/tuple (type: {})'.format(type(self._emojis)))
 
         return self._emojis
 
     @property
     def emojis_str(self):
         if not isinstance(self._emojis, (list, tuple)):
-            raise ValueError('StickerFile._emojis is not of type list/tuple')
+            raise ValueError('StickerFile._emojis is not of type list/tuple (type: {})'.format(type(self._emojis)))
 
         return ''.join(self._emojis)
 

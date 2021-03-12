@@ -88,7 +88,7 @@ def on_sticker_receive(update: Update, context: CallbackContext):
                     sticker_file = StickerFile(
                         sticker,
                         message=DummyMessage(sticker),  # we do not have a Message but we need it,
-                        emojis=sticker.emoji,  # we need to pass them explicitly so we avoid the Pyrogram request
+                        emojis=[sticker.emoji],  # we need to pass them explicitly so we avoid the Pyrogram request
                         temp_file=tempfile.NamedTemporaryFile(dir=tmp_dir)
                     )
 
