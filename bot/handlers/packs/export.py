@@ -170,8 +170,8 @@ stickersbot.add_handler(ConversationHandler(
             MessageHandler(CustomFilters.static_sticker, on_sticker_receive),
             MessageHandler(CustomFilters.animated_sticker, on_animated_sticker_receive),
         ],
-        ConversationHandler.TIMEOUT: [MessageHandler(Filters.all, on_timeout)]
+        # ConversationHandler.TIMEOUT: [MessageHandler(Filters.all, on_timeout)]
     },
     fallbacks=[CommandHandler(['cancel', 'c', 'done', 'd'], cancel_command)],
-    conversation_timeout=15 * 60
+    # conversation_timeout=15 * 60
 ))
