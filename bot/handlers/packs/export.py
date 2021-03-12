@@ -161,6 +161,18 @@ def on_animated_sticker_receive(update: Update, _):
     return Status.WAITING_STICKER
 
 
+@decorators.action(ChatAction.TYPING)
+@decorators.failwithmessage
+@decorators.logconversation
+def on_ongoing_async_operation(update: Update, _):
+    logger.info('user sent a message while the export is ongoing')
+
+    update.message.reply_text(Strings.EXPORT_ONGOING)
+
+    # end the conversations maybe?
+    # return ConversationHandler.END  # end the conversations maybe?
+
+
 stickersbot.add_handler(ConversationHandler(
     name='export_command',
     persistent=False,
@@ -171,6 +183,7 @@ stickersbot.add_handler(ConversationHandler(
             MessageHandler(CustomFilters.animated_sticker, on_animated_sticker_receive),
         ],
         # ConversationHandler.TIMEOUT: [MessageHandler(Filters.all, on_timeout)]
+        ConversationHandler.WAITING: [MessageHandler(Filters.all, on_ongoing_async_operation)]
     },
     fallbacks=[CommandHandler(['cancel', 'c', 'done', 'd'], cancel_command)],
     # conversation_timeout=15 * 60
