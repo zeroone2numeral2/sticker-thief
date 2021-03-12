@@ -96,7 +96,7 @@ def on_sticker_receive(update: Update, context: CallbackContext):
                     try:
                         sticker_file.download()
                         png_file = utils.webp_to_png(sticker_file.tempfile)
-                        pack_emojis[sticker.file_id] = sticker.emojis
+                        pack_emojis[sticker.file_id] = sticker_file.emojis
                     except Exception:
                         logger.info('error while downloading and converting a sticker we need to export', exc_info=True)
                         sticker_file.close()
