@@ -141,7 +141,7 @@ def on_sticker_receive(update: Update, context: CallbackContext):
                 caption='<a href="{}">{}</a>{}'.format(
                     utils.name2link(sticker_set.name),
                     html_escape(sticker_set.title),
-                    " - I wasn't able to export {} stickers!" if skipped_stickers != 0 else ""
+                    " - I wasn't able to export {} stickers!".format(skipped_stickers) if skipped_stickers != 0 else ""
                 ),
                 parse_mode=ParseMode.HTML,
                 quote=True
