@@ -92,16 +92,16 @@ def on_sticker_receive(update: Update, context: CallbackContext):
                         temp_file=tempfile.NamedTemporaryFile(dir=tmp_dir)
                     )
 
+                    # noinspection PyBroadException
                     try:
                         sticker_file.download()
+                        png_file = utils.webp_to_png(sticker_file.tempfile)
                         pack_emojis[sticker.file_id] = sticker.emojis
-                    except Exception as e:
-                        logger.info('error while downloading and converting a sticker we need to export: %s', str(e))
+                    except Exception:
+                        logger.info('error while downloading and converting a sticker we need to export', exc_info=True)
                         sticker_file.close()
                         skipped_stickers += 1
                         continue
-
-                    png_file = utils.webp_to_png(sticker_file.tempfile)
 
                     sticker_file.close()
 
