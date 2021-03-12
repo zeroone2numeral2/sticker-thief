@@ -211,6 +211,8 @@ class Strings:
 
     EXPORT_ANIMATED_STICKERS_NOT_SUPPORTED = "Exporting animated packs is not supported yet"
 
+    EXPORT_SKIPPED_STICKERS = " - I wasn't able to export {} stickers!"
+
     CLEANUP_NO_PACK = ("It looks like all your packs are still there. No pack has been removed from the database.\n"
                        "If you just deleted a pack from @stickers, remember that it might take some time for bots "
                        "to be made aware of its deletion.\n\n"
